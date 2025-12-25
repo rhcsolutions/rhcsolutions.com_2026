@@ -3,11 +3,14 @@
 
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 
 const DB_DIR = path.join(process.cwd(), 'cms-data');
 const PAGES_FILE = path.join(DB_DIR, 'pages.json');
 const MEDIA_FILE = path.join(DB_DIR, 'media.json');
 const SETTINGS_FILE = path.join(DB_DIR, 'settings.json');
+const USERS_FILE = path.join(DB_DIR, 'users.json');
+const FORMS_FILE = path.join(DB_DIR, 'forms.json');
 
 // Ensure database directory exists
 if (!fs.existsSync(DB_DIR)) {
@@ -201,6 +204,10 @@ const initSettings = (): SiteSettings => {
 export class CMSDatabase {
   static getPages(): CMSPage[] {
     try {
+      // simple in-memory cache to reduce fs reads
+      if ((this as any)._pagesCache && Date.now() - ((this as any)._pagesCacheAt || 0) < 2000) {
+        return (this as any)._pagesCache;
+      }
       if (!fs.existsSync(PAGES_FILE)) {
         return initPages();
       }
@@ -245,10 +252,72 @@ export class CMSDatabase {
         }
       }
 
-      if (mutated) {
-        fs.writeFileSync(PAGES_FILE, JSON.stringify(pages, null, 2));
+      // Auto-detect actual page routes under src/app and add any missing pages
+      try {
+        const APP_DIR = path.join(process.cwd(), 'src', 'app');
+        const ignore = new Set(['api', 'admin', 'components', 'layout', 'middleware.ts', 'globals.css']);
+
+        const walk = (dir: string, rel = ''): string[] => {
+          const results: string[] = [];
+          if (!fs.existsSync(dir)) return results;
+          const entries = fs.readdirSync(dir, { withFileTypes: true });
+          for (const ent of entries) {
+            if (ignore.has(ent.name)) continue;
+            const full = path.join(dir, ent.name);
+            const newRel = rel ? `${rel}/${ent.name}` : ent.name;
+            if (ent.isDirectory()) {
+              // If directory contains a page.tsx or page.ts file, consider it a route
+              const pageTsx = path.join(full, 'page.tsx');
+              const pageTs = path.join(full, 'page.ts');
+              if (fs.existsSync(pageTsx) || fs.existsSync(pageTs)) {
+                results.push(newRel);
+              }
+              // Recurse to find nested routes
+              results.push(...walk(full, newRel));
+            }
+          }
+          return results;
+        };
+
+        const detected = walk(APP_DIR).map(p => `/${p}`);
+        for (const slug of detected) {
+          // normalize root
+          if (slug === '/page' || slug === '/index') continue;
+          // convert '/page' like cases
+          if (slug === '/page') continue;
+          if (!pages.find(p => p.slug === slug) && slug !== '/') {
+            const now = new Date().toISOString();
+            const id = slug.replace(/\//g, '-').replace(/^-/, '') || Date.now().toString();
+            const title = slug.split('/').filter(Boolean).map(s => s.replace(/-/g, ' ')).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' - ');
+            pages.push({
+              id,
+              title: title || slug,
+              slug,
+              description: `${title || slug} page`,
+              category: 'Auto-detected',
+              status: 'published',
+              blocks: [],
+              seo: { metaTitle: title || slug, metaDescription: `${title || slug} - RHC Solutions` },
+              createdBy: 'system',
+              updatedBy: 'system',
+              createdAt: now,
+              updatedAt: now,
+            });
+            mutated = true;
+          }
+        }
+      } catch (err) {
+        console.error('Error detecting app routes for pages sync:', err);
       }
 
+      if (mutated) {
+        fs.writeFileSync(PAGES_FILE, JSON.stringify(pages, null, 2));
+        (this as any)._pagesCache = pages;
+        (this as any)._pagesCacheAt = Date.now();
+      }
+
+      (this as any)._pagesCache = pages;
+      (this as any)._pagesCacheAt = Date.now();
       return pages;
     } catch (error) {
       console.error('Error reading pages:', error);
@@ -321,6 +390,138 @@ export class CMSDatabase {
     }
   }
 
+  // Users
+  static getUsers(): any[] {
+    try {
+      if (!fs.existsSync(USERS_FILE)) {
+        fs.writeFileSync(USERS_FILE, JSON.stringify([{ id: '1', name: 'Admin User', email: 'admin@rhcsolutions.com', role: 'Administrator', status: 'Active', lastLogin: new Date().toISOString(), passwordHash: '', twoFAEnabled: false }], null, 2));
+      }
+      const data = fs.readFileSync(USERS_FILE, 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error reading users:', error);
+      return [];
+    }
+  }
+
+  static createUser(user: any): any {
+    const users = this.getUsers();
+    // if password present, hash it
+    let passwordHash = '';
+    if (user.password) {
+      const salt = crypto.randomBytes(16).toString('hex');
+      const derived = crypto.scryptSync(user.password, salt, 64).toString('hex');
+      passwordHash = `${salt}$${derived}`;
+    }
+    const newUser = { ...user, id: Date.now().toString(), createdAt: new Date().toISOString(), passwordHash, twoFAEnabled: false };
+    users.push(newUser);
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    return newUser;
+  }
+
+  static updateUser(id: string, updates: any): any | null {
+    const users = this.getUsers();
+    const idx = users.findIndex(u => u.id === id);
+    if (idx === -1) return null;
+    // handle password change
+    if (updates.password) {
+      const salt = crypto.randomBytes(16).toString('hex');
+      const derived = crypto.scryptSync(updates.password, salt, 64).toString('hex');
+      updates.passwordHash = `${salt}$${derived}`;
+      delete updates.password;
+    }
+    users[idx] = { ...users[idx], ...updates, updatedAt: new Date().toISOString() };
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    return users[idx];
+  }
+
+  static deleteUser(id: string): boolean {
+    const users = this.getUsers();
+    const filtered = users.filter(u => u.id !== id);
+    if (filtered.length === users.length) return false;
+    fs.writeFileSync(USERS_FILE, JSON.stringify(filtered, null, 2));
+    return true;
+  }
+
+  // Forms
+  static getForms(): any[] {
+    try {
+      if (!fs.existsSync(FORMS_FILE)) {
+        fs.writeFileSync(FORMS_FILE, JSON.stringify([], null, 2));
+      }
+      const data = fs.readFileSync(FORMS_FILE, 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error reading forms:', error);
+      return [];
+    }
+  }
+
+  static addForm(entry: any): any {
+    const forms = this.getForms();
+    const newEntry = { ...entry, id: Date.now().toString(), receivedAt: new Date().toISOString() };
+    forms.push(newEntry);
+    fs.writeFileSync(FORMS_FILE, JSON.stringify(forms, null, 2));
+    return newEntry;
+  }
+
+  // Password reset and 2FA helpers
+  static generateResetToken(email: string): string | null {
+    const users = this.getUsers();
+    const idx = users.findIndex(u => u.email === email);
+    if (idx === -1) return null;
+    const token = crypto.randomBytes(20).toString('hex');
+    users[idx].resetToken = token;
+    users[idx].resetExpires = Date.now() + 1000 * 60 * 60; // 1 hour
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    return token;
+  }
+
+  static verifyResetToken(token: string): any | null {
+    const users = this.getUsers();
+    const u = users.find(u => u.resetToken === token && u.resetExpires && u.resetExpires > Date.now());
+    return u || null;
+  }
+
+  static completeReset(token: string, newPassword: string): boolean {
+    const users = this.getUsers();
+    const idx = users.findIndex(u => u.resetToken === token && u.resetExpires && u.resetExpires > Date.now());
+    if (idx === -1) return false;
+    const salt = crypto.randomBytes(16).toString('hex');
+    const derived = crypto.scryptSync(newPassword, salt, 64).toString('hex');
+    users[idx].passwordHash = `${salt}$${derived}`;
+    delete users[idx].resetToken;
+    delete users[idx].resetExpires;
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    return true;
+  }
+
+  static setTwoFASecret(userId: string, secret: string) {
+    const users = this.getUsers();
+    const idx = users.findIndex(u => u.id === userId);
+    if (idx === -1) return false;
+    users[idx].twoFASecret = secret;
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    return true;
+  }
+
+  static toggleTwoFA(userId: string, enabled: boolean) {
+    const users = this.getUsers();
+    const idx = users.findIndex(u => u.id === userId);
+    if (idx === -1) return false;
+    users[idx].twoFAEnabled = enabled;
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    return true;
+  }
+
+  static deleteForm(id: string): boolean {
+    const forms = this.getForms();
+    const filtered = forms.filter(f => f.id !== id);
+    if (filtered.length === forms.length) return false;
+    fs.writeFileSync(FORMS_FILE, JSON.stringify(filtered, null, 2));
+    return true;
+  }
+
   static addMedia(media: Omit<MediaItem, 'id' | 'uploadedAt'>): MediaItem {
     const items = this.getMedia();
     const newItem: MediaItem = {
@@ -375,6 +576,16 @@ export class CMSDatabase {
     } catch (error) {
       console.error('Error reading jobs:', error);
       return [];
+    }
+  }
+
+  static saveJobs(jobs: any[]): void {
+    try {
+      const jobsFile = path.join(DB_DIR, 'jobs.json');
+      fs.writeFileSync(jobsFile, JSON.stringify(jobs, null, 2));
+    } catch (error) {
+      console.error('Error saving jobs:', error);
+      throw error;
     }
   }
 }

@@ -1,19 +1,79 @@
-'use client';
-import { useState } from 'react';
+"use client";
+import { useState, useEffect } from 'react';
 import AdminShell from '@/components/admin/AdminShell';
 import { motion } from 'framer-motion';
 import { FaUpload, FaTrash, FaDownload, FaImage, FaFileVideo, FaFilePdf, FaSearch } from 'react-icons/fa';
 
 export default function MediaLibrary() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [media, setMedia] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
 
-  const media = [
-    { id: 1, name: 'hero-image.jpg', type: 'image', size: '2.4 MB', uploaded: '2025-12-15', url: '/images/hero.jpg' },
-    { id: 2, name: 'company-logo.png', type: 'image', size: '156 KB', uploaded: '2025-12-14', url: '/logo.png' },
-    { id: 3, name: 'services-video.mp4', type: 'video', size: '45.2 MB', uploaded: '2025-12-13', url: '/videos/services.mp4' },
-    { id: 4, name: 'whitepaper.pdf', type: 'document', size: '1.8 MB', uploaded: '2025-12-12', url: '/docs/whitepaper.pdf' },
-    { id: 5, name: 'team-photo.jpg', type: 'image', size: '3.1 MB', uploaded: '2025-12-11', url: '/images/team.jpg' },
-  ];
+  useEffect(() => { fetchMedia(); }, []);
+
+  const fetchMedia = async () => {
+    try {
+      const res = await fetch('/api/media');
+      if (res.ok) setMedia(await res.json());
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  const handleUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Only images are currently supported');
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/media/upload', { method: 'POST', body: formData });
+      if (res.ok) {
+        const item = await res.json();
+        setMedia(prev => [...prev, item]);
+        alert('Upload successful!');
+      } else {
+        const err = await res.json();
+        alert('Upload failed: ' + (err?.error || 'Unknown error'));
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Upload error');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragActive(false);
+    if (uploading) return;
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleUpload(files[0]);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this media?')) return;
+    try {
+      const res = await fetch(`/api/media?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setMedia(prev => prev.filter(m => m.id !== id));
+      } else {
+        alert('Delete failed');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error');
+    }
+  };
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -84,7 +144,7 @@ export default function MediaLibrary() {
                   <FaDownload />
                   <span>Download</span>
                 </button>
-                <button className="p-2 text-cyber-red hover:bg-cyber-red/20 rounded transition-colors">
+                <button onClick={() => handleDelete(item.id)} className="p-2 text-cyber-red hover:bg-cyber-red/20 rounded transition-colors">
                   <FaTrash />
                 </button>
               </div>
@@ -98,13 +158,26 @@ export default function MediaLibrary() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="mt-8 card-dark p-12 border-2 border-dashed border-dark-border hover:border-cyber-green transition-colors cursor-pointer"
+        onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+        onDragLeave={() => setDragActive(false)}
+        onDrop={handleDrop}
+        onClick={() => document.getElementById('file-input')?.click()}
+        className={`mt-8 card-dark p-12 border-2 border-dashed transition-colors cursor-pointer ${dragActive ? 'border-cyber-green bg-cyber-green/5' : 'border-dark-border hover:border-cyber-green'}`}
       >
+        <input
+          id="file-input"
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
+          disabled={uploading}
+          className="hidden"
+        />
         <div className="text-center">
-          <FaUpload className="text-6xl text-cyber-green mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-text-primary mb-2">Drop files here to upload</h3>
-          <p className="text-text-secondary mb-4">or click to browse from your computer</p>
-          <p className="text-text-muted text-sm">Supported: JPG, PNG, GIF, MP4, PDF (Max 50MB)</p>
+          <FaUpload className={`text-6xl ${uploading ? 'text-text-secondary' : 'text-cyber-green'} mx-auto mb-4 ${uploading ? 'animate-bounce' : ''}`} />
+          <h3 className="text-xl font-bold text-text-primary mb-2">{uploading ? 'Uploading...' : 'Drop files here to upload'}</h3>
+          <p className="text-text-secondary mb-4">{uploading ? 'Please wait' : 'or click to browse from your computer'}</p>
+          <p className="text-text-muted text-sm">Supported: JPG, PNG, GIF, WebP (Max 50MB)</p>
         </div>
       </motion.div>
     </AdminShell>

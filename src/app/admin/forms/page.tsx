@@ -1,16 +1,28 @@
-'use client';
-import { useState } from 'react';
+"use client";
+import { useState, useEffect } from 'react';
 import AdminShell from '@/components/admin/AdminShell';
 import { FaEnvelope, FaPhone, FaComment, FaDownload } from 'react-icons/fa';
 
 export default function FormsManagement() {
   const [activeTab, setActiveTab] = useState('submissions');
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const submissions = [
-    { id: 1, form: 'Contact Form', name: 'John Doe', email: 'john@example.com', date: '2025-12-16', status: 'New' },
-    { id: 2, form: 'Quote Request', name: 'Jane Smith', email: 'jane@example.com', date: '2025-12-15', status: 'Reviewed' },
-    { id: 3, form: 'Contact Form', name: 'Bob Johnson', email: 'bob@example.com', date: '2025-12-14', status: 'Replied' },
-  ];
+  useEffect(() => { fetchSubs(); }, []);
+
+  const fetchSubs = async () => {
+    try {
+      const res = await fetch('/api/forms');
+      if (res.ok) setSubmissions(await res.json());
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete submission?')) return;
+    await fetch(`/api/forms?id=${id}`, { method: 'DELETE' });
+    fetchSubs();
+  };
 
   return (
     <AdminShell title="Forms Management">

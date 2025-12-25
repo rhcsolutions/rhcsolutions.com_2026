@@ -1,153 +1,82 @@
 # Deployment Guide
 
-Complete guide for deploying the RHC Solutions website to various hosting platforms.
+Deploy RHC Solutions to production. Choose your platform below.
 
-## 📋 Prerequisites
+## Prerequisites
 
-- Node.js 18+ installed
-- Git repository (for automated deployments)
-- Environment variables configured
-- Production domain ready (optional)
+- Node.js 18+ installed locally
+- Git repository pushed to GitHub/GitLab/Bitbucket
+- Environment variables ready (see README.md)
+- Production domain configured
 
-## 🚀 Deployment Options
+## Option 1: Vercel (Recommended)
 
-### Option 1: Vercel (Recommended)
+Best Next.js integration with automatic deployments and global CDN.
 
-Vercel provides the best integration with Next.js and offers automatic deployments.
+1. Go to [vercel.com](https://vercel.com) → Import repository
+2. Select project, confirm Next.js preset
+3. Add environment variables (Settings → Environment Variables):
+   - `NEXTAUTH_SECRET` — Random secret (generate with `openssl rand -hex 32`)
+   - `NEXTAUTH_URL` — `https://rhcsolutions.com`
+   - `SMTP_*` vars (optional for email)
+   - `CLOUDFLARE_*` vars (optional for CDN purge)
+4. Click Deploy
+5. Go to Settings → Domains, add `rhcsolutions.com` and `www.rhcsolutions.com`
+6. Update DNS CNAME as instructed
 
-#### Initial Setup
+**Auto-deploys**: Push to main branch → live instantly. Preview deploys on PR.
 
-1. **Push code to Git repository** (GitHub, GitLab, or Bitbucket)
+## Option 2: Railway
 
-2. **Deploy to Vercel**:
-   - Visit [vercel.com](https://vercel.com) and sign in
-   - Click "New Project"
-   - Import your repository
-   - Configure project:
-     - Framework Preset: Next.js
-     - Build Command: `npm run build`
-     - Output Directory: `.next`
-     - Install Command: `npm install`
+Simple platform with built-in HTTPS and custom domains.
 
-3. **Set environment variables**:
-   ```
-   NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
-   NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
-   NEXTAUTH_SECRET=your-secret-key
-   NEXTAUTH_URL=https://rhcsolutions.com
-   ```
+1. Go to [railway.app](https://railway.app) → Create New Project → GitHub
+2. Select repository
+3. Go to Variables → add your env vars
+4. Railway auto-deploys on push
+5. Go to Settings → Domains → add `rhcsolutions.com`
+6. Update DNS CNAME
 
-4. **Deploy**: Click "Deploy" and wait for build to complete
+**Cost**: Metered usage (typically $5–20/mo)
 
-#### Custom Domain
+## Option 3: Cloudflare Pages
 
-1. Go to Project Settings → Domains
-2. Add `rhcsolutions.com` and `www.rhcsolutions.com`
-3. Update DNS records as instructed by Vercel
-4. SSL certificate is automatically provisioned
+Fast, global deployment with Cloudflare's CDN (via wrangler.toml).
 
-#### Automatic Deployments
+1. Ensure `wrangler.toml` is configured
+2. Install Wrangler: `npm install -g @cloudflare/wrangler`
+3. Run `wrangler login`
+4. Run `npm run build` then `wrangler pages deploy .next`
+5. Or use Cloudflare Dashboard → Pages → Connect Git for auto-deploys
 
-- **Production**: Pushes to `main` branch auto-deploy to production
-- **Preview**: Pull requests create preview deployments
-- **Rollback**: Instant rollback to previous deployments
+**Note**: Ensure `public/` and `cms-data/` persist; Cloudflare Pages is for static exports.
 
----
+## Option 4: Docker (Self-Hosted)
 
-### Option 2: Railway
+For AWS, DigitalOcean, or your own VPS.
 
-Railway offers simple deployment with automatic HTTPS and custom domains.
-
-1. **Install Railway CLI**:
+1. Build image: `docker build -t rhcsolutions-website .`
+2. Run:
    ```bash
-   npm install -g @railway/cli
-   ```
-
-2. **Login and initialize**:
-   ```bash
-   railway login
-   railway init
-   ```
-
-3. **Set environment variables**:
-   ```bash
-   railway variables set NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
-   railway variables set NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
-   railway variables set NEXTAUTH_SECRET=your-secret-key
-   ```
-
-4. **Deploy**:
-   ```bash
-   railway up
-   ```
-
-5. **Add custom domain**:
-   - Go to Railway dashboard → Settings → Domains
-   - Add `rhcsolutions.com`
-   - Update DNS CNAME record
-
----
-
-### Option 3: Docker
-
-Deploy using Docker containers on any platform (AWS, DigitalOcean, etc.)
-
-1. **Build Docker image**:
-   ```bash
-   docker build -t rhcsolutions-website .
-   ```
-
-2. **Run container**:
-   ```bash
-   docker run -d \
-     -p 3000:3000 \
-     -e NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX \
-     -e NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX \
-     -e NEXTAUTH_SECRET=your-secret-key \
+   docker run -d -p 3000:3000 \
+     -e NEXTAUTH_SECRET=your-secret \
      -e NEXTAUTH_URL=https://rhcsolutions.com \
-     --name rhcsolutions \
+     -v /path/to/cms-data:/app/cms-data \
+     -v /path/to/public:/app/public \
      rhcsolutions-website
    ```
+3. Set up Nginx reverse proxy + SSL (Let's Encrypt)
 
-3. **Set up reverse proxy** (Nginx example):
-   ```nginx
-   server {
-       listen 80;
-       server_name rhcsolutions.com www.rhcsolutions.com;
-       
-       location / {
-           proxy_pass http://localhost:3000;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade $http_upgrade;
-           proxy_set_header Connection 'upgrade';
-           proxy_set_header Host $host;
-           proxy_cache_bypass $http_upgrade;
-       }
-   }
-   ```
+## Post-Deploy Checklist
 
-4. **Set up SSL with Let's Encrypt**:
-   ```bash
-   sudo certbot --nginx -d rhcsolutions.com -d www.rhcsolutions.com
-   ```
-
----
-
-### Option 4: Traditional VPS/Dedicated Server
-
-Deploy on your own server with PM2 process manager.
-
-1. **Install Node.js 18+** on your server
-
-2. **Clone repository**:
-   ```bash
-   git clone https://github.com/your-org/rhcsolutions-website.git
-   cd rhcsolutions-website
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   npm install
+- [ ] Test admin login at `/admin/login`
+- [ ] Test media upload to `/admin/media`
+- [ ] Test robots/sitemap editors
+- [ ] Verify Cloudflare cache purge (if enabled)
+- [ ] Check email sending (if SMTP configured)
+- [ ] Verify 2FA setup for admin users
+- [ ] Test contact form submission
+- [ ] Ensure `cms-data/` and `public/` persist in backups
    ```
 
 4. **Create `.env.local`**:

@@ -1,103 +1,59 @@
-# Cloudflare Pages Deployment Guide
+# Cloudflare Integration
 
-## Prerequisites
-- Node.js 20+
-- Cloudflare account
-- Wrangler CLI installed globally: `npm install -g wrangler`
+Use Cloudflare CDN for DNS, caching, and optional DDoS protection.
 
-## Local Development
+## DNS & Domain
+
+1. Point your domain to Cloudflare nameservers in your registrar
+2. Add DNS records in Cloudflare Dashboard:
+   - `A` record: your-ip (or CNAME to Vercel/Railway/etc.)
+   - `CNAME` www → your-ip
+3. Enable SSL/TLS (Automatic)
+4. Set up Page Rules for caching static assets
+
+## Cache Purge API
+
+The site includes an API endpoint to purge Cloudflare cache from the admin dashboard.
+
+### Setup
+
+1. Create a Cloudflare API token at [dash.cloudflare.com](https://dash.cloudflare.com) → Account → API Tokens
+   - Create token with "Cache Purge" and "Zone Read" permissions
+2. Add to `.env.local`:
+   ```env
+   CLOUDFLARE_API_TOKEN=your-api-token
+   CLOUDFLARE_ZONE_ID=your-zone-id
+   ```
+3. Or add via admin dashboard `/admin/settings`
+
+### Usage
+
+Go to `/admin/dashboard` and click "Purge Cache" to clear all cached pages.
+
+Alternatively, POST to `/api/cloudflare/purge`:
+
 ```bash
-npm install
-npm run dev
+curl -X POST https://your-site.com/api/cloudflare/purge \
+  -H "Content-Type: application/json"
 ```
 
-## Build for Cloudflare Pages
-```bash
-npm run pages:build
-```
+## Security
 
-## Preview Locally with Cloudflare Workers
-```bash
-npm run preview
-```
+- Enable "Under Attack Mode" if you see suspicious traffic
+- Set up WAF rules to block bots
+- Enable DDoS protection (automatic on Free tier)
 
-## Deploy to Cloudflare Pages
+## Performance
 
-### Method 1: Using Wrangler CLI
-```bash
-# First time: login to Cloudflare
-wrangler login
+- **Caching**: Set Page Rules to cache HTML, CSS, JS, images
+- **Minification**: Enable in Cloudflare dashboard
+- **Compression**: Brotli enabled automatically
 
-# Deploy
-npm run pages:deploy
-```
+## File Configuration
 
-### Method 2: Using Cloudflare Dashboard (Git Integration)
-1. Go to Cloudflare Dashboard > Pages
-2. Create a new project
-3. Connect your Git repository (GitHub, GitLab, etc.)
-4. Configure build settings:
-   - **Build command**: `npm run pages:build`
-   - **Build output directory**: `.vercel/output/static`
-   - **Node version**: `20`
-
-## Environment Variables
-
-### Required for Production
-Set these in Cloudflare Pages Dashboard > Settings > Environment Variables:
-
-```
-# Google reCAPTCHA
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
-RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key
-
-# Telegram Bot
-TELEGRAM_BOT_TOKEN=your_bot_token
-TELEGRAM_CHAT_ID=your_chat_id
-
-# Google Analytics
-NEXT_PUBLIC_GA_MEASUREMENT_ID=your_ga_measurement_id
-
-# Google Tag Manager
-NEXT_PUBLIC_GTM_ID=your_gtm_id
-
-# Site URL
-NEXT_PUBLIC_SITE_URL=https://rhcsolutions.com
-```
-
-## Performance Optimizations Applied
-
-### 1. Static Asset Caching
-- Aggressive caching for static assets (1 year)
-- Image optimization via Cloudflare CDN
-- Font preloading and caching
-
-### 2. Security Headers
-- X-Frame-Options: DENY
-- X-Content-Type-Options: nosniff
-- CSP headers for XSS protection
-- HSTS ready (uncomment in _headers when ready)
-
-### 3. Build Optimizations
-- SWC minification enabled
-- Compression enabled
-- React strict mode for development safety
-
-### 4. Edge Runtime
-- API routes run on Cloudflare Workers
-- Global distribution for low latency
-- Serverless architecture with no cold starts
-
-## Custom Configurations
-
-### Headers (_headers)
-Custom headers for security and caching are configured in `_headers` file.
-
-### Redirects (_redirects)
-URL redirects and rewrites are configured in `_redirects` file.
-
-### Wrangler (wrangler.toml)
-Cloudflare Workers configuration for local development and deployment.
+- `_headers` — Custom response headers (caching, security)
+- `_redirects` — URL redirects and rewrites
+- `wrangler.toml` — Cloudflare Workers config (used if deploying to Pages)
 
 ## Troubleshooting
 

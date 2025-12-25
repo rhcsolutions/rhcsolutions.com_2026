@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { CMSDatabase } from '@/lib/cms/database';
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID;
-const DESTINATION_WHATSAPP = "+19176282365"; // requested number
+const DESTINATION_WHATSAPP = "+19176282365";
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_CONTACT_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CONTACT_CHAT_ID;
@@ -61,7 +62,7 @@ async function sendToTelegram(text: string) {
   return { ok: true };
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const name = (body.name || "").toString().trim();
@@ -76,6 +77,10 @@ export async function POST(request: Request) {
       );
     }
 
+    // Store to CMS database
+    CMSDatabase.addForm({ type: 'contact', payload: { name, email, company, message } });
+
+    // Prepare message text
     const text = [
       "📩 New contact form submission",
       `👤 Name: ${name}`,
@@ -86,6 +91,8 @@ export async function POST(request: Request) {
     ]
       .filter(Boolean)
       .join("\n");
+
+    // Try WhatsApp first
     const waResult = await sendToWhatsApp(text);
     if (waResult.ok) {
       return NextResponse.json({ success: true, channel: "whatsapp" });
@@ -94,19 +101,16 @@ export async function POST(request: Request) {
     // Fallback to Telegram
     const tgResult = await sendToTelegram(text);
     if (tgResult.ok) {
-      return NextResponse.json({ success: true, channel: "telegram", note: "WhatsApp failed" });
+      return NextResponse.json({ success: true, channel: "telegram", note: "WhatsApp failed, using Telegram" });
     }
 
-    const detail = waResult.error || tgResult.error || "Unknown error";
-    console.error("Contact delivery failed", { whatsapp: waResult.error, telegram: tgResult.error });
-    return NextResponse.json(
-      { error: `Failed to deliver message. Details: ${detail}` },
-      { status: 502 }
-    );
+    // If both fail, still return success since form was saved
+    console.error("Contact notification failed", { whatsapp: waResult.error, telegram: tgResult.error });
+    return NextResponse.json({ success: true, warning: "Form saved but notification delivery failed" });
   } catch (error) {
-    console.error("Contact form error", error);
+    console.error("Contact form error:", error);
     return NextResponse.json(
-      { error: "Failed to send message. Please try again." },
+      { error: "Failed to process submission. Please try again." },
       { status: 500 }
     );
   }

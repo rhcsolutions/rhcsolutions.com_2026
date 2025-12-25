@@ -217,5 +217,124 @@
     "updatedBy": "system",
     "createdAt": "2025-12-17T07:44:15.115Z",
     "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "about-us",
+    "title": "About us",
+    "slug": "/about-us",
+    "description": "About us page",
+    "category": "Auto-detected",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "About us",
+      "metaDescription": "About us - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
+  },
+  {
+    "id": "cookies",
+    "title": "Cookies",
+    "slug": "/cookies",
+    "description": "Cookies page",
+    "category": "Auto-detected",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Cookies",
+      "metaDescription": "Cookies - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
+  },
+  {
+    "id": "privacy",
+    "title": "Privacy",
+    "slug": "/privacy",
+    "description": "Privacy page",
+    "category": "Auto-detected",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Privacy",
+      "metaDescription": "Privacy - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
+  },
+  {
+    "id": "services-cioaas",
+    "title": "Services - Cioaas",
+    "slug": "/services/cioaas",
+    "description": "Services - Cioaas page",
+    "category": "Auto-detected",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Services - Cioaas",
+      "metaDescription": "Services - Cioaas - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
+  },
+  {
+    "id": "services-cisoaas",
+    "title": "Services - Cisoaas",
+    "slug": "/services/cisoaas",
+    "description": "Services - Cisoaas page",
+    "category": "Auto-detected",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Services - Cisoaas",
+      "metaDescription": "Services - Cisoaas - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
+  },
+  {
+    "id": "services-it-consulting",
+    "title": "Services - It consulting",
+    "slug": "/services/it-consulting",
+    "description": "Services - It consulting page",
+    "category": "Auto-detected",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Services - It consulting",
+      "metaDescription": "Services - It consulting - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
+  },
+  {
+    "id": "services-virtual-office",
+    "title": "Services - Virtual office",
+    "slug": "/services/virtual-office",
+    "description": "Services - Virtual office page",
+    "category": "Auto-detected",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Services - Virtual office",
+      "metaDescription": "Services - Virtual office - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
   }
 ]

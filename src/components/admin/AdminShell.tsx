@@ -86,6 +86,26 @@ export default function AdminShell({ children, title }: AdminShellProps) {
               >
                 View Site →
               </Link>
+              <select
+                onChange={async (e) => {
+                  const preset = e.target.value;
+                  let theme: any = null;
+                  if (preset === 'default') return;
+                  if (preset === 'dark') {
+                    theme = { colors: { primary: '#00FF41', primaryDark: '#050607', secondary: '#00F0FF', accent: '#00AAFF', success: '#00FF88', error: '#FF4458', warning: '#FFB800', info: '#00F0FF' }, fonts: { primary: 'Inter, system-ui, sans-serif', secondary: 'Space Grotesk, system-ui, sans-serif', mono: 'JetBrains Mono, monospace' }, borderRadius: '0.5rem', shadowIntensity: 'medium' };
+                  } else if (preset === 'brand') {
+                    theme = { colors: { primary: '#0ea5a2', primaryDark: '#072d2d', secondary: '#7dd3fc', accent: '#06b6d4', success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#3b82f6' }, fonts: { primary: 'Inter, system-ui, sans-serif', secondary: 'Space Grotesk, system-ui, sans-serif', mono: 'JetBrains Mono, monospace' }, borderRadius: '0.5rem', shadowIntensity: 'medium' };
+                  }
+                  if (theme) {
+                    try { await fetch('/api/cms/theme', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(theme) }); alert('Theme applied'); } catch(e){console.error(e);}
+                  }
+                }}
+                className="hidden sm:block bg-dark-card border border-dark-border text-text-secondary rounded px-2 py-1"
+              >
+                <option value="default">Theme</option>
+                <option value="brand">Brand</option>
+                <option value="dark">Dark</option>
+              </select>
               <button
                 onClick={handleLogout}
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-dark-lighter hover:bg-cyber-red/20 

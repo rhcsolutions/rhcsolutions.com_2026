@@ -1,20 +1,97 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AdminShell from '@/components/admin/AdminShell';
 import { FaUser, FaUserPlus, FaShieldAlt, FaTrash, FaEdit } from 'react-icons/fa';
 
 export default function UsersManagement() {
-  const [users] = useState([
-    { id: 1, name: 'Admin User', email: 'admin@rhcsolutions.com', role: 'Administrator', status: 'Active', lastLogin: '2025-12-16' },
-    { id: 2, name: 'Editor User', email: 'editor@rhcsolutions.com', role: 'Editor', status: 'Active', lastLogin: '2025-12-15' },
-    { id: 3, name: 'Viewer User', email: 'viewer@rhcsolutions.com', role: 'Viewer', status: 'Active', lastLogin: '2025-12-14' },
-  ]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [twoFAModalOpen, setTwoFAModalOpen] = useState(false);
+  const [twoFAModalUser, setTwoFAModalUser] = useState<any | null>(null);
+  const [twoFASecret, setTwoFASecret] = useState<string | null>(null);
+  const [twoFAUri, setTwoFAUri] = useState<string | null>(null);
+  const [otpInput, setOtpInput] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => { fetchUsers(); }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch('/api/cms/users');
+      if (res.ok) setUsers(await res.json());
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete user?')) return;
+    await fetch(`/api/cms/users?id=${id}`, { method: 'DELETE' });
+    fetchUsers();
+  };
+
+  const handleAdd = async () => {
+    const name = prompt('Name');
+    const email = prompt('Email');
+    if (!name || !email) return;
+    await fetch('/api/cms/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, role: 'Editor', status: 'Active' }) });
+    fetchUsers();
+  };
 
   const roles = [
     { name: 'Administrator', permissions: ['Full access', 'User management', 'Site settings', 'Analytics'], color: 'cyber-red' },
     { name: 'Editor', permissions: ['Content management', 'Media upload', 'Form submissions'], color: 'cyber-green' },
     { name: 'Viewer', permissions: ['View analytics', 'View content', 'Read-only access'], color: 'cyber-cyan' },
   ];
+
+  const open2FAModal = async (user: any) => {
+    setTwoFAModalUser(user);
+    setTwoFAModalOpen(true);
+    setTwoFASecret(null);
+    setTwoFAUri(null);
+    setOtpInput('');
+  };
+
+  const generateSecret = async () => {
+    if (!twoFAModalUser) return;
+    setActionLoading(true);
+    try {
+      const res = await fetch('/api/cms/users/2fa', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: String(twoFAModalUser.id) }) });
+      if (res.ok) {
+        const data = await res.json();
+        setTwoFASecret(data.secret || null);
+        setTwoFAUri(data.uri || null);
+      } else {
+        alert('Failed to generate secret');
+      }
+    } catch (e) { console.error(e); alert('Error'); }
+    finally { setActionLoading(false); }
+  };
+
+  const verifyAndEnable = async () => {
+    if (!twoFAModalUser) return;
+    setActionLoading(true);
+    try {
+      const res = await fetch('/api/cms/users/2fa', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: String(twoFAModalUser.id), token: otpInput }) });
+      if (res.ok) {
+        alert('2FA enabled');
+        setTwoFAModalOpen(false);
+        fetchUsers();
+      } else {
+        const d = await res.json();
+        alert('Verification failed: ' + (d?.error || 'invalid'));
+      }
+    } catch (e) { console.error(e); alert('Error'); }
+    finally { setActionLoading(false); }
+  };
+
+  const disable2FA = async (id: string) => {
+    if (!confirm('Disable 2FA for this user?')) return;
+    try {
+      const res = await fetch(`/api/cms/users/2fa?id=${id}`, { method: 'DELETE' });
+      if (res.ok) { alert('2FA disabled'); fetchUsers(); }
+      else { alert('Failed to disable 2FA'); }
+    } catch (e) { console.error(e); alert('Error'); }
+  };
 
   return (
     <AdminShell title="Users Management">
@@ -77,12 +154,16 @@ export default function UsersManagement() {
                   <td className="p-4 text-text-secondary text-sm">{user.lastLogin}</td>
                   <td className="p-4">
                     <div className="flex items-center justify-end space-x-2">
+                      <button onClick={() => open2FAModal(user)} className="px-3 py-1 bg-dark-card rounded text-sm">Manage 2FA</button>
                       <button className="p-2 text-cyber-green hover:bg-cyber-green/20 rounded transition-colors">
                         <FaEdit />
                       </button>
                       <button className="p-2 text-cyber-red hover:bg-cyber-red/20 rounded transition-colors">
                         <FaTrash />
                       </button>
+                      {user.twoFAEnabled ? (
+                        <button onClick={() => disable2FA(String(user.id))} className="p-2 text-yellow-400 hover:bg-yellow-400/10 rounded transition-colors">Disable 2FA</button>
+                      ) : null}
                     </div>
                   </td>
                 </tr>
@@ -96,24 +177,43 @@ export default function UsersManagement() {
       <div>
         <h2 className="heading-md text-gradient mb-6">Roles & Permissions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {roles.map((role, idx) => (
-            <div key={idx} className="card-cyber p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className={`text-xl font-bold text-${role.color}`}>{role.name}</h3>
-                <FaShieldAlt className={`text-2xl text-${role.color}`} />
-              </div>
-              <ul className="space-y-2">
-                {role.permissions.map((perm, pIdx) => (
-                  <li key={pIdx} className="flex items-center space-x-2 text-text-secondary text-sm">
-                    <div className={`w-2 h-2 bg-${role.color} rounded-full`} />
-                    <span>{perm}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
         </div>
       </div>
+      <TwoFAModal open={twoFAModalOpen} onClose={() => setTwoFAModalOpen(false)} user={twoFAModalUser} secret={twoFASecret} uri={twoFAUri} otp={otpInput} setOtp={setOtpInput} onGenerate={generateSecret} onVerify={verifyAndEnable} loading={actionLoading} />
     </AdminShell>
   );
 }
+
+function TwoFAModal({ open, onClose, user, secret, uri, otp, setOtp, onGenerate, onVerify, loading }:
+  { open: boolean; onClose: () => void; user: any; secret: string | null; uri: string | null; otp: string; setOtp: (v: string) => void; onGenerate: () => void; onVerify: () => void; loading: boolean }) {
+  if (!open || !user) return null;
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-dark border border-cyber-green rounded-lg w-full max-w-2xl p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-bold">Manage 2FA — {user.name}</h3>
+          <button onClick={onClose} className="text-text-secondary">Close</button>
+        </div>
+        <div className="space-y-4">
+          <p className="text-text-secondary">Generate a TOTP secret and scan with Google Authenticator or similar.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-text-muted">Secret</label>
+              <div className="p-3 bg-dark-card rounded mt-1 break-all">{secret || '—'}</div>
+            </div>
+            <div>
+              <label className="text-sm text-text-muted">Provisioning URI</label>
+              <div className="p-3 bg-dark-card rounded mt-1 break-all">{uri || '—'}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={onGenerate} disabled={loading} className="btn-primary">Generate Secret</button>
+            <input value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter code from app" className="bg-dark-card border border-dark-border rounded px-3 py-2" />
+            <button onClick={onVerify} disabled={loading} className="btn-secondary">Verify & Enable</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

@@ -299,6 +299,17 @@ export default function AdminDashboard() {
           <FaUsers className="text-4xl text-cyber-purple mx-auto mb-3 group-hover:scale-110 transition-transform" />
           <h3 className="text-text-primary font-semibold">User Management</h3>
         </a>
+        <button onClick={async () => {
+          if (!confirm('Purge Cloudflare cache for the configured zone?')) return;
+          try {
+            const res = await fetch('/api/cloudflare/purge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+            const data = await res.json();
+            if (res.ok) alert('Cloudflare purge requested'); else alert('Purge failed: ' + (data?.errors?.[0]?.message || JSON.stringify(data)));
+          } catch (e) { console.error(e); alert('Purge error'); }
+        }} className="card-dark p-6 text-center hover:border-cyber-green group transition-all">
+          <FaGlobeAmericas className="text-4xl text-cyber-green mx-auto mb-3 group-hover:scale-110 transition-transform" />
+          <h3 className="text-text-primary font-semibold">Purge Cloudflare</h3>
+        </button>
       </motion.div>
     </AdminShell>
   );

@@ -1,64 +1,38 @@
-# Telegram Bot Setup - IMPORTANT
+# Telegram Bot Integration
 
-## ⚠️ Getting Your Chat ID
+Optionally send form submissions and alerts to a private Telegram chat.
 
-The Telegram bot is configured correctly:
-- **Bot Name**: RHC_CV_bot
-- **Username**: @RHC_CV_bot
-- **Bot Token**: 8212839523:AAE-wlu_cb8hVl8GAvJRr0Gu433T3n_YUFE ✅
+## Setup
 
-However, you need to get your actual Chat ID. Here's how:
+### 1. Create a Telegram Bot
 
-### Step 1: Start a Conversation with the Bot
+1. Open Telegram and search for **@BotFather**
+2. Send `/newbot`
+3. Follow prompts:
+   - Bot name: `RHC_CV_bot`
+   - Bot username: `@RHC_CV_bot` (must be unique)
+4. Copy the **Bot Token** (e.g., `123456:ABC-DEF...`)
 
-1. Open Telegram on your phone or desktop
-2. Search for: **@RHC_CV_bot**
-3. Click "START" or send any message (like "Hello")
+### 2. Get Your Chat ID
 
-### Step 2: Get Your Chat ID
+1. Start a conversation with your new bot
+2. Send any message
+3. Run:
+   ```bash
+   curl "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates"
+   ```
+4. Look for `"id"` in the response — this is your **Chat ID**
 
-Run this command in your terminal:
+### 3. Update Environment
 
-```bash
-curl "https://api.telegram.org/bot8212839523:AAE-wlu_cb8hVl8GAvJRr0Gu433T3n_YUFE/getUpdates"
-```
-
-You'll see something like:
-
-```json
-{
-  "ok": true,
-  "result": [
-    {
-      "update_id": 123456789,
-      "message": {
-        "message_id": 1,
-        "from": {
-          "id": 123456789,  // <- This is your CHAT_ID
-          "is_bot": false,
-          "first_name": "Your Name"
-        },
-        "chat": {
-          "id": 123456789,  // <- This is your CHAT_ID
-          "type": "private"
-        },
-        "text": "Hello"
-      }
-    }
-  ]
-}
-```
-
-### Step 3: Update Your .env.local
-
-Replace the Chat ID in your `.env.local` file:
+Add to `.env.local`:
 
 ```env
-TELEGRAM_BOT_TOKEN=8212839523:AAE-wlu_cb8hVl8GAvJRr0Gu433T3n_YUFE
-TELEGRAM_CHAT_ID=123456789  # <- Use the ID from getUpdates
+TELEGRAM_BOT_TOKEN=your-token-here
+TELEGRAM_CHAT_ID=your-chat-id-here
 ```
 
-### Step 4: Test Again
+### 4. Test
 
 Run the test script:
 
@@ -66,38 +40,29 @@ Run the test script:
 node test-telegram.js
 ```
 
-You should see:
-```
-✓ Test file created: test-resume.txt
-🚀 Starting Telegram integration test...
+You should receive a test message in your Telegram chat.
 
-📤 Sending test message to Telegram...
-✅ Message sent successfully!
-   Message ID: 1
+## Usage
 
-📎 Sending test file to Telegram...
-✅ File sent successfully!
-   File ID: xxx
-   File name: test-resume.txt
-   File size: 123 bytes
+When configured, the site will send notifications to your Telegram chat for:
 
-✅ All tests passed!
-   Check your Telegram chat for:
-   1. Application message with formatted details
-   2. File attachment (test-resume.txt)
-```
+- Contact form submissions
+- New job applications
+- Admin alerts (if implemented)
 
-## Quick Test Commands
+## Troubleshooting
 
-### 1. Verify Bot Token
-```bash
-curl "https://api.telegram.org/bot8212839523:AAE-wlu_cb8hVl8GAvJRr0Gu433T3n_YUFE/getMe"
-```
+**Bot not responding?**
 
-Should return bot details ✅
+- Verify token: `curl https://api.telegram.org/bot<TOKEN>/getMe`
+- Check Chat ID is correct and bot is started
+- Ensure bot has permission to send messages
 
-### 2. Get Your Chat ID (after sending a message to the bot)
-```bash
+**No messages received?**
+
+- Verify `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `.env.local`
+- Restart dev server: `pnpm dev`
+- Submit a test form to trigger message
 curl "https://api.telegram.org/bot8212839523:AAE-wlu_cb8hVl8GAvJRr0Gu433T3n_YUFE/getUpdates"
 ```
 

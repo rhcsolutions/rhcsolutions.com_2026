@@ -143,7 +143,28 @@ export default function CareersPage() {
     }
   };
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedJobDetail, setSelectedJobDetail] = useState<any>(null);
+  
   const visibleJobs = jobOpenings.filter(job => job.visible);
+  
+  // Get unique departments and locations
+  const departments = Array.from(new Set(visibleJobs.map(job => job.department))).filter(Boolean);
+  const locations = Array.from(new Set(visibleJobs.map(job => job.locationType || job.location))).filter(Boolean);
+  
+  // Filter jobs based on search and filters
+  const filteredJobs = visibleJobs.filter(job => {
+    const matchesSearch = !searchQuery || 
+      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.department.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDepartment = !selectedDepartment || job.department === selectedDepartment;
+    const matchesLocation = !selectedLocation || (job.locationType || job.location) === selectedLocation;
+    
+    return matchesSearch && matchesDepartment && matchesLocation;
+  });
+
   return (
     <>
       {/* Hero Section */}
@@ -327,68 +348,232 @@ export default function CareersPage() {
               </motion.div>
             </div>
           ) : (
-            <div className="max-w-6xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-                {visibleJobs.map((job, idx) => (
-                  <motion.div
-                    key={job.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="card-cyber p-6 hover:border-cyber-green transition-all group"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-text-primary mb-2 group-hover:text-cyber-green transition-colors">
-                          {job.title}
-                        </h3>
-                        <p className="text-cyber-cyan font-semibold text-sm">{job.department}</p>
-                      </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyber-green/20 text-cyber-green">
-                        {job.type}
-                      </span>
-                    </div>
-
-                    <p className="text-text-secondary mb-4">{job.description}</p>
-
-                    <div className="flex flex-wrap gap-4 mb-4 text-sm text-text-muted">
-                      <div className="flex items-center space-x-2">
-                        <FaMapMarkerAlt className="text-cyber-cyan" />
-                        <span>{job.location}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <FaBriefcase className="text-cyber-green" />
-                        <span>{job.department}</span>
-                      </div>
-                    </div>
-
-                    <div className="mb-4">
-                      <p className="text-sm font-semibold text-text-primary mb-2">Key Requirements:</p>
-                      <ul className="space-y-1">
-                        {job.requirements.slice(0, 3).map((req, i) => (
-                          <li key={i} className="text-sm text-text-secondary flex items-start space-x-2">
-                            <span className="text-cyber-green mt-1">•</span>
-                            <span>{req}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <button
-                      onClick={() => handleApply(job.id)}
-                      className="w-full btn-primary flex items-center justify-center space-x-2"
+            <div className="max-w-5xl mx-auto">
+              {/* Filters Section */}
+              <motion.div
+                className="card-cyber p-6 mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <h3 className="text-lg font-bold text-text-primary mb-4">Filter Jobs</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {/* Search */}
+                  <div>
+                    <label htmlFor="search" className="block text-text-secondary text-sm font-semibold mb-2">Search</label>
+                    <input
+                      type="text"
+                      id="search"
+                      placeholder="Search by title or department..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg py-2 px-3 text-white text-sm
+                               focus:border-cyber-green focus:outline-none transition-colors hover:border-gray-600"
+                    />
+                  </div>
+                  
+                  {/* Department Filter */}
+                  <div>
+                    <label htmlFor="department" className="block text-text-secondary text-sm font-semibold mb-2">Department</label>
+                    <select
+                      id="department"
+                      value={selectedDepartment}
+                      onChange={(e) => setSelectedDepartment(e.target.value)}
+                      className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg py-2 px-3 text-white text-sm
+                               focus:border-cyber-cyan focus:outline-none transition-colors hover:border-gray-600"
                     >
-                      <span>Apply Now</span>
-                      <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                      <option value="">All Departments</option>
+                      {departments.map(dept => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Location Filter */}
+                  <div>
+                    <label htmlFor="location" className="block text-text-secondary text-sm font-semibold mb-2">Location</label>
+                    <select
+                      id="location"
+                      value={selectedLocation}
+                      onChange={(e) => setSelectedLocation(e.target.value)}
+                      className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg py-2 px-3 text-white text-sm
+                               focus:border-cyber-blue focus:outline-none transition-colors hover:border-gray-600"
+                    >
+                      <option value="">All Locations</option>
+                      {locations.map(loc => (
+                        <option key={loc} value={loc}>{loc}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Clear Filters Button */}
+                  <div className="flex items-end">
+                    <button
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSelectedDepartment('');
+                        setSelectedLocation('');
+                      }}
+                      className="w-full btn-secondary py-2 text-sm"
+                    >
+                      Clear Filters
                     </button>
-                  </motion.div>
-                ))}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Job Results Count */}
+              <div className="mb-4 text-text-secondary text-sm">
+                Showing {filteredJobs.length} of {visibleJobs.length} positions
               </div>
+
+              {/* Job List */}
+              {filteredJobs.length === 0 ? (
+                <motion.div
+                  className="card-cyber p-8 text-center border-l-4 border-cyber-cyan"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <p className="text-text-secondary">No positions match your filters. Please try adjusting your search criteria.</p>
+                </motion.div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredJobs.map((job, idx) => (
+                    <motion.div
+                      key={job.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="card-cyber p-5 hover:border-cyber-green transition-all cursor-pointer group"
+                      onClick={() => setSelectedJobDetail(job)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-text-primary group-hover:text-cyber-green transition-colors">
+                            {job.title}
+                          </h3>
+                          <div className="flex flex-wrap gap-4 mt-2 text-sm text-text-muted">
+                            <div className="flex items-center space-x-2">
+                              <FaBriefcase className="text-cyber-cyan" />
+                              <span>{job.department}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <FaMapMarkerAlt className="text-cyber-green" />
+                              <span>{job.locationType || job.location || 'TBD'}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <FaClock className="text-cyber-blue" />
+                              <span>{job.type}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="ml-4 flex flex-col items-end gap-3">
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyber-green/20 text-cyber-green">
+                            {job.type}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedJobDetail(job);
+                            }}
+                            className="btn-primary text-sm py-2 px-4 flex items-center space-x-2"
+                          >
+                            <span>Read More</span>
+                            <FaArrowRight className="text-sm" />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
       </section>
+
+      {/* Job Detail Modal */}
+      {selectedJobDetail && (
+        <motion.div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onClick={() => setSelectedJobDetail(null)}
+        >
+          <motion.div
+            className="card-cyber max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 relative"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedJobDetail(null)}
+              className="absolute top-4 right-4 text-text-secondary hover:text-text-primary transition-colors text-2xl"
+            >
+              ✕
+            </button>
+
+            <h2 className="heading-md text-gradient mb-2">{selectedJobDetail.title}</h2>
+            
+            <div className="flex flex-wrap gap-3 mb-6 text-sm">
+              <span className="px-3 py-1 rounded-full bg-cyber-green/20 text-cyber-green font-semibold">
+                {selectedJobDetail.type}
+              </span>
+              <div className="flex items-center space-x-2 text-text-secondary">
+                <FaBriefcase className="text-cyber-cyan" />
+                <span>{selectedJobDetail.department}</span>
+              </div>
+              <div className="flex items-center space-x-2 text-text-secondary">
+                <FaMapMarkerAlt className="text-cyber-green" />
+                <span>{selectedJobDetail.locationType || selectedJobDetail.location || 'TBD'}</span>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <h3 className="heading-sm text-text-primary mb-3">Job Description</h3>
+              <p className="text-text-secondary whitespace-pre-wrap">{selectedJobDetail.description}</p>
+            </div>
+
+            <div className="mb-6">
+              <h3 className="heading-sm text-text-primary mb-3">Requirements</h3>
+              <ul className="space-y-2">
+                {(typeof selectedJobDetail.requirements === 'string' 
+                  ? selectedJobDetail.requirements.split('\n') 
+                  : selectedJobDetail.requirements || [])
+                  .filter((req: string) => req.trim())
+                  .map((req: string, i: number) => (
+                    <li key={i} className="flex items-start space-x-3 text-text-secondary">
+                      <span className="text-cyber-green mt-1">•</span>
+                      <span>{req}</span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => setSelectedJobDetail(null)}
+                className="flex-1 btn-secondary py-3"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  handleApply(selectedJobDetail.id);
+                  setSelectedJobDetail(null);
+                }}
+                className="flex-1 btn-primary py-3 flex items-center justify-center space-x-2"
+              >
+                <span>Apply Now</span>
+                <FaArrowRight />
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
 
       {/* Application Form */}
       {showApplicationForm && selectedJob && (
@@ -650,7 +835,7 @@ export default function CareersPage() {
               Join our team of passionate IT professionals and help shape the future of technology
             </p>
             <a
-              href="mailto:info@rhcsolutions.com?subject=Career Inquiry"
+              href="/contact"
               className="btn-cta"
             >
               Get in Touch

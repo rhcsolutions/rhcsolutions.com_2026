@@ -20,6 +20,33 @@ export default function Header({ settings }: HeaderProps) {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const pathname = usePathname();
 
+  // Typography scale state
+  const [typeScale, setTypeScale] = useState<number>(1);
+
+  useEffect(() => {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('typeScale') : null;
+      const parsed = stored ? Number(stored) : null;
+      const initial = parsed && !Number.isNaN(parsed) ? parsed : 1;
+      setTypeScale(initial);
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.setProperty('--type-scale', String(initial));
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  const applyTypeScale = (scale: number) => {
+    setTypeScale(scale);
+    try {
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.setProperty('--type-scale', String(scale));
+      }
+      localStorage.setItem('typeScale', String(scale));
+    } catch (e) {}
+  };
+
   const siteName = settings?.siteName || "RHC Solutions";
   const tagline = settings?.tagline || "We Just Do IT";
   const navLinks = settings?.navigation || [
@@ -70,7 +97,7 @@ export default function Header({ settings }: HeaderProps) {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-6">
             {navLinks.map((link) => (
               <div key={link.id} className="relative group">
                 {link.children && link.children.length > 0 ? (
@@ -125,6 +152,30 @@ export default function Header({ settings }: HeaderProps) {
             >
               Book a Meeting
             </a>
+            {/* Type scale controls - small / normal / large */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => applyTypeScale(0.9)}
+                aria-label="Smaller text"
+                className={`px-2 py-1 rounded ${typeScale === 0.9 ? 'bg-dark-lighter' : 'hover:bg-dark-lighter'}`}
+              >
+                A-
+              </button>
+              <button
+                onClick={() => applyTypeScale(1)}
+                aria-label="Normal text"
+                className={`px-2 py-1 rounded ${typeScale === 1 ? 'bg-dark-lighter' : 'hover:bg-dark-lighter'}`}
+              >
+                A
+              </button>
+              <button
+                onClick={() => applyTypeScale(1.1)}
+                aria-label="Larger text"
+                className={`px-2 py-1 rounded ${typeScale === 1.1 ? 'bg-dark-lighter' : 'hover:bg-dark-lighter'}`}
+              >
+                A+
+              </button>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -182,6 +233,13 @@ export default function Header({ settings }: HeaderProps) {
                   )}
                 </div>
               ))}
+              {/* Mobile type scale controls */}
+              <div className="flex items-center justify-center space-x-2 mt-4">
+                <button onClick={() => applyTypeScale(0.9)} aria-label="Smaller text" className={`px-3 py-2 rounded ${typeScale === 0.9 ? 'bg-dark-lighter' : 'hover:bg-dark-lighter'}`}>A-</button>
+                <button onClick={() => applyTypeScale(1)} aria-label="Normal text" className={`px-3 py-2 rounded ${typeScale === 1 ? 'bg-dark-lighter' : 'hover:bg-dark-lighter'}`}>A</button>
+                <button onClick={() => applyTypeScale(1.1)} aria-label="Larger text" className={`px-3 py-2 rounded ${typeScale === 1.1 ? 'bg-dark-lighter' : 'hover:bg-dark-lighter'}`}>A+</button>
+              </div>
+
               <a
                 href={BOOKING_URL}
                 target="_blank"

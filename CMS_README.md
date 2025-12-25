@@ -1,103 +1,116 @@
-# 🎨 Full CMS Documentation
+# CMS — Content Management Guide
 
-Your site now has a complete Content Management System! Here's everything you need to know.
+Manage your site content, users, and settings via the admin dashboard.
 
-## 📁 CMS Architecture
+## Admin Dashboard Access
 
-### Database Layer (`src/lib/cms/database.ts`)
-- **File-based JSON storage** (replace with real DB for production)
-- Located in `/cms-data/` directory:
-  - `pages.json` - All page content
-  - `media.json` - Media library
-  - `settings.json` - Site-wide settings
+**URL**: `/admin/` (requires login via `/admin/login`)
 
-### API Routes (`src/app/api/cms/`)
-- **Pages API** (`/api/cms/pages`)
-  - GET - Fetch all pages or by slug/id
-  - POST - Create new page
-  - PUT - Update existing page
-  - DELETE - Remove page
+### Default Login
 
-- **Media API** (`/api/cms/media`)
-  - GET - List all media
-  - POST - Upload files
-  - DELETE - Remove media
+Create your first admin user via the `/api/cms/users` endpoint or by directly editing `cms-data/users.json`.
 
-- **Settings API** (`/api/cms/settings`)
-  - GET - Fetch site settings
-  - PUT - Update settings
+## Pages
 
-## 🎯 Admin Interfaces
+**URL**: `/admin/pages`
 
-### 1. Pages Editor (`/admin/pages`)
-**Features:**
-- ✨ Visual WYSIWYG editor
-- 📝 Multiple block types:
-  - **Hero** - Full-width hero sections
-  - **Heading** - H1, H2, H3 headings
-  - **Paragraph** - Text content
-  - **Button** - Call-to-action buttons
-  - **Image** - Media embeds
-  - **List** - Bullet/numbered lists
-  - **Testimonial** - Quote blocks with author
-  - **Cards** - Grid layouts
-  - **Columns** - Multi-column layouts
-- 🎨 Text alignment (left, center, right)
-- ⬆️⬇️ Drag to reorder blocks
-- 👁️ Live preview
-- 📱 Responsive design
-- 🔍 Search pages
-- 📊 Page status (draft/published/archived)
-- 🏷️ Categories and SEO settings
+- **Create**: Click "New Page", add title, slug, and blocks
+- **Edit**: Click a page to open the editor
+- **Blocks**: Hero, Heading, Paragraph, Button, Image, List, Cards, Columns, Testimonial
+- **Publish**: Set status to "published" to make live
+- **SEO**: Each page has fields for meta title, description, and open graph image
 
-### 2. Media Library (`/admin/media`)
-**Features:**
-- 📤 Drag-and-drop upload
-- 🖼️ Grid view with thumbnails
-- 🔍 Search media
-- 📋 Copy URLs to clipboard
-- 🗑️ Delete media
-- 📥 Download files
-- 🏷️ Alt text and captions
-- 📊 File size and type info
+**Data**: Stored in `cms-data/pages.json`
 
-### 3. Site Settings (`/admin/settings`)
-**Features:**
-- ⚙️ General settings (site name, tagline, logo)
-- 🧭 Navigation menu management
-- 👣 Footer configuration
-- 📧 Contact information
-- 📊 Google Analytics integration
-- 🔗 Social media links
+## Media
 
-## 🚀 How to Use
+**URL**: `/admin/media`
 
-### Creating a New Page
+- **Upload**: Drag-drop images or click to browse (JPG, PNG, GIF, WebP)
+- **Files**: Stored in `public/images/`
+- **Metadata**: Stored in `cms-data/media.json`
+- **Delete**: Click trash icon to remove
 
-1. Go to `/admin/pages`
-2. Click **"New Page"**
-3. Enter page details:
-   - Title: "About Us"
-   - Slug: "/about-us"
-   - Status: Draft/Published
-   - Category: Main
-4. Add content blocks:
-   - Click **"Hero"** for header
-   - Click **"Heading"** for sections
-   - Click **"Text"** for paragraphs
-5. Edit each block:
-   - Click to select
-   - Type in text fields
-   - Adjust alignment
-   - Reorder with arrows
-6. Preview in real-time
-7. Click **"Save"**
+## Users
 
-### Uploading Media
+**URL**: `/admin/users`
 
-1. Go to `/admin/media`
-2. Either:
-   - Drag files to drop zone
+- **Add User**: Enter name and email, system generates temp password
+- **2FA (TOTP)**: Click "Manage 2FA", scan QR with Google Authenticator or Authy
+- **Password Reset**: Use `/api/cms/users/reset/request` to email reset link
+- **Delete**: Confirm deletion (removes user immediately)
+
+**Data**: Stored in `cms-data/users.json` (passwords are hashed with scrypt)
+
+## Forms & Contact Submissions
+
+**URL**: `/admin/forms`
+
+- View all contact form submissions
+- Each entry shows name, email, message, timestamp
+- Delete individual submissions
+
+**Data**: Stored in `cms-data/forms.json`
+
+## Robots & Sitemap
+
+**URLs**: `/admin/robots`, `/admin/sitemap`
+
+### Robots Editor
+
+- Edit `public/robots.txt` directly
+- Add Ahrefs verification HTML file for SEO auditing
+- Changes deploy immediately
+
+### Sitemap Generator
+
+- Auto-discovers all pages in your site
+- Generates `public/sitemap.xml`
+- Click "Regenerate" to update after adding pages
+
+## Settings
+
+**URL**: `/admin/settings`
+
+- Site name, tagline, logo
+- Navigation menu configuration
+- Footer links and copyright
+- Contact email/phone
+- Google Analytics ID
+
+**Data**: Stored in `cms-data/settings.json`
+
+## Analytics
+
+**URL**: `/admin/analytics`
+
+- View page views, bounce rate, user sessions (if Google Analytics connected)
+- Requires `NEXT_PUBLIC_GA_ID` environment variable
+
+## Dashboard
+
+**URL**: `/admin/dashboard`
+
+- Quick stats overview
+- Recent activity
+- Cloudflare cache purge button (if configured)
+
+## Data Storage
+
+All content is stored as JSON in `cms-data/`:
+
+```
+cms-data/
+├── pages.json         # All pages + blocks
+├── media.json         # Image metadata
+├── users.json         # User accounts (passwords hashed)
+├── forms.json         # Contact submissions
+├── jobs.json          # Job postings
+├── settings.json      # Site-wide config
+└── theme.json         # Theme/styling prefs
+```
+
+For production, migrate to a real database (PostgreSQL, MongoDB, etc.) by modifying `src/lib/cms/database.ts`.
    - Click **"Upload Files"**
 3. Files are saved to `/public/uploads/`
 4. Click any media to:

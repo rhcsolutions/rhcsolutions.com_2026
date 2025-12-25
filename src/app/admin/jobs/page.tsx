@@ -73,28 +73,7 @@ export default function JobManagement() {
     }
   };
 
-  const handleToggleVisibility = async (id: string) => {
-    const job = jobs.find(j => j.id === id);
-    if (!job) return;
-
-    try {
-      const res = await fetch('/api/cms/jobs', {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...job,
-          visible: !job.visible,
-          updatedBy: (session?.user as any)?.email || 'admin',
-        }),
-      });
-      if (res.ok) {
-        setJobs(jobs.map(j => j.id === id ? { ...j, visible: !j.visible } : j));
-      }
-    } catch (error) {
-      console.error('Failed to toggle visibility:', error);
-    }
-  };
+  // Visibility toggling/status removed — per-job status UI has been removed
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this job posting?')) return;
@@ -128,15 +107,15 @@ export default function JobManagement() {
     setShowCreateModal(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+      const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
     try {
       const method = editingJob ? 'PUT' : 'POST';
       const payload = editingJob 
-        ? { ...editingJob, ...formData, updatedBy: (session?.user as any)?.email || 'admin' }
-        : { ...formData, createdBy: (session?.user as any)?.email || 'admin', postedDate: new Date().toISOString().split('T')[0], applicants: 0 };
+        ? { ...editingJob, ...formData }
+        : { ...formData, postedDate: new Date().toISOString().split('T')[0], applicants: 0 };
 
       const res = await fetch('/api/cms/jobs', {
         method,
@@ -235,8 +214,6 @@ export default function JobManagement() {
                   <th className="text-left p-4 text-text-primary font-semibold">Department</th>
                   <th className="text-left p-4 text-text-primary font-semibold">Location</th>
                   <th className="text-left p-4 text-text-primary font-semibold">Type</th>
-                  <th className="text-left p-4 text-text-primary font-semibold">Creator</th>
-                  <th className="text-left p-4 text-text-primary font-semibold">Status</th>
                   <th className="text-right p-4 text-text-primary font-semibold">Actions</th>
                 </tr>
               </thead>
@@ -257,20 +234,6 @@ export default function JobManagement() {
                       {job.locationType === 'in-office' && `📍 ${job.city}, ${job.country}`}
                     </td>
                     <td className="p-4">{job.type}</td>
-                    <td className="p-4 text-text-muted text-sm">{job.createdBy || '—'}</td>
-                    <td className="p-4">
-                      <button
-                        onClick={() => handleToggleVisibility(job.id)}
-                        className={`flex items-center gap-2 px-3 py-1 rounded transition-colors ${
-                          job.visible
-                            ? 'bg-cyber-green/20 text-cyber-green'
-                            : 'bg-text-muted/20 text-text-muted'
-                        }`}
-                      >
-                        {job.visible ? <FaEye /> : <FaEyeSlash />}
-                        <span className="text-sm">{job.visible ? 'Visible' : 'Hidden'}</span>
-                      </button>
-                    </td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2 items-center">
                         <span className="px-3 py-1 rounded bg-dark-lighter border border-dark-border text-text-secondary flex items-center gap-2">
