@@ -13,255 +13,517 @@ export default function UsersManagement() {
   const [twoFAUri, setTwoFAUri] = useState<string | null>(null);
   const [otpInput, setOtpInput] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editModalUser, setEditModalUser] = useState<any | null>(null);
+  const [editFormData, setEditFormData] = useState({ name: '', email: '', role: '', status: '' });
+  const [passwordTab, setPasswordTab] = useState<'none' | 'set' | 'reset'>('none');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  useEffect(() => { fetchUsers(); }, []);
+  // Fetch users on mount
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/cms/users');
+        const data = await response.json();
+        setUsers(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchUsers = async () => {
+    fetchUsers();
+  }, []);
+
+  const openTwoFAModal = async (user: any) => {
+    setTwoFAModalUser(user);
+    setOtpInput('');
     try {
-      const res = await fetch('/api/cms/users');
-      if (res.ok) setUsers(await res.json());
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+      const response = await fetch(`/api/cms/users/2fa/generate?id=${user.id}`);
+      const data = await response.json();
+      setTwoFASecret(data.secret);
+      setTwoFAUri(data.uri);
+      setTwoFAModalOpen(true);
+    } catch (error) {
+      console.error('Error generating 2FA:', error);
+    }
+  };
+
+  const verifyTwoFA = async () => {
+    setActionLoading(true);
+    try {
+      const response = await fetch(`/api/cms/users/2fa/verify?id=${twoFAModalUser.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret: twoFASecret, otp: otpInput }),
+      });
+      if (response.ok) {
+        alert('2FA enabled successfully!');
+        setTwoFAModalOpen(false);
+        setTwoFAModalUser(null);
+        setTwoFASecret(null);
+        setTwoFAUri(null);
+        setOtpInput('');
+        // Refresh users
+        const usersResponse = await fetch('/api/cms/users');
+        const usersData = await usersResponse.json();
+        setUsers(Array.isArray(usersData) ? usersData : []);
+      } else {
+        alert('Invalid OTP');
+      }
+    } catch (error) {
+      console.error('Error verifying 2FA:', error);
+      alert('Error verifying 2FA');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openEditModal = (user: any) => {
+    setEditModalUser(user);
+    setEditFormData({ name: user.name, email: user.email, role: user.role, status: user.status });
+    setPasswordTab('none');
+    setNewPassword('');
+    setConfirmPassword('');
+    setEditModalOpen(true);
+  };
+
+  const handleEditSave = async () => {
+    setActionLoading(true);
+    try {
+      const response = await fetch(`/api/cms/users?id=${editModalUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editFormData),
+      });
+      if (response.ok) {
+        alert('User updated successfully!');
+        setEditModalOpen(false);
+        setEditModalUser(null);
+        const usersResponse = await fetch('/api/cms/users');
+        const usersData = await usersResponse.json();
+        setUsers(Array.isArray(usersData) ? usersData : []);
+      } else {
+        alert('Error updating user');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('Error updating user');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const sendPasswordReset = async () => {
+    if (!editModalUser?.email) {
+      alert('User email not found');
+      return;
+    }
+    
+    setActionLoading(true);
+    try {
+      const response = await fetch('/api/cms/users/reset/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: editModalUser.email }),
+      });
+      if (response.ok) {
+        alert('Password reset email sent successfully!');
+        setPasswordTab('none');
+      } else {
+        alert('Error sending reset email');
+      }
+    } catch (error) {
+      console.error('Error sending reset email:', error);
+      alert('Error sending reset email');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const setPasswordDirectly = async () => {
+    if (newPassword.length < 6) {
+      alert('Password must be at least 6 characters long');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      const response = await fetch(`/api/cms/users?id=${editModalUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPassword }),
+      });
+      if (response.ok) {
+        alert('Password set successfully!');
+        setNewPassword('');
+        setConfirmPassword('');
+        setPasswordTab('none');
+      } else {
+        alert('Error setting password');
+      }
+    } catch (error) {
+      console.error('Error setting password:', error);
+      alert('Error setting password');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete user?')) return;
-    await fetch(`/api/cms/users?id=${id}`, { method: 'DELETE' });
-    fetchUsers();
-  };
-
-  const handleAdd = async () => {
-    const name = prompt('Name');
-    const email = prompt('Email');
-    if (!name || !email) return;
-    await fetch('/api/cms/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, role: 'Editor', status: 'Active' }) });
-    fetchUsers();
-  };
-
-  const roles = [
-    { name: 'Administrator', permissions: ['Full access', 'User management', 'Site settings', 'Analytics'], color: 'cyber-red' },
-    { name: 'Editor', permissions: ['Content management', 'Media upload', 'Form submissions'], color: 'cyber-green' },
-    { name: 'Viewer', permissions: ['View analytics', 'View content', 'Read-only access'], color: 'cyber-cyan' },
-  ];
-
-  const open2FAModal = async (user: any) => {
-    setTwoFAModalUser(user);
-    setTwoFAModalOpen(true);
-    setTwoFASecret(null);
-    setTwoFAUri(null);
-    setOtpInput('');
-  };
-
-  const generateSecret = async () => {
-    if (!twoFAModalUser) return;
-    setActionLoading(true);
-    try {
-      const res = await fetch('/api/cms/users/2fa', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: String(twoFAModalUser.id) }) });
-      if (res.ok) {
-        const data = await res.json();
-        setTwoFASecret(data.secret || null);
-        setTwoFAUri(data.uri || null);
-      } else {
-        alert('Failed to generate secret');
+    if (confirm('Are you sure you want to delete this user?')) {
+      try {
+        const response = await fetch(`/api/cms/users?id=${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          alert('User deleted successfully!');
+          setUsers(users.filter(u => u.id !== id));
+        } else {
+          alert('Error deleting user');
+        }
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Error deleting user');
       }
-    } catch (e) { console.error(e); alert('Error'); }
-    finally { setActionLoading(false); }
+    }
   };
 
-  const verifyAndEnable = async () => {
-    if (!twoFAModalUser) return;
-    setActionLoading(true);
-    try {
-      const res = await fetch('/api/cms/users/2fa', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: String(twoFAModalUser.id), token: otpInput }) });
-      if (res.ok) {
-        alert('2FA enabled');
-        setTwoFAModalOpen(false);
-        fetchUsers();
-      } else {
-        const d = await res.json();
-        alert('Verification failed: ' + (d?.error || 'invalid'));
-      }
-    } catch (e) { console.error(e); alert('Error'); }
-    finally { setActionLoading(false); }
-  };
-
-  const disable2FA = async (id: string) => {
-    if (!confirm('Disable 2FA for this user?')) return;
-    try {
-      const res = await fetch(`/api/cms/users/2fa?id=${id}`, { method: 'DELETE' });
-      if (res.ok) { alert('2FA disabled'); fetchUsers(); }
-      else { alert('Failed to disable 2FA'); }
-    } catch (e) { console.error(e); alert('Error'); }
-  };
+  if (loading) return <AdminShell title="Users Management"><div>Loading users...</div></AdminShell>;
 
   return (
     <AdminShell title="Users Management">
-      <div className="mb-8">
-        <h1 className="heading-xl text-gradient mb-2">Users & Roles</h1>
-        <p className="text-text-secondary">Manage user accounts and permissions</p>
-      </div>
+      <div className="p-6">
+        <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
+          <FaUser className="text-blue-500" />
+          Users Management
+        </h1>
 
-      {/* Quick Actions */}
-      <div className="flex space-x-4 mb-8">
-        <button className="btn-primary flex items-center space-x-2">
-          <FaUserPlus />
-          <span>Add New User</span>
-        </button>
-        <button className="btn-secondary flex items-center space-x-2">
-          <FaShieldAlt />
-          <span>Manage Roles</span>
-        </button>
-      </div>
-
-      {/* Users Table */}
-      <div className="card-cyber overflow-hidden mb-8">
-        <div className="p-6 border-b border-dark-border">
-          <h2 className="text-xl font-bold text-text-primary">All Users</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-dark-lighter">
-              <tr>
-                <th className="text-left p-4 text-text-primary font-semibold">Name</th>
-                <th className="text-left p-4 text-text-primary font-semibold">Email</th>
-                <th className="text-left p-4 text-text-primary font-semibold">Role</th>
-                <th className="text-left p-4 text-text-primary font-semibold">Status</th>
-                <th className="text-left p-4 text-text-primary font-semibold">Last Login</th>
-                <th className="text-right p-4 text-text-primary font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="border-t border-dark-border hover:bg-dark-lighter transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-cyber-green to-cyber-cyan rounded-full flex items-center justify-center">
-                        <FaUser className="text-dark" />
-                      </div>
-                      <span className="text-text-primary font-semibold">{user.name}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-text-secondary font-mono text-sm">{user.email}</td>
-                  <td className="p-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyber-green/20 text-cyber-green">
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyber-cyan/20 text-cyber-cyan">
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="p-4 text-text-secondary text-sm">{user.lastLogin}</td>
-                  <td className="p-4">
-                    <div className="flex items-center justify-end space-x-2">
-                      <button onClick={() => open2FAModal(user)} className="px-3 py-1 bg-dark-card rounded text-sm">Manage 2FA</button>
-                      <button className="p-2 text-cyber-green hover:bg-cyber-green/20 rounded transition-colors">
-                        <FaEdit />
-                      </button>
-                      <button className="p-2 text-cyber-red hover:bg-cyber-red/20 rounded transition-colors">
-                        <FaTrash />
-                      </button>
-                      {user.twoFAEnabled ? (
-                        <button onClick={() => disable2FA(String(user.id))} className="p-2 text-yellow-400 hover:bg-yellow-400/10 rounded transition-colors">Disable 2FA</button>
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid gap-6">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Users List</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-100 border-b">
+                  <tr>
+                    <th className="px-4 py-2 text-left">Name</th>
+                    <th className="px-4 py-2 text-left">Email</th>
+                    <th className="px-4 py-2 text-left">Role</th>
+                    <th className="px-4 py-2 text-left">Status</th>
+                    <th className="px-4 py-2 text-left">2FA</th>
+                    <th className="px-4 py-2 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <tr key={user.id} className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-2">{user.name}</td>
+                      <td className="px-4 py-2">{user.email}</td>
+                      <td className="px-4 py-2 text-blue-600 font-medium">{user.role}</td>
+                      <td className="px-4 py-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                          {user.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2">
+                        <button
+                          onClick={() => openTwoFAModal(user)}
+                          className="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600 flex items-center gap-1"
+                        >
+                          <FaShieldAlt /> Setup
+                        </button>
+                      </td>
+                      <td className="px-4 py-2 flex gap-2">
+                        <button
+                          onClick={() => openEditModal(user)}
+                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center gap-1"
+                        >
+                          <FaEdit /> Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(user.id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex items-center gap-1"
+                        >
+                          <FaTrash /> Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Roles Grid */}
-      <div>
-        <h2 className="heading-md text-gradient mb-6">Roles & Permissions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* 2FA Modal */}
+      {twoFAModalOpen && twoFAModalUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4">Setup Two-Factor Authentication</h2>
+            <p className="text-gray-600 mb-4">For: {twoFAModalUser.name}</p>
+            
+            {twoFAUri && (
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-2">Scan with your authenticator app:</p>
+                <QRCodeDisplay value={twoFAUri} size={200} />
+                <div className="mt-4 p-2 bg-gray-100 rounded break-all text-xs">
+                  Secret: {twoFASecret}
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(twoFASecret || '');
+                      alert('Secret copied!');
+                    }}
+                    className="ml-2 text-blue-500 hover:text-blue-700"
+                  >
+                    <FaCopy />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <input
+              type="text"
+              placeholder="Enter 6-digit code"
+              value={otpInput}
+              onChange={(e) => setOtpInput(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded mb-4 text-center text-lg tracking-widest"
+              maxLength={6}
+            />
+
+            <button
+              onClick={verifyTwoFA}
+              disabled={actionLoading || otpInput.length !== 6}
+              className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 disabled:bg-gray-400"
+            >
+              {actionLoading ? 'Verifying...' : 'Verify & Enable'}
+            </button>
+
+            <button
+              onClick={() => {
+                setTwoFAModalOpen(false);
+                setTwoFAModalUser(null);
+              }}
+              className="w-full mt-2 bg-gray-300 text-gray-800 py-2 rounded hover:bg-gray-400"
+            >
+              Close
+            </button>
+          </div>
         </div>
-      </div>
-      <TwoFAModal open={twoFAModalOpen} onClose={() => setTwoFAModalOpen(false)} user={twoFAModalUser} secret={twoFASecret} uri={twoFAUri} otp={otpInput} setOtp={setOtpInput} onGenerate={generateSecret} onVerify={verifyAndEnable} loading={actionLoading} />
+      )}
+
+      {/* Edit User Modal */}
+      {editModalOpen && editModalUser && (
+        <EditUserModal
+          user={editModalUser}
+          formData={editFormData}
+          setFormData={setEditFormData}
+          onSave={handleEditSave}
+          onClose={() => {
+            setEditModalOpen(false);
+            setEditModalUser(null);
+          }}
+          actionLoading={actionLoading}
+          passwordTab={passwordTab}
+          setPasswordTab={setPasswordTab}
+          newPassword={newPassword}
+          setNewPassword={setNewPassword}
+          confirmPassword={confirmPassword}
+          setConfirmPassword={setConfirmPassword}
+          onSetPassword={setPasswordDirectly}
+          onResetPassword={sendPasswordReset}
+        />
+      )}
     </AdminShell>
   );
 }
 
-function TwoFAModal({ open, onClose, user, secret, uri, otp, setOtp, onGenerate, onVerify, loading }:
-  { open: boolean; onClose: () => void; user: any; secret: string | null; uri: string | null; otp: string; setOtp: (v: string) => void; onGenerate: () => void; onVerify: () => void; loading: boolean }) {
-  const [copied, setCopied] = useState(false);
+interface EditUserModalProps {
+  user: any;
+  formData: any;
+  setFormData: (data: any) => void;
+  onSave: () => void;
+  onClose: () => void;
+  actionLoading: boolean;
+  passwordTab: 'none' | 'set' | 'reset';
+  setPasswordTab: (tab: 'none' | 'set' | 'reset') => void;
+  newPassword: string;
+  setNewPassword: (pwd: string) => void;
+  confirmPassword: string;
+  setConfirmPassword: (pwd: string) => void;
+  onSetPassword: () => void;
+  onResetPassword: () => void;
+}
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (e) {
-      console.error('Failed to copy:', e);
-    }
-  };
-
-  if (!open || !user) return null;
+function EditUserModal({
+  user,
+  formData,
+  setFormData,
+  onSave,
+  onClose,
+  actionLoading,
+  passwordTab,
+  setPasswordTab,
+  newPassword,
+  setNewPassword,
+  confirmPassword,
+  setConfirmPassword,
+  onSetPassword,
+  onResetPassword,
+}: EditUserModalProps) {
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-dark border border-cyber-green rounded-lg w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold">Manage 2FA — {user.name}</h3>
-          <button onClick={onClose} className="text-text-secondary hover:text-text-primary">✕</button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-4">Edit User</h2>
+
+        {/* Basic User Info */}
+        <div className="space-y-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Role</label>
+            <select
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Status</label>
+            <select
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded"
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
         </div>
-        <div className="space-y-6">
-          <p className="text-text-secondary">Generate a TOTP secret and set up two-factor authentication using an authenticator app.</p>
+
+        {/* Password Management Section */}
+        <div className="border-t pt-4">
+          <h3 className="text-lg font-semibold mb-3">Password Management</h3>
           
-          {uri && (
-            <div className="bg-dark-card border border-cyber-cyan rounded-lg p-6">
-              <div className="flex flex-col items-center">
-                <p className="text-sm text-text-muted mb-4">Scan QR Code with Authenticator App</p>
-                <QRCodeDisplay value={uri} size={200} level="H" includeMargin={true} />
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setPasswordTab('set')}
+              className={`flex-1 px-3 py-2 rounded text-sm font-medium transition ${
+                passwordTab === 'set'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Set Password
+            </button>
+            <button
+              onClick={() => setPasswordTab('reset')}
+              className={`flex-1 px-3 py-2 rounded text-sm font-medium transition ${
+                passwordTab === 'reset'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Send Reset Email
+            </button>
+          </div>
+
+          {/* Set Password Form */}
+          {passwordTab === 'set' && (
+            <div className="space-y-3 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Minimum 6 characters"
+                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm password"
+                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                />
+              </div>
+
+              <button
+                onClick={onSetPassword}
+                disabled={actionLoading || !newPassword || !confirmPassword}
+                className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 disabled:bg-gray-400 font-medium"
+              >
+                {actionLoading ? 'Setting...' : 'Set Password'}
+              </button>
             </div>
           )}
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm text-text-muted">Secret Key</label>
-                {secret && (
-                  <button
-                    onClick={() => copyToClipboard(secret)}
-                    className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-cyber-green/20 text-cyber-green hover:bg-cyber-green/30 transition"
-                  >
-                    {copied ? <FaCheck /> : <FaCopy />}
-                    {copied ? 'Copied!' : 'Copy'}
-                  </button>
-                )}
-              </div>
-              <div className="p-3 bg-dark-card rounded font-mono text-sm break-all select-all">{secret || '—'}</div>
-            </div>
-            <div>
-              <label className="text-sm text-text-muted mb-2 block">Or Manual Entry</label>
-              <div className="p-3 bg-dark-card rounded font-mono text-xs break-all text-text-muted">{uri || '—'}</div>
-            </div>
-          </div>
-          
-          <div className="border-t border-dark-border pt-4">
-            <p className="text-sm text-text-muted mb-4">Enter a 6-digit code from your authenticator app to verify:</p>
-            <div className="flex items-center gap-2">
-              <button onClick={onGenerate} disabled={loading} className="btn-primary">
-                {secret ? 'Regenerate' : 'Generate Secret'}
-              </button>
-              <input
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="000000"
-                maxLength={6}
-                className="w-32 bg-dark-card border border-dark-border rounded px-3 py-2 text-center font-mono text-lg"
-              />
-              <button onClick={onVerify} disabled={loading || !otp} className="btn-secondary">
-                Verify & Enable
+
+          {/* Send Reset Email Form */}
+          {passwordTab === 'reset' && (
+            <div className="space-y-3 mb-4">
+              <p className="text-sm text-gray-600">
+                Send a password reset email to: <strong>{user.email}</strong>
+              </p>
+              <button
+                onClick={onResetPassword}
+                disabled={actionLoading}
+                className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 disabled:bg-gray-400 font-medium"
+              >
+                {actionLoading ? 'Sending...' : 'Send Reset Email'}
               </button>
             </div>
-          </div>
+          )}
+        </div>
+
+        {/* Modal Actions */}
+        <div className="flex gap-2 mt-6">
+          <button
+            onClick={onSave}
+            disabled={actionLoading}
+            className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:bg-gray-400 font-medium"
+          >
+            {actionLoading ? 'Saving...' : 'Save Changes'}
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-300 text-gray-800 py-2 rounded hover:bg-gray-400 font-medium"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
   );
 }
-

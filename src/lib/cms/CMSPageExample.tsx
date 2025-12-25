@@ -1,6 +1,7 @@
 // Example: How to use CMS content in your pages
 // This file shows the pattern for integrating CMS with Next.js pages
 
+import React from 'react';
 import { CMSDatabase } from '@/lib/cms/database';
 
 export default async function CMSPage({ params }: { params: { slug: string } }) {
@@ -31,7 +32,7 @@ export default async function CMSPage({ params }: { params: { slug: string } }) 
             );
 
           case 'heading':
-            const HeadingTag = `h${block.styles?.level || 2}` as keyof JSX.IntrinsicElements;
+            const HeadingTag = (`h${block.styles?.level || 2}`) as keyof React.JSX.IntrinsicElements;
             return (
               <HeadingTag
                 key={block.id}

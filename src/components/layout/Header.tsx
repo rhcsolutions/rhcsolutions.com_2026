@@ -114,7 +114,7 @@ export default function Header({ settings }: HeaderProps) {
                     </Link>
                     <div className="absolute left-0 mt-2 w-64 bg-dark-card border border-dark-border shadow-[0_8px_32px_rgba(0,217,255,0.15)] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
                       <div className="py-2">
-                        {link.children.map((child) => (
+                        {link.children?.map((child: any) => (
                           <Link
                             key={child.url}
                             href={child.url}
@@ -209,7 +209,7 @@ export default function Header({ settings }: HeaderProps) {
                       </button>
                       {isServicesOpen && (
                         <div className="ml-4 mt-2 space-y-2 pl-4 border-l-2 border-cyber-blue/30">
-                          {link.children.map((child) => (
+                          {link.children?.map((child: any) => (
                             <Link
                               key={child.url}
                               href={child.url}

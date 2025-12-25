@@ -1,8 +1,14 @@
 'use client';
 import { motion } from 'framer-motion';
+import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import ContactForm from '@/components/ContactForm';
-import InteractiveWorldMap from '@/components/InteractiveWorldMap';
 import { FaPhone, FaEnvelope, FaTelegram, FaWhatsapp, FaLinkedin, FaFacebook, FaInstagram } from 'react-icons/fa';
+
+const InteractiveWorldMap = dynamic(() => import('@/components/InteractiveWorldMap'), {
+  ssr: false,
+  loading: () => <div className="section-padding bg-dark h-96 flex items-center justify-center text-text-secondary">Loading map...</div>,
+});
 
 const BOOKING_URL = "https://outlook.office.com/bookwithme/user/3b3090bb02994e5085e163adf76b191b@rhcsolutions.com/meetingtype/pJ4cLjK2VUKjf_7-AdLjwg2?anonymous&ep=mlink";
 
