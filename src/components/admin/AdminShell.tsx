@@ -97,7 +97,19 @@ export default function AdminShell({ children, title }: AdminShellProps) {
                     theme = { colors: { primary: '#0ea5a2', primaryDark: '#072d2d', secondary: '#7dd3fc', accent: '#06b6d4', success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#3b82f6' }, fonts: { primary: 'Inter, system-ui, sans-serif', secondary: 'Space Grotesk, system-ui, sans-serif', mono: 'JetBrains Mono, monospace' }, borderRadius: '0.5rem', shadowIntensity: 'medium' };
                   }
                   if (theme) {
-                    try { await fetch('/api/cms/theme', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(theme) }); alert('Theme applied'); } catch(e){console.error(e);}
+                    try {
+                      const res = await fetch('/api/cms/theme', { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(theme) });
+                      if (res.ok) {
+                        alert('Theme applied');
+                      } else {
+                        const msg = await res.text();
+                        console.error('Theme apply failed', msg || res.status);
+                        alert('Failed to apply theme');
+                      }
+                    } catch (e) {
+                      console.error(e);
+                      alert('Failed to apply theme');
+                    }
                   }
                 }}
                 className="hidden sm:block bg-dark-card border border-dark-border text-text-secondary rounded px-2 py-1"

@@ -1,7 +1,7 @@
 {
   "colors": {
     "primary": "#00FF41",
-    "primaryDark": "#0A0E27",
+    "primaryDark": "#050607",
     "secondary": "#00F0FF",
     "accent": "#00AAFF",
     "success": "#00FF88",
@@ -12,10 +12,10 @@
   "fonts": {
     "primary": "Inter, system-ui, sans-serif",
     "secondary": "Space Grotesk, system-ui, sans-serif",
-    "mono": "JetBrains Mono, Courier New, monospace"
+    "mono": "JetBrains Mono, monospace"
   },
   "borderRadius": "0.5rem",
   "shadowIntensity": "medium",
-  "updatedAt": "2025-12-17T00:00:00.000Z",
-  "updatedBy": "system"
+  "updatedAt": "2025-12-25T16:56:36.969Z",
+  "updatedBy": "admin@rhcsolutions.com"
 }

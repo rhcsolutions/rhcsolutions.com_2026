@@ -6,17 +6,22 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist: [
+    'bg-dark',
+    'bg-dark-lighter',
+    'bg-dark-card',
+    'bg-dark-border',
+    'bg-dark-input',
+  ],
   theme: {
     extend: {
       colors: {
         // Dark theme - Primary backgrounds
-        dark: {
-          DEFAULT: '#0A0E27',      // Deep space blue-black
-          lighter: '#1A1F3A',      // Slightly lighter panels
-          card: '#151B2F',         // Card backgrounds
-          border: '#1E2642',       // Borders and grid lines
-          input: '#0F131F',        // Input fields
-        },
+        dark: '#0A0E27',      // Deep space blue-black
+        'dark-lighter': '#1A1F3A',      // Slightly lighter panels
+        'dark-card': '#151B2F',         // Card backgrounds
+        'dark-border': '#1E2642',       // Borders and grid lines
+        'dark-input': '#0F131F',        // Input fields
         // Accent colors - Neon palette
         neon: {
           green: '#00FF41',        // Terminal green (Matrix style)
