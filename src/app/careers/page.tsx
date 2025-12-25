@@ -5,14 +5,21 @@ import { FaLightbulb, FaUsers, FaRocket, FaMapMarkerAlt, FaClock, FaBriefcase, F
 
 // Job type definition
 interface Job {
-  id: number | string;
+  id: string | number;
   title: string;
   department: string;
-  location: string;
+  locationType?: 'remote' | 'hybrid' | 'in-office';
+  location?: string;
+  city?: string;
+  country?: string;
   type: string;
   description: string;
-  requirements: string[];
-  visible: boolean;
+  requirements: string | string[];
+  visible?: boolean;
+  postedDate?: string;
+  applicants?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export default function CareersPage() {

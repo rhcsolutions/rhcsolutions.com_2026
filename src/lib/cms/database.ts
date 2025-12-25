@@ -90,6 +90,10 @@ export interface SiteSettings {
   analytics?: {
     googleAnalyticsId?: string;
   };
+  cloudflare?: {
+    apiToken?: string;
+    zoneId?: string;
+  };
 }
 
 // Initialize default data

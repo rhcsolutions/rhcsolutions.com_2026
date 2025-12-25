@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     
     // Find file part
     const filePart = parts.find(p => p.filename);
-    if (!filePart) {
+    if (!filePart || !filePart.filename) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
