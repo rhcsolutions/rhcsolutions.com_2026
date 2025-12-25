@@ -17,11 +17,13 @@ Optionally send form submissions and alerts to a private Telegram chat.
 
 1. Start a conversation with your new bot
 2. Send any message
-3. Run:
+3. Run (replace `<YOUR_BOT_TOKEN>` with your actual token):
    ```bash
    curl "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates"
    ```
 4. Look for `"id"` in the response — this is your **Chat ID**
+
+> ⚠️ **Security:** Never commit your actual bot token to version control. Use environment variables only.
 
 ### 3. Update Environment
 
@@ -54,7 +56,7 @@ When configured, the site will send notifications to your Telegram chat for:
 
 **Bot not responding?**
 
-- Verify token: `curl https://api.telegram.org/bot<TOKEN>/getMe`
+- Verify token: `curl https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getMe`
 - Check Chat ID is correct and bot is started
 - Ensure bot has permission to send messages
 
@@ -63,15 +65,16 @@ When configured, the site will send notifications to your Telegram chat for:
 - Verify `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `.env.local`
 - Restart dev server: `pnpm dev`
 - Submit a test form to trigger message
-curl "https://api.telegram.org/bot8212839523:AAE-wlu_cb8hVl8GAvJRr0Gu433T3n_YUFE/getUpdates"
-```
 
-### 3. Test File Upload
+## Testing
+
+Run the test script (after setting env vars):
+
 ```bash
 node test-telegram.js
 ```
 
-## Troubleshooting
+You should receive a test message in your Telegram chat.
 
 ### "chat not found" Error
 - ❌ You haven't started a conversation with @RHC_CV_bot
@@ -85,10 +88,12 @@ node test-telegram.js
 - ❌ Incorrect bot username
 - ✅ Use: @RHC_CV_bot (with underscore, not dash)
 
-## Current Status
+## Security Note
 
-✅ Bot Token: Valid and working  
-✅ Bot Username: @RHC_CV_bot  
-❌ Chat ID: Needs to be obtained (see steps above)  
+⚠️ **Never commit your bot token to version control.** Always:
+- Use `.env.local` (which is in `.gitignore`)
+- Use environment variables in production
+- Regenerate tokens immediately if exposed
+  
 
 **Next Step**: Send a message to @RHC_CV_bot on Telegram, then run getUpdates to get your Chat ID.

@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
+import QRCodeDisplay from '@/components/QRCodeDisplay';
 import AdminShell from '@/components/admin/AdminShell';
-import { FaUser, FaUserPlus, FaShieldAlt, FaTrash, FaEdit } from 'react-icons/fa';
+import { FaUser, FaUserPlus, FaShieldAlt, FaTrash, FaEdit, FaCopy, FaCheck } from 'react-icons/fa';
 
 export default function UsersManagement() {
   const [users, setUsers] = useState<any[]>([]);
@@ -186,30 +187,77 @@ export default function UsersManagement() {
 
 function TwoFAModal({ open, onClose, user, secret, uri, otp, setOtp, onGenerate, onVerify, loading }:
   { open: boolean; onClose: () => void; user: any; secret: string | null; uri: string | null; otp: string; setOtp: (v: string) => void; onGenerate: () => void; onVerify: () => void; loading: boolean }) {
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      console.error('Failed to copy:', e);
+    }
+  };
+
   if (!open || !user) return null;
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-dark border border-cyber-green rounded-lg w-full max-w-2xl p-6">
+      <div className="bg-dark border border-cyber-green rounded-lg w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold">Manage 2FA — {user.name}</h3>
-          <button onClick={onClose} className="text-text-secondary">Close</button>
+          <button onClick={onClose} className="text-text-secondary hover:text-text-primary">✕</button>
         </div>
-        <div className="space-y-4">
-          <p className="text-text-secondary">Generate a TOTP secret and scan with Google Authenticator or similar.</p>
+        <div className="space-y-6">
+          <p className="text-text-secondary">Generate a TOTP secret and set up two-factor authentication using an authenticator app.</p>
+          
+          {uri && (
+            <div className="bg-dark-card border border-cyber-cyan rounded-lg p-6">
+              <div className="flex flex-col items-center">
+                <p className="text-sm text-text-muted mb-4">Scan QR Code with Authenticator App</p>
+                <QRCodeDisplay value={uri} size={200} level="H" includeMargin={true} />
+              </div>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-text-muted">Secret</label>
-              <div className="p-3 bg-dark-card rounded mt-1 break-all">{secret || '—'}</div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm text-text-muted">Secret Key</label>
+                {secret && (
+                  <button
+                    onClick={() => copyToClipboard(secret)}
+                    className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-cyber-green/20 text-cyber-green hover:bg-cyber-green/30 transition"
+                  >
+                    {copied ? <FaCheck /> : <FaCopy />}
+                    {copied ? 'Copied!' : 'Copy'}
+                  </button>
+                )}
+              </div>
+              <div className="p-3 bg-dark-card rounded font-mono text-sm break-all select-all">{secret || '—'}</div>
             </div>
             <div>
-              <label className="text-sm text-text-muted">Provisioning URI</label>
-              <div className="p-3 bg-dark-card rounded mt-1 break-all">{uri || '—'}</div>
+              <label className="text-sm text-text-muted mb-2 block">Or Manual Entry</label>
+              <div className="p-3 bg-dark-card rounded font-mono text-xs break-all text-text-muted">{uri || '—'}</div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={onGenerate} disabled={loading} className="btn-primary">Generate Secret</button>
-            <input value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter code from app" className="bg-dark-card border border-dark-border rounded px-3 py-2" />
-            <button onClick={onVerify} disabled={loading} className="btn-secondary">Verify & Enable</button>
+          
+          <div className="border-t border-dark-border pt-4">
+            <p className="text-sm text-text-muted mb-4">Enter a 6-digit code from your authenticator app to verify:</p>
+            <div className="flex items-center gap-2">
+              <button onClick={onGenerate} disabled={loading} className="btn-primary">
+                {secret ? 'Regenerate' : 'Generate Secret'}
+              </button>
+              <input
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="000000"
+                maxLength={6}
+                className="w-32 bg-dark-card border border-dark-border rounded px-3 py-2 text-center font-mono text-lg"
+              />
+              <button onClick={onVerify} disabled={loading || !otp} className="btn-secondary">
+                Verify & Enable
+              </button>
+            </div>
           </div>
         </div>
       </div>

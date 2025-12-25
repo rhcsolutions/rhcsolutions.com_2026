@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fetch from 'node-fetch';
 import { CMSDatabase } from '@/lib/cms/database';
 
 export async function POST(request: NextRequest) {

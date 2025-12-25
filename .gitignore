@@ -26,6 +26,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# sensitive documentation (keep locally, don't commit)
+TELEGRAM_SETUP.md
+
 # vercel
 .vercel
 
