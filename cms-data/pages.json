@@ -1,0 +1,221 @@
+[
+  {
+    "id": "home",
+    "title": "Home",
+    "slug": "/",
+    "description": "Homepage",
+    "category": "Main",
+    "status": "published",
+    "blocks": [
+      {
+        "id": "1",
+        "type": "hero",
+        "content": {
+          "title": "We Just Do IT",
+          "subtitle": "Professional IT Consulting & Business Solutions Since 1994",
+          "description": "Transform your business with expert IT consulting, cloud infrastructure, cyber security, and business continuity services.",
+          "cta": {
+            "text": "Get Started",
+            "url": "/contact"
+          }
+        },
+        "styles": {
+          "align": "center"
+        }
+      }
+    ],
+    "seo": {
+      "metaTitle": "RHC Solutions - IT Consulting & Business Solutions",
+      "metaDescription": "Professional IT consulting services since 1994"
+    },
+    "createdAt": "2025-12-17T06:44:11.078Z",
+    "updatedAt": "2025-12-17T06:44:11.079Z"
+  },
+  {
+    "id": "about-us",
+    "title": "About Us",
+    "slug": "/about",
+    "description": "About Us page",
+    "category": "Main",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "About Us",
+      "metaDescription": "About Us - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "services",
+    "title": "Services",
+    "slug": "/services",
+    "description": "Services page",
+    "category": "Main",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Services",
+      "metaDescription": "Services - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "services-professional",
+    "title": "Professional Services",
+    "slug": "/services/professional-services",
+    "description": "Professional Services page",
+    "category": "Services",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Professional Services",
+      "metaDescription": "Professional Services - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "services-cloud",
+    "title": "Cloud & Infrastructure",
+    "slug": "/services/cloud-infrastructure",
+    "description": "Cloud & Infrastructure page",
+    "category": "Services",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Cloud & Infrastructure",
+      "metaDescription": "Cloud & Infrastructure - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "services-cyber",
+    "title": "Cyber Security",
+    "slug": "/services/cyber-security",
+    "description": "Cyber Security page",
+    "category": "Services",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Cyber Security",
+      "metaDescription": "Cyber Security - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "services-bc",
+    "title": "Business Continuity",
+    "slug": "/services/business-continuity",
+    "description": "Business Continuity page",
+    "category": "Services",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Business Continuity",
+      "metaDescription": "Business Continuity - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "services-virtual-office",
+    "title": "Virtual Office Support",
+    "slug": "/services/virtual-office-support",
+    "description": "Virtual Office Support page",
+    "category": "Services",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Virtual Office Support",
+      "metaDescription": "Virtual Office Support - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "clients",
+    "title": "Clients",
+    "slug": "/clients",
+    "description": "Clients page",
+    "category": "Main",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Clients",
+      "metaDescription": "Clients - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "partners",
+    "title": "Partners",
+    "slug": "/partners",
+    "description": "Partners page",
+    "category": "Main",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Partners",
+      "metaDescription": "Partners - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "careers",
+    "title": "Careers",
+    "slug": "/careers",
+    "description": "Careers page",
+    "category": "Main",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Careers",
+      "metaDescription": "Careers - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "contact",
+    "title": "Contact",
+    "slug": "/contact",
+    "description": "Contact page",
+    "category": "Main",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Contact",
+      "metaDescription": "Contact - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "colors": {
+    "primary": "#00FF41",
+    "primaryDark": "#0A0E27",
+    "secondary": "#00F0FF",
+    "accent": "#00AAFF",
+    "success": "#00FF88",
+    "error": "#FF4458",
+    "warning": "#FFB800",
+    "info": "#00F0FF"
+  },
+  "fonts": {
+    "primary": "Inter, system-ui, sans-serif",
+    "secondary": "Space Grotesk, system-ui, sans-serif",
+    "mono": "JetBrains Mono, Courier New, monospace"
+  },
+  "borderRadius": "0.5rem",
+  "shadowIntensity": "medium",
+  "updatedAt": "2025-12-17T00:00:00.000Z",
+  "updatedBy": "system"
+}

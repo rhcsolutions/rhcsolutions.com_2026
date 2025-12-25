@@ -1,0 +1,51 @@
+# Cloudflare Pages custom headers for optimization
+
+/*
+  # Security headers
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  
+  # Performance headers
+  Cache-Control: public, max-age=31536000, immutable
+  
+  # HSTS (uncomment when ready for production with SSL)
+  # Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+# Cache static assets aggressively
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache images
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache fonts
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+/*.otf
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML pages - shorter cache, allow revalidation
+/*.html
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# API routes - no cache
+/api/*
+  Cache-Control: no-store, no-cache, must-revalidate

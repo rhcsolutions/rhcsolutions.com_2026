@@ -1,0 +1,22 @@
+[
+    {
+        "id": "header-bg-001",
+        "filename": "header-bg.png",
+        "url": "/images/header-bg.png",
+        "type": "image",
+        "size": 1024000,
+        "uploadedAt": "2025-12-25T08:30:00.000Z",
+        "alt": "Cyber Security Header Background",
+        "caption": "Generated Abstract Tech Header"
+    },
+    {
+        "id": "logo-001",
+        "filename": "logo.png",
+        "url": "/logo.png",
+        "type": "image",
+        "size": 222544,
+        "uploadedAt": "2025-12-25T08:00:00.000Z",
+        "alt": "RHC Solutions Logo",
+        "caption": "Official Logo"
+    }
+]

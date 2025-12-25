@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "setup": "npm install && cp .env.local.example .env.local && echo '\n✅ Setup complete! Edit .env.local with your Google Analytics ID, then run: npm run dev'",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "deploy:vercel": "vercel --prod",
+    "deploy:netlify": "netlify deploy --prod"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "siteName": "RHC Solutions",
+  "tagline": "We Just Do IT ",
+  "navigation": [
+    {
+      "id": "1",
+      "label": "Home",
+      "url": "/"
+    },
+    {
+      "id": "2",
+      "label": "About",
+      "url": "/about-us"
+    },
+    {
+      "id": "3",
+      "label": "Services",
+      "url": "/services",
+      "children": [
+        {
+          "label": "IT Consulting",
+          "url": "/services/it-consulting"
+        },
+        {
+          "label": "Cloud Infrastructure",
+          "url": "/services/cloud-infrastructure"
+        },
+        {
+          "label": "Cyber Security",
+          "url": "/services/cyber-security"
+        },
+        {
+          "label": "Business Continuity",
+          "url": "/services/business-continuity"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "label": "Careers",
+      "url": "/careers"
+    },
+    {
+      "id": "5",
+      "label": "Contact",
+      "url": "/contact"
+    }
+  ],
+  "footer": {
+    "socialLinks": [
+      {
+        "platform": "linkedin",
+        "url": "https://linkedin.com/company/rhcsolutions"
+      },
+      {
+        "platform": "twitter",
+        "url": "https://twitter.com/rhcsolutions"
+      },
+      {
+        "platform": "facebook",
+        "url": "https://www.facebook.com/rhcsolutions"
+      }
+    ]
+  },
+  "contact": {
+    "email": "info@rhcsolutions.com",
+    "phone": "+19176282365",
+    "address": "",
+    "telegram": "@rhcsolutions"
+  },
+  "siteUrl": "https://rhcsolutions.com"
+}

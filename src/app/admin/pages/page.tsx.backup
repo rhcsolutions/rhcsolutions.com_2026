@@ -1,0 +1,450 @@
+'use client';
+import { useState } from 'react';
+import AdminShell from '@/components/admin/AdminShell';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FaEdit, FaEye, FaSearch, FaTimes, FaSave, FaExternalLinkAlt, 
+  FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaAlignLeft, FaAlignCenter, FaAlignRight
+} from 'react-icons/fa';
+import Link from 'next/link';
+
+interface ContentBlock {
+  id: string;
+  type: 'heading' | 'paragraph' | 'image' | 'button' | 'list';
+  content: string;
+  level?: number;
+  align?: 'left' | 'center' | 'right';
+}
+
+interface PageData {
+  id: number;
+  title: string;
+  slug: string;
+  category: string;
+  status: string;
+  blocks: ContentBlock[];
+}
+
+export default function PagesEditor() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showEditor, setShowEditor] = useState(false);
+  const [editingPage, setEditingPage] = useState<PageData | null>(null);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+
+  // Sample pages with editable content blocks
+  const [pages, setPages] = useState<PageData[]>([
+    {
+      id: 1,
+      title: 'Home',
+      slug: '/',
+      category: 'Main',
+      status: 'Published',
+      blocks: [
+        { id: '1', type: 'heading', content: 'We Just Do IT', level: 1, align: 'center' },
+        { id: '2', type: 'paragraph', content: 'Professional IT Consulting & Business Solutions Since 1994', align: 'center' },
+        { id: '3', type: 'paragraph', content: 'Transform your business with expert IT consulting, cloud infrastructure, cyber security, and business continuity services.' },
+      ]
+    },
+    {
+      id: 2,
+      title: 'About Us',
+      slug: '/about-us',
+      category: 'Main',
+      status: 'Published',
+      blocks: [
+        { id: '1', type: 'heading', content: 'About Us', level: 1 },
+        { id: '2', type: 'paragraph', content: 'Since 1994, RHC Solutions has been at the forefront of IT innovation' },
+      ]
+    },
+    {
+      id: 3,
+      title: 'Services',
+      slug: '/services',
+      category: 'Main',
+      status: 'Published',
+      blocks: [
+        { id: '1', type: 'heading', content: 'Our Services', level: 1 },
+        { id: '2', type: 'paragraph', content: 'Comprehensive IT Solutions for Modern Businesses' },
+      ]
+    },
+    {
+      id: 4,
+      title: 'Contact',
+      slug: '/contact',
+      category: 'Main',
+      status: 'Published',
+      blocks: [
+        { id: '1', type: 'heading', content: 'Contact Us', level: 1 },
+        { id: '2', type: 'paragraph', content: "Let's discuss how we can help transform your IT infrastructure" },
+      ]
+    },
+  ]);
+
+  const handleEdit = (page: PageData) => {
+    setEditingPage(JSON.parse(JSON.stringify(page))); // Deep clone
+    setShowEditor(true);
+    setSelectedBlockId(null);
+  };
+
+  const handleSave = () => {
+    if (!editingPage) return;
+    
+    setPages(pages.map(p => p.id === editingPage.id ? editingPage : p));
+    
+    // Store in localStorage for persistence
+    localStorage.setItem('pageContent', JSON.stringify(pages.map(p => 
+      p.id === editingPage.id ? editingPage : p
+    )));
+    
+    alert('✓ Page content saved!\n\nNote: This is a demo editor. In production, content would be saved to a database or CMS.');
+    setShowEditor(false);
+  };
+
+  const updateBlock = (blockId: string, updates: Partial<ContentBlock>) => {
+    if (!editingPage) return;
+    
+    setEditingPage({
+      ...editingPage,
+      blocks: editingPage.blocks.map(block =>
+        block.id === blockId ? { ...block, ...updates } : block
+      )
+    });
+  };
+
+  const addBlock = (type: ContentBlock['type']) => {
+    if (!editingPage) return;
+    
+    const newBlock: ContentBlock = {
+      id: Date.now().toString(),
+      type,
+      content: type === 'heading' ? 'New Heading' : 
+              type === 'paragraph' ? 'New paragraph text...' :
+              type === 'button' ? 'Button Text' :
+              type === 'list' ? '• List item 1\n• List item 2' :
+              'Image URL',
+      level: type === 'heading' ? 2 : undefined,
+      align: 'left'
+    };
+    
+    setEditingPage({
+      ...editingPage,
+      blocks: [...editingPage.blocks, newBlock]
+    });
+  };
+
+  const deleteBlock = (blockId: string) => {
+    if (!editingPage) return;
+    
+    setEditingPage({
+      ...editingPage,
+      blocks: editingPage.blocks.filter(block => block.id !== blockId)
+    });
+  };
+
+  const moveBlock = (blockId: string, direction: 'up' | 'down') => {
+    if (!editingPage) return;
+    
+    const blocks = [...editingPage.blocks];
+    const index = blocks.findIndex(b => b.id === blockId);
+    
+    if (direction === 'up' && index > 0) {
+      [blocks[index], blocks[index - 1]] = [blocks[index - 1], blocks[index]];
+    } else if (direction === 'down' && index < blocks.length - 1) {
+      [blocks[index], blocks[index + 1]] = [blocks[index + 1], blocks[index]];
+    }
+    
+    setEditingPage({ ...editingPage, blocks });
+  };
+
+  const renderBlockPreview = (block: ContentBlock) => {
+    const alignClass = 
+      block.align === 'center' ? 'text-center' :
+      block.align === 'right' ? 'text-right' : '';
+    
+    switch (block.type) {
+      case 'heading':
+        return (
+          <div className={`text-gradient font-bold ${alignClass}`}>
+            {block.level === 1 ? <div className="text-4xl">{block.content}</div> :
+             block.level === 2 ? <div className="text-3xl">{block.content}</div> :
+             <div className="text-2xl">{block.content}</div>}
+          </div>
+        );
+      case 'paragraph':
+        return <p className={`text-text-secondary ${alignClass}`}>{block.content}</p>;
+      case 'button':
+        return (
+          <div className={alignClass}>
+            <button className="btn-primary">{block.content}</button>
+          </div>
+        );
+      case 'image':
+        return (
+          <div className={alignClass}>
+            <div className="inline-block bg-dark-lighter p-4 rounded border border-cyber-green/30">
+              <div className="text-4xl text-cyber-green">📷</div>
+              <p className="text-xs text-text-muted mt-2">{block.content}</p>
+            </div>
+          </div>
+        );
+      case 'list':
+        return <div className="text-text-secondary whitespace-pre-line">{block.content}</div>;
+      default:
+        return null;
+    }
+  };
+
+  const filteredPages = pages.filter(page =>
+    page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    page.slug.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <AdminShell title="Content Editor">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+          <h1 className="heading-xl text-gradient mb-2">Pages Editor</h1>
+          <p className="text-text-secondary">Visual content editor for your pages</p>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="card-cyber p-6 mb-6">
+        <div className="relative">
+          <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-text-secondary" />
+          <input
+            type="text"
+            placeholder="Search pages..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-dark-card border-2 border-dark-border rounded-lg py-3 pl-12 pr-4 text-text-primary 
+                     focus:border-cyber-green focus:outline-none transition-colors"
+          />
+        </div>
+      </div>
+
+      {/* Pages Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredPages.map((page, idx) => (
+          <motion.div
+            key={page.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05 }}
+            className="card-cyber p-6 hover:border-cyber-green transition-all cursor-pointer"
+            onClick={() => handleEdit(page)}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-gradient mb-1">{page.title}</h3>
+                <p className="text-text-muted text-sm font-mono">{page.slug}</p>
+              </div>
+              <span className="px-2 py-1 rounded text-xs font-semibold bg-cyber-green/20 text-cyber-green">
+                {page.status}
+              </span>
+            </div>
+            
+            <div className="text-text-secondary text-sm mb-4">
+              {page.blocks.length} content blocks
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Link href={page.slug} target="_blank" className="p-2 text-cyber-cyan hover:bg-cyber-cyan/20 rounded transition-colors" onClick={(e) => e.stopPropagation()}>
+                <FaExternalLinkAlt />
+              </Link>
+              <button className="flex-1 btn-primary flex items-center justify-center space-x-2 py-2">
+                <FaEdit />
+                <span>Edit Content</span>
+              </button>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* WYSIWYG Editor Modal */}
+      <AnimatePresence>
+        {showEditor && editingPage && (
+          <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-dark border-2 border-cyber-green rounded-xl w-full max-w-7xl my-8"
+            >
+              {/* Editor Header */}
+              <div className="border-b border-cyber-green/30 p-6 flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-gradient">{editingPage.title}</h2>
+                  <p className="text-text-muted text-sm font-mono">{editingPage.slug}</p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={handleSave}
+                    className="btn-primary flex items-center space-x-2"
+                  >
+                    <FaSave />
+                    <span>Save Changes</span>
+                  </button>
+                  <button
+                    onClick={() => setShowEditor(false)}
+                    className="text-text-secondary hover:text-cyber-red transition-colors"
+                  >
+                    <FaTimes className="text-2xl" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Editor Content */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 min-h-[600px]">
+                {/* Editor Panel */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-text-primary">Content Blocks</h3>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => addBlock('heading')}
+                        className="px-3 py-2 bg-dark-card hover:bg-dark-lighter border border-cyber-cyan rounded text-cyber-cyan text-sm flex items-center space-x-1"
+                      >
+                        <FaPlus className="text-xs" />
+                        <span>Heading</span>
+                      </button>
+                      <button
+                        onClick={() => addBlock('paragraph')}
+                        className="px-3 py-2 bg-dark-card hover:bg-dark-lighter border border-cyber-green rounded text-cyber-green text-sm flex items-center space-x-1"
+                      >
+                        <FaPlus className="text-xs" />
+                        <span>Text</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
+                    {editingPage.blocks.map((block, index) => (
+                      <div
+                        key={block.id}
+                        className={`bg-dark-card border-2 rounded-lg p-4 ${
+                          selectedBlockId === block.id ? 'border-cyber-green' : 'border-dark-border'
+                        }`}
+                        onClick={() => setSelectedBlockId(block.id)}
+                      >
+                        {/* Block Controls */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs font-mono text-text-muted uppercase">{block.type}</span>
+                            {block.type === 'heading' && (
+                              <select
+                                value={block.level}
+                                onChange={(e) => updateBlock(block.id, { level: parseInt(e.target.value) })}
+                                className="text-xs bg-dark border border-dark-border rounded px-2 py-1 text-text-primary"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <option value={1}>H1</option>
+                                <option value={2}>H2</option>
+                                <option value={3}>H3</option>
+                              </select>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            {/* Alignment */}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); updateBlock(block.id, { align: 'left' }); }}
+                              className={`p-1 rounded ${block.align === 'left' ? 'bg-cyber-green/20 text-cyber-green' : 'text-text-muted hover:text-text-primary'}`}
+                            >
+                              <FaAlignLeft className="text-sm" />
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); updateBlock(block.id, { align: 'center' }); }}
+                              className={`p-1 rounded ${block.align === 'center' ? 'bg-cyber-green/20 text-cyber-green' : 'text-text-muted hover:text-text-primary'}`}
+                            >
+                              <FaAlignCenter className="text-sm" />
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); updateBlock(block.id, { align: 'right' }); }}
+                              className={`p-1 rounded ${block.align === 'right' ? 'bg-cyber-green/20 text-cyber-green' : 'text-text-muted hover:text-text-primary'}`}
+                            >
+                              <FaAlignRight className="text-sm" />
+                            </button>
+                            <div className="w-px h-4 bg-dark-border mx-1" />
+                            {/* Move */}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); moveBlock(block.id, 'up'); }}
+                              disabled={index === 0}
+                              className="p-1 text-cyber-cyan hover:bg-cyber-cyan/20 rounded disabled:opacity-30"
+                            >
+                              <FaArrowUp className="text-sm" />
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); moveBlock(block.id, 'down'); }}
+                              disabled={index === editingPage.blocks.length - 1}
+                              className="p-1 text-cyber-cyan hover:bg-cyber-cyan/20 rounded disabled:opacity-30"
+                            >
+                              <FaArrowDown className="text-sm" />
+                            </button>
+                            {/* Delete */}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); deleteBlock(block.id); }}
+                              className="p-1 text-cyber-red hover:bg-cyber-red/20 rounded"
+                            >
+                              <FaTrash className="text-sm" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Block Content Editor */}
+                        {block.type === 'image' ? (
+                          <input
+                            type="text"
+                            value={block.content}
+                            onChange={(e) => updateBlock(block.id, { content: e.target.value })}
+                            className="w-full bg-dark border border-dark-border rounded px-3 py-2 text-text-primary text-sm"
+                            placeholder="Image URL or description"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : (
+                          <textarea
+                            value={block.content}
+                            onChange={(e) => updateBlock(block.id, { content: e.target.value })}
+                            className="w-full bg-dark border border-dark-border rounded px-3 py-2 text-text-primary text-sm min-h-[80px] resize-none"
+                            placeholder="Enter content..."
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Live Preview Panel */}
+                <div className="bg-dark-card rounded-lg p-8 border border-dark-border overflow-y-auto max-h-[calc(100vh-300px)]">
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-dark-border">
+                    <h3 className="text-lg font-bold text-text-primary">Live Preview</h3>
+                    <FaEye className="text-cyber-cyan" />
+                  </div>
+                  
+                  <div className="space-y-6">
+                    {editingPage.blocks.map((block) => (
+                      <div
+                        key={block.id}
+                        className={`transition-all ${selectedBlockId === block.id ? 'ring-2 ring-cyber-green rounded p-2' : ''}`}
+                      >
+                        {renderBlockPreview(block)}
+                      </div>
+                    ))}
+                    
+                    {editingPage.blocks.length === 0 && (
+                      <div className="text-center text-text-muted py-12">
+                        <p>No content blocks yet</p>
+                        <p className="text-sm mt-2">Click "Add Heading" or "Add Text" to start</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </AdminShell>
+  );
+}
