@@ -22,6 +22,13 @@ const users: Array<User & { password: string }> = [
   },
   {
     id: '2',
+    email: 'editor@rhcsolutions.com',
+    name: 'Editor User',
+    role: 'editor',
+    password: 'admin123',
+  },
+  {
+    id: '3',
     email: 'jobs@rhcsolutions.com',
     name: 'Jobs Manager',
     role: 'jobs_manager',

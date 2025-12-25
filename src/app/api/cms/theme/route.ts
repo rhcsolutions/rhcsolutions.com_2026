@@ -79,6 +79,7 @@ async function checkRole(token: any) {
 export async function GET() {
   try {
     const theme = await initTheme();
+    console.log('[API] GET /api/cms/theme - Theme loaded:', theme.updatedAt);
     return NextResponse.json(theme);
   } catch (error) {
     console.error('[API] GET /api/cms/theme error:', error);
@@ -92,7 +93,10 @@ export async function PUT(request: NextRequest) {
       req: request,
       secret: process.env.NEXTAUTH_SECRET || 'your-secret-key-change-in-production'
     });
+    console.log('[API] PUT /api/cms/theme - Token:', token ? `email=${(token as any)?.email}, role=${(token as any)?.role}` : 'no token');
+    
     if (!(await checkRole(token))) {
+      console.warn('[API] PUT /api/cms/theme - Forbidden: user role not admin/editor');
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -104,7 +108,7 @@ export async function PUT(request: NextRequest) {
     };
 
     await fs.writeFile(THEME_FILE, JSON.stringify(theme, null, 2));
-    console.log('[API] PUT /api/cms/theme - Theme updated by', (token as any)?.email);
+    console.log('[API] PUT /api/cms/theme - Theme updated by', (token as any)?.email, '- file written');
     return NextResponse.json(theme);
   } catch (error) {
     console.error('[API] PUT /api/cms/theme error:', error);

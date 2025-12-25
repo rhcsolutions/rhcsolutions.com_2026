@@ -20,6 +20,7 @@ export default function AdminShell({ children, title }: AdminShellProps) {
   const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [themeSaving, setThemeSaving] = useState(false);
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: FaHome },
@@ -97,27 +98,39 @@ export default function AdminShell({ children, title }: AdminShellProps) {
                     theme = { colors: { primary: '#0ea5a2', primaryDark: '#072d2d', secondary: '#7dd3fc', accent: '#06b6d4', success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#3b82f6' }, fonts: { primary: 'Inter, system-ui, sans-serif', secondary: 'Space Grotesk, system-ui, sans-serif', mono: 'JetBrains Mono, monospace' }, borderRadius: '0.5rem', shadowIntensity: 'medium' };
                   }
                   if (theme) {
+                    setThemeSaving(true);
                     try {
                       const res = await fetch('/api/cms/theme', { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(theme) });
                       if (res.ok) {
-                        alert('Theme applied');
+                        alert(`✓ Theme "${preset}" applied successfully!`);
+                        console.log(`[AdminShell] Theme preset "${preset}" applied`);
                       } else {
                         const msg = await res.text();
-                        console.error('Theme apply failed', msg || res.status);
-                        alert('Failed to apply theme');
+                        console.error(`[AdminShell] Theme apply failed: ${msg || res.status}`);
+                        alert(`Failed to apply theme: ${res.status}. Check auth or permissions.`);
                       }
                     } catch (e) {
-                      console.error(e);
-                      alert('Failed to apply theme');
+                      console.error('[AdminShell] Theme apply error:', e);
+                      alert('Failed to apply theme. Check browser console.');
+                    } finally {
+                      setThemeSaving(false);
                     }
                   }
                 }}
-                className="hidden sm:block bg-dark-card border border-dark-border text-text-secondary rounded px-2 py-1"
+                disabled={themeSaving}
+                className="hidden sm:block bg-dark-card border border-dark-border text-text-secondary rounded px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <option value="default">Theme</option>
+                <option value="default">{themeSaving ? 'Saving...' : 'Theme'}</option>
                 <option value="brand">Brand</option>
                 <option value="dark">Dark</option>
               </select>
+              <Link
+                href="/admin/theme"
+                title="Open full theme editor"
+                className="hidden sm:block text-text-secondary hover:text-cyber-cyan transition-colors text-sm"
+              >
+                Edit →
+              </Link>
               <button
                 onClick={handleLogout}
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-dark-lighter hover:bg-cyber-red/20 
