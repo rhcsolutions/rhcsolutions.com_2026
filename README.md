@@ -170,4 +170,4 @@ Optional:
 
 ## 📝 License
 
-© 2024 RHC Solutions. All rights reserved.
+© 2025 RHC Solutions. All rights reserved.
