@@ -38,6 +38,7 @@ interface Theme {
   fonts: ThemeFonts;
   borderRadius: string;
   shadowIntensity: 'light' | 'medium' | 'heavy';
+  fontSize?: string;
   updatedAt: string;
   updatedBy?: string;
 }
@@ -61,8 +62,10 @@ export default function ThemeManagement() {
       });
       if (res.ok) {
         const data = await res.json();
-        setTheme(data);
-        setFormData(data);
+        const fontSize = data.fontSize || '16px';
+        const hydrated = { ...data, fontSize } as Theme;
+        setTheme(hydrated);
+        setFormData(hydrated);
       }
     } catch (error) {
       console.error('Failed to fetch theme:', error);
@@ -168,7 +171,18 @@ export default function ThemeManagement() {
             {/* Fonts Section */}
             <div className="card-cyber p-6">
               <h2 className="heading-lg text-gradient mb-6">Fonts</h2>
-              <div className="space-y-4">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Base Font Size</label>
+                  <input
+                    type="text"
+                    value={formData.fontSize || '16px'}
+                    onChange={(e) => setFormData({ ...formData, fontSize: e.target.value })}
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                    placeholder="e.g., 16px or 1rem"
+                  />
+                </div>
+
                 {Object.entries(formData.fonts).map(([key, value]) => (
                   <div key={key} className="space-y-2">
                     <label className="block text-text-primary font-semibold mb-1 capitalize">
@@ -197,7 +211,7 @@ export default function ThemeManagement() {
                     {/* Inline preview */}
                     <div
                       className="p-3 bg-dark border border-dark-border rounded text-text-primary text-sm"
-                      style={{ fontFamily: value }}
+                      style={{ fontFamily: value, fontSize: formData.fontSize || '16px' }}
                     >
                       The quick brown fox jumps over the lazy dog
                     </div>
