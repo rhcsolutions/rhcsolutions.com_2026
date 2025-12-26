@@ -6,6 +6,8 @@ const nextConfig = {
   // output: 'export',
   // distDir: 'out',
   
+  output: 'standalone',
+
   images: {
     unoptimized: true, // Required for static export, Cloudflare will optimize
     remotePatterns: [

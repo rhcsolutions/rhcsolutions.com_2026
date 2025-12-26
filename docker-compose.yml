@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    container_name: rhcsolutions-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-change-me}
+    volumes:
+      - ./cms-data:/app/cms-data
+    restart: unless-stopped
