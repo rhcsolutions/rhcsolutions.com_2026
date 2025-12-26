@@ -1,21 +1,26 @@
 {
   "colors": {
     "primary": "#00FF41",
-    "primaryDark": "#050607",
-    "secondary": "#00F0FF",
-    "accent": "#00AAFF",
-    "success": "#00FF88",
-    "error": "#FF4458",
-    "warning": "#FFB800",
-    "info": "#00F0FF"
+    "primaryDark": "#072d2d",
+    "secondary": "#7dd3fc",
+    "accent": "#06b6d4",
+    "success": "#10b981",
+    "error": "#ef4444",
+    "warning": "#f59e0b",
+    "info": "#3b82f6"
   },
   "fonts": {
     "primary": "Inter, system-ui, sans-serif",
     "secondary": "Space Grotesk, system-ui, sans-serif",
     "mono": "JetBrains Mono, monospace"
   },
+  "fontSizes": {
+    "primary": "18px",
+    "secondary": "22px",
+    "mono": "24px"
+  },
   "borderRadius": "0.5rem",
   "shadowIntensity": "medium",
-  "updatedAt": "2025-12-25T17:01:19.456Z",
+  "updatedAt": "2025-12-26T03:15:05.411Z",
   "updatedBy": "admin@rhcsolutions.com"
 }
