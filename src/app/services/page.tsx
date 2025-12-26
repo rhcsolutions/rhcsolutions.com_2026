@@ -1,5 +1,7 @@
 'use client';
 
+import { usePageContent } from '@/lib/cms/usePageContent';
+import DynamicPageRenderer from '@/components/cms/DynamicPageRenderer';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -49,6 +51,14 @@ const services = [
 ];
 
 export default function ServicesPage() {
+  const { page } = usePageContent('/services');
+
+  // If CMS page exists with blocks, render it
+  if (page && page.blocks && page.blocks.length > 0) {
+    return <DynamicPageRenderer blocks={page.blocks} />;
+  }
+
+  // Fallback to original hardcoded content
   return (
     <>
       {/* Hero Section */}

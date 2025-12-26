@@ -3,11 +3,6 @@
   "tagline": "We Just Do IT ",
   "navigation": [
     {
-      "id": "1",
-      "label": "Home",
-      "url": "/"
-    },
-    {
       "id": "2",
       "label": "About",
       "url": "/about-us"
@@ -44,6 +39,11 @@
       "id": "5",
       "label": "Contact",
       "url": "/contact"
+    },
+    {
+      "id": "home",
+      "label": "Home",
+      "url": "/"
     }
   ],
   "footer": {

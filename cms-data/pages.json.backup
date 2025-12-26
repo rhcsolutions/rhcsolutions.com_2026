@@ -40,38 +40,32 @@
             {
               "title": "Professional Services",
               "description": "Consulting, design, and implementation for complex IT projects.",
-              "icon": "👔",
-              "url": "/services/professional-services"
+              "icon": "👔"
             },
             {
               "title": "Business Continuity",
               "description": "Disaster recovery, resilience, and continuity planning.",
-              "icon": "🔄",
-              "url": "/services/business-continuity"
+              "icon": "🔄"
             },
             {
               "title": "Virtual Office",
               "description": "Remote work solutions with secure access and collaboration.",
-              "icon": "🏠",
-              "url": "/services/virtual-office"
+              "icon": "🏠"
             },
             {
               "title": "Cyber Security",
               "description": "Comprehensive protection and compliance for your business.",
-              "icon": "🛡️",
-              "url": "/services/cyber-security"
+              "icon": "🛡️"
             },
             {
               "title": "CISOaaS",
               "description": "Chief Information Security Officer as a Service.",
-              "icon": "👤🛡️",
-              "url": "/services/cisoaas"
+              "icon": "👤🛡️"
             },
             {
               "title": "CIOaaS",
               "description": "Chief Information Officer as a Service.",
-              "icon": "⚙️",
-              "url": "/services/cioaas"
+              "icon": "⚙️"
             }
           ]
         },
@@ -171,83 +165,10 @@
       "metaTitle": "Services",
       "metaDescription": "Services - RHC Solutions"
     },
-    "createdAt": "2025-12-17T08:44:15.115Z",
-    "updatedAt": "2025-12-17T08:44:15.115Z"
-  },
-  {
-    "id": "careers",
-    "title": "Careers",
-    "slug": "/careers",
-    "description": "Careers page",
-    "category": "Main",
-    "status": "published",
-    "blocks": [],
-    "seo": {
-      "metaTitle": "Careers",
-      "metaDescription": "Careers - RHC Solutions"
-    },
-    "createdAt": "2025-12-17T09:44:15.115Z",
-    "updatedAt": "2025-12-17T09:44:15.115Z"
-  },
-  {
-    "id": "clients",
-    "title": "Clients",
-    "slug": "/clients",
-    "description": "Clients page",
-    "category": "Main",
-    "status": "published",
-    "blocks": [],
-    "seo": {
-      "metaTitle": "Clients",
-      "metaDescription": "Clients - RHC Solutions"
-    },
-    "createdAt": "2025-12-17T10:44:15.115Z",
-    "updatedAt": "2025-12-17T10:44:15.115Z"
-  },
-  {
-    "id": "partners",
-    "title": "Partners",
-    "slug": "/partners",
-    "description": "Partners page",
-    "category": "Main",
-    "status": "published",
-    "blocks": [],
-    "seo": {
-      "metaTitle": "Partners",
-      "metaDescription": "Partners - RHC Solutions"
-    },
-    "createdAt": "2025-12-17T11:44:15.115Z",
-    "updatedAt": "2025-12-17T11:44:15.115Z"
-  },
-  {
-    "id": "privacy",
-    "title": "Privacy Policy",
-    "slug": "/privacy",
-    "description": "Privacy Policy page",
-    "category": "Main",
-    "status": "published",
-    "blocks": [],
-    "seo": {
-      "metaTitle": "Privacy Policy",
-      "metaDescription": "Privacy Policy - RHC Solutions"
-    },
-    "createdAt": "2025-12-17T12:44:15.115Z",
-    "updatedAt": "2025-12-17T12:44:15.115Z"
-  },
-  {
-    "id": "cookies",
-    "title": "Cookie Policy",
-    "slug": "/cookies",
-    "description": "Cookie Policy page",
-    "category": "Main",
-    "status": "published",
-    "blocks": [],
-    "seo": {
-      "metaTitle": "Cookie Policy",
-      "metaDescription": "Cookie Policy - RHC Solutions"
-    },
-    "createdAt": "2025-12-17T13:44:15.115Z",
-    "updatedAt": "2025-12-17T13:44:15.115Z"
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
   },
   {
     "id": "services-professional",
@@ -263,8 +184,8 @@
     },
     "createdBy": "system",
     "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.447Z",
-    "updatedAt": "2025-12-26T11:48:13.447Z"
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
   },
   {
     "id": "services-cloud",
@@ -280,8 +201,8 @@
     },
     "createdBy": "system",
     "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.447Z",
-    "updatedAt": "2025-12-26T11:48:13.447Z"
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
   },
   {
     "id": "services-cyber",
@@ -297,8 +218,8 @@
     },
     "createdBy": "system",
     "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.447Z",
-    "updatedAt": "2025-12-26T11:48:13.447Z"
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
   },
   {
     "id": "services-bc",
@@ -314,8 +235,8 @@
     },
     "createdBy": "system",
     "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.447Z",
-    "updatedAt": "2025-12-26T11:48:13.447Z"
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
   },
   {
     "id": "services-virtual-office",
@@ -331,8 +252,59 @@
     },
     "createdBy": "system",
     "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.447Z",
-    "updatedAt": "2025-12-26T11:48:13.447Z"
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "clients",
+    "title": "Clients",
+    "slug": "/clients",
+    "description": "Clients page",
+    "category": "Main",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Clients",
+      "metaDescription": "Clients - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "partners",
+    "title": "Partners",
+    "slug": "/partners",
+    "description": "Partners page",
+    "category": "Main",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Partners",
+      "metaDescription": "Partners - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
+  },
+  {
+    "id": "careers",
+    "title": "Careers",
+    "slug": "/careers",
+    "description": "Careers page",
+    "category": "Main",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Careers",
+      "metaDescription": "Careers - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
   },
   {
     "id": "contact",
@@ -348,8 +320,8 @@
     },
     "createdBy": "system",
     "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.447Z",
-    "updatedAt": "2025-12-26T11:48:13.447Z"
+    "createdAt": "2025-12-17T07:44:15.115Z",
+    "updatedAt": "2025-12-17T07:44:15.115Z"
   },
   {
     "id": "about-us",
@@ -365,8 +337,42 @@
     },
     "createdBy": "system",
     "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.455Z",
-    "updatedAt": "2025-12-26T11:48:13.455Z"
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
+  },
+  {
+    "id": "cookies",
+    "title": "Cookies",
+    "slug": "/cookies",
+    "description": "Cookies page",
+    "category": "Auto-detected",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Cookies",
+      "metaDescription": "Cookies - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
+  },
+  {
+    "id": "privacy",
+    "title": "Privacy",
+    "slug": "/privacy",
+    "description": "Privacy page",
+    "category": "Auto-detected",
+    "status": "published",
+    "blocks": [],
+    "seo": {
+      "metaTitle": "Privacy",
+      "metaDescription": "Privacy - RHC Solutions"
+    },
+    "createdBy": "system",
+    "updatedBy": "system",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
   },
   {
     "id": "services-cioaas",
@@ -381,9 +387,14 @@
       "metaDescription": "Services - Cioaas - RHC Solutions"
     },
     "createdBy": "system",
-    "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.455Z",
-    "updatedAt": "2025-12-26T11:48:13.455Z"
+    "updatedBy": "admin@rhcsolutions.com",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-26T10:45:01.679Z",
+    "menu": {
+      "includeInNav": false,
+      "label": "Services - Cioaas",
+      "position": "end"
+    }
   },
   {
     "id": "services-cisoaas",
@@ -398,9 +409,14 @@
       "metaDescription": "Services - Cisoaas - RHC Solutions"
     },
     "createdBy": "system",
-    "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.455Z",
-    "updatedAt": "2025-12-26T11:48:13.455Z"
+    "updatedBy": "admin@rhcsolutions.com",
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-26T10:44:50.428Z",
+    "menu": {
+      "includeInNav": false,
+      "label": "Services - Cisoaas",
+      "position": "end"
+    }
   },
   {
     "id": "services-it-consulting",
@@ -416,8 +432,8 @@
     },
     "createdBy": "system",
     "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.455Z",
-    "updatedAt": "2025-12-26T11:48:13.455Z"
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
   },
   {
     "id": "services-virtual-office",
@@ -433,7 +449,7 @@
     },
     "createdBy": "system",
     "updatedBy": "system",
-    "createdAt": "2025-12-26T11:48:13.456Z",
-    "updatedAt": "2025-12-26T11:48:13.456Z"
+    "createdAt": "2025-12-25T11:34:32.940Z",
+    "updatedAt": "2025-12-25T11:34:32.940Z"
   }
 ]

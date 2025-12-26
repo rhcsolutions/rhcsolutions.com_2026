@@ -1,41 +1,52 @@
 'use client';
+import { usePageContent } from '@/lib/cms/usePageContent';
+import DynamicPageRenderer from '@/components/cms/DynamicPageRenderer';
 import { motion } from 'framer-motion';
 import { FaCheckCircle, FaAward, FaUsers, FaLightbulb, FaHandshake } from 'react-icons/fa';
 import { AnimatedStatsGrid } from '@/components/AnimatedStats';
 
-const values = [
-  {
-    icon: FaAward,
-    title: 'Professionalism',
-    description: 'We maintain the highest standards of professional conduct in every engagement.',
-  },
-  {
-    icon: FaHandshake,
-    title: 'Reliability',
-    description: 'Our clients trust us to deliver on our commitments, every time.',
-  },
-  {
-    icon: FaCheckCircle,
-    title: 'Accountability',
-    description: 'We take ownership of outcomes and stand behind our work.',
-  },
-  {
-    icon: FaLightbulb,
-    title: 'Innovation',
-    description: 'We continuously explore new technologies and approaches to solve complex challenges.',
-  },
-];
 
-const timeline = [
-  { year: '1994', event: 'RHC Solutions founded with a vision to transform business IT' },
-  { year: '2000', event: 'Expanded services to include enterprise infrastructure solutions' },
-  { year: '2008', event: 'Pioneered cloud migration services for financial institutions' },
-  { year: '2015', event: 'Launched comprehensive cyber security and compliance practice' },
-  { year: '2020', event: 'Delivered critical remote work solutions during global transition' },
-  { year: '2024', event: 'Celebrating 30 years of excellence and innovation' },
-];
+export default function AboutUs() {
+  const { page } = usePageContent('/about');
 
-export default function AboutPage() {
+  // If page has CMS content, render it
+  if (page && page.blocks && page.blocks.length > 0) {
+    return <DynamicPageRenderer blocks={page.blocks} />;
+  }
+
+  // Fallback to original content if no CMS page or blocks
+  const values = [
+    {
+      icon: FaAward,
+      title: 'Professionalism',
+      description: 'We maintain the highest standards of professional conduct in every engagement.',
+    },
+    {
+      icon: FaHandshake,
+      title: 'Reliability',
+      description: 'Our clients trust us to deliver on our commitments, every time.',
+    },
+    {
+      icon: FaCheckCircle,
+      title: 'Accountability',
+      description: 'We take ownership of outcomes and stand behind our work.',
+    },
+    {
+      icon: FaLightbulb,
+      title: 'Innovation',
+      description: 'We continuously explore new technologies and approaches to solve complex challenges.',
+    },
+  ];
+
+  const timeline = [
+    { year: '1994', event: 'RHC Solutions founded with a vision to transform business IT' },
+    { year: '2000', event: 'Expanded services to include enterprise infrastructure solutions' },
+    { year: '2008', event: 'Pioneered cloud migration services for financial institutions' },
+    { year: '2015', event: 'Launched comprehensive cyber security and compliance practice' },
+    { year: '2020', event: 'Delivered critical remote work solutions during global transition' },
+    { year: '2024', event: 'Celebrating 30 years of excellence and innovation' },
+  ];
+
   return (
     <>
       {/* Hero Section */}

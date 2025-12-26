@@ -1,4 +1,6 @@
 'use client';
+import { usePageContent } from '@/lib/cms/usePageContent';
+import DynamicPageRenderer from '@/components/cms/DynamicPageRenderer';
 import { motion } from 'framer-motion';
 import { FaDice, FaGlobe, FaPlane } from 'react-icons/fa';
 
@@ -72,6 +74,12 @@ const caseStudies = [
 ];
 
 export default function ClientsPage() {
+  const { page } = usePageContent('/clients');
+
+  if (page && page.blocks && page.blocks.length > 0) {
+    return <DynamicPageRenderer blocks={page.blocks} />;
+  }
+
   return (
     <>
       {/* Hero Section */}

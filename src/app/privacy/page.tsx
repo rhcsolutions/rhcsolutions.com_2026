@@ -1,8 +1,16 @@
 'use client';
+import { usePageContent } from '@/lib/cms/usePageContent';
+import DynamicPageRenderer from '@/components/cms/DynamicPageRenderer';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 export default function PrivacyPage() {
+  const { page } = usePageContent('/privacy');
+
+  if (page && page.blocks && page.blocks.length > 0) {
+    return <DynamicPageRenderer blocks={page.blocks} />;
+  }
+
   return (
     <>
       {/* Hero Section */}

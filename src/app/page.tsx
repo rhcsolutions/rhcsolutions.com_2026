@@ -1,10 +1,20 @@
 'use client';
 
+import { usePageContent } from '@/lib/cms/usePageContent';
+import DynamicPageRenderer from '@/components/cms/DynamicPageRenderer';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FaUserShield, FaSyncAlt, FaHome, FaShieldAlt, FaUserTie, FaUserCog } from 'react-icons/fa';
 
 export default function Home() {
+  const { page } = usePageContent('/');
+
+  // If page has CMS content, render it
+  if (page && page.blocks && page.blocks.length > 0) {
+    return <DynamicPageRenderer blocks={page.blocks} />;
+  }
+
+  // Fallback to original hardcoded content
   return (
     <>
       {/* Hero Section */}

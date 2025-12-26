@@ -98,43 +98,74 @@ export default function CMSPagesEditor() {
   };
 
   const handleEdit = (page: CMSPage) => {
+    console.log('📝 Editing page:', page.title, 'ID:', page.id);
+    console.log('📦 Original blocks:', page.blocks);
+    
     const cloned = JSON.parse(JSON.stringify(page)) as CMSPage;
     // Ensure blocks array exists
     if (!cloned.blocks) {
+      console.warn('⚠️  No blocks found, initializing empty array');
       cloned.blocks = [];
     }
-    setEditingPage({ ...cloned, menu: buildMenuConfig(cloned) }); // Deep clone with menu defaults
+    
+    console.log('✅ Cloned page with', cloned.blocks.length, 'blocks');
+    const menuConfig = buildMenuConfig(cloned);
+    console.log('🔧 Menu config:', menuConfig);
+    
+    setEditingPage({ ...cloned, menu: menuConfig }); // Deep clone with menu defaults
     setShowEditor(true);
     setSelectedBlockId(null);
+    
+    console.log('🎯 Editor should now be visible');
   };
 
   const handleSave = async () => {
-    if (!editingPage) return;
+    if (!editingPage) {
+      console.error('❌ No page to save');
+      alert('Error: No page data to save');
+      return;
+    }
 
+    console.log('💾 Starting save for page:', editingPage.title);
+    console.log('📝 Page data being sent:', JSON.stringify(editingPage, null, 2));
+    
     setSaving(true);
     try {
       const method = editingPage.id === 'new' ? 'POST' : 'PUT';
+      const payload = {
+        ...editingPage,
+        updatedBy: (session?.user as any)?.email || (session?.user as any)?.name || 'admin',
+      };
+      
+      console.log('🚀 Sending', method, 'request to /api/cms/pages');
+      
       const res = await fetch('/api/cms/pages', {
         method,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
-          ...editingPage,
-          updatedBy: (session?.user as any)?.email || (session?.user as any)?.name || 'admin',
-        }),
+        body: JSON.stringify(payload),
       });
 
+      console.log('📊 Response status:', res.status);
+      
       if (res.ok) {
         const savedPage = await res.json();
+        console.log('✅ Page saved successfully:', savedPage);
+        
         await updateNavigation(savedPage as CMSPage);
         setShowEditor(false);
         fetchPages();
         fetchSettings();
+        
+        alert('✅ Page saved successfully!');
       } else {
-        console.error('Failed to save page');
+        const errorText = await res.text();
+        console.error('❌ Failed to save page. Status:', res.status, 'Response:', errorText);
+        alert('❌ Failed to save page. Status: ' + res.status);
       }
     } catch (error) {
-      console.error('Save failed:', error);
+      console.error('❌ Save failed with error:', error);
+      alert('❌ Error saving page: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setSaving(false);
     }
@@ -229,6 +260,8 @@ export default function CMSPagesEditor() {
 
   const updateBlock = (blockId: string, updates: Partial<ContentBlock>) => {
     if (!editingPage) return;
+    
+    console.log('🔧 Updating block:', blockId, 'with:', updates);
     
     setEditingPage({
       ...editingPage,
@@ -461,6 +494,81 @@ export default function CMSPagesEditor() {
             </div>
           </div>
         );
+      case 'cards':
+        return (
+          <div className="space-y-4">
+            <div className="text-sm text-text-secondary">Cards</div>
+            {(block.content?.cards || []).map((card: any, idx: number) => (
+              <div key={idx} className="bg-dark-lighter p-4 rounded border border-dark-border space-y-2">
+                <input
+                  type="text"
+                  value={card.title || ''}
+                  onChange={(e) => {
+                    const cards = [...(block.content?.cards || [])];
+                    cards[idx] = { ...card, title: e.target.value };
+                    updateBlock(block.id, { content: { ...block.content, cards } });
+                  }}
+                  placeholder="Card title"
+                  className="w-full bg-dark border border-dark-border rounded px-3 py-2 text-text-primary text-sm"
+                />
+                <textarea
+                  value={card.description || ''}
+                  onChange={(e) => {
+                    const cards = [...(block.content?.cards || [])];
+                    cards[idx] = { ...card, description: e.target.value };
+                    updateBlock(block.id, { content: { ...block.content, cards } });
+                  }}
+                  placeholder="Card description"
+                  className="w-full bg-dark border border-dark-border rounded px-3 py-2 text-text-primary text-sm min-h-[60px] resize-none"
+                />
+                <input
+                  type="text"
+                  value={card.url || ''}
+                  onChange={(e) => {
+                    const cards = [...(block.content?.cards || [])];
+                    cards[idx] = { ...card, url: e.target.value };
+                    updateBlock(block.id, { content: { ...block.content, cards } });
+                  }}
+                  placeholder="Link URL (e.g. /services/professional-services)"
+                  className="w-full bg-dark border border-dark-border rounded px-3 py-2 text-text-primary text-sm"
+                />
+                <input
+                  type="text"
+                  value={card.icon || ''}
+                  onChange={(e) => {
+                    const cards = [...(block.content?.cards || [])];
+                    cards[idx] = { ...card, icon: e.target.value };
+                    updateBlock(block.id, { content: { ...block.content, cards } });
+                  }}
+                  placeholder="Icon (emoji or text)"
+                  className="w-full bg-dark border border-dark-border rounded px-3 py-2 text-text-primary text-sm"
+                />
+                <div className="flex justify-between items-center text-xs text-text-muted">
+                  <span>Card {idx + 1}</span>
+                  <button
+                    onClick={() => {
+                      const cards = (block.content?.cards || []).filter((_: any, i: number) => i !== idx);
+                      updateBlock(block.id, { content: { ...block.content, cards } });
+                    }}
+                    className="text-cyber-red hover:bg-cyber-red/20 px-2 py-1 rounded"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+            <button
+              onClick={() => {
+                const cards = [...(block.content?.cards || [])];
+                cards.push({ title: 'New Card', description: '', url: '', icon: '' });
+                updateBlock(block.id, { content: { ...block.content, cards } });
+              }}
+              className="w-full btn-secondary py-2 text-sm"
+            >
+              Add Card
+            </button>
+          </div>
+        );
       default:
         return <div className="text-text-muted text-sm">Complex block - edit via JSON</div>;
     }
@@ -485,6 +593,21 @@ export default function CMSPagesEditor() {
             <h1 className="text-4xl font-bold text-gradient mb-2">{block.content.title}</h1>
             <p className="text-xl text-text-secondary mb-4">{block.content.subtitle}</p>
             <button className="btn-primary">{block.content.cta?.text}</button>
+          </div>
+        );
+      case 'cards':
+        const cols = block.styles?.columns || 3;
+        const gridCols = cols === 1 ? 'grid-cols-1' : cols === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3';
+        return (
+          <div className={`grid grid-cols-1 ${gridCols} gap-4`}>
+            {(block.content?.cards || []).map((card: any, i: number) => (
+              <div key={i} className="card-cyber p-4 text-center">
+                {card.icon && <div className="text-3xl mb-2">{card.icon}</div>}
+                <h4 className="font-semibold text-text-primary mb-1">{card.title}</h4>
+                <p className="text-text-secondary text-sm mb-2">{card.description}</p>
+                {card.url && <span className="text-xs text-cyber-cyan break-all">{card.url}</span>}
+              </div>
+            ))}
           </div>
         );
       case 'heading':

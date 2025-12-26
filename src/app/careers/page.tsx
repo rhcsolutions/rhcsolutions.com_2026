@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { usePageContent } from '@/lib/cms/usePageContent';
+import DynamicPageRenderer from '@/components/cms/DynamicPageRenderer';
 import { motion } from 'framer-motion';
 import { FaLightbulb, FaUsers, FaRocket, FaMapMarkerAlt, FaClock, FaBriefcase, FaArrowRight, FaSpinner, FaUpload } from 'react-icons/fa';
 
@@ -23,8 +25,14 @@ interface Job {
 }
 
 export default function CareersPage() {
+  const { page } = usePageContent('/careers');
   const [jobOpenings, setJobOpenings] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // If CMS page exists with blocks, render it
+  if (page && page.blocks && page.blocks.length > 0) {
+    return <DynamicPageRenderer blocks={page.blocks} />;
+  }
 
   useEffect(() => {
     const fetchJobs = async () => {
