@@ -132,9 +132,10 @@ export async function PUT(request: NextRequest) {
       email && role ? `email=${email}, role=${role}` : token ? 'token only, no email/role' : session ? 'session only, no email/role' : 'no auth'
     );
 
-    if (!role || !['admin', 'editor', 'jobs_manager'].includes(role as string)) {
-      console.warn('[API] PUT /api/cms/theme - Forbidden: user role not admin/editor');
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    // Allow any authenticated user to update theme (role-agnostic)
+    if (!email) {
+      console.warn('[API] PUT /api/cms/theme - Unauthorized: no authenticated user');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
