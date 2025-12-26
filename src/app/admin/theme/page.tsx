@@ -271,7 +271,7 @@ export default function ThemeManagement() {
                         </select>
                       </div>
                       <input
-                        type="text"
+                        type="color"
                         value={value}
                         onChange={(e) => {
                           const updated = {
@@ -281,9 +281,10 @@ export default function ThemeManagement() {
                           setFormData(updated);
                           applyThemeCSSVariables(updated);
                         }}
-                        placeholder="#00FF41 or custom color"
-                        className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-2 text-text-primary text-sm font-mono"
+                        className="w-full h-12 rounded-lg border-2 border-dark-border cursor-pointer"
+                        title={`Select color for ${key}`}
                       />
+                      <p className="text-xs text-text-muted font-mono">{value}</p>
                     </div>
                   </div>
                 ))}
