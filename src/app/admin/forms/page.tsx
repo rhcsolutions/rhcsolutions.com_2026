@@ -7,13 +7,19 @@ export default function FormsManagement() {
   const [activeTab, setActiveTab] = useState('submissions');
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => { fetchSubs(); }, []);
 
   const fetchSubs = async () => {
+    setError('');
     try {
       const res = await fetch('/api/forms');
-      if (res.ok) setSubmissions(await res.json());
+      if (res.ok) {
+        setSubmissions(await res.json());
+      } else {
+        setError('Failed to load submissions');
+      }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -61,6 +67,12 @@ export default function FormsManagement() {
 
           {/* Submissions Table */}
           <div className="card-cyber overflow-hidden">
+            {loading && (
+              <div className="p-4 text-text-secondary">Loading submissions…</div>
+            )}
+            {error && !loading && (
+              <div className="p-4 text-red-400">{error}</div>
+            )}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-dark-lighter">
@@ -74,31 +86,38 @@ export default function FormsManagement() {
                   </tr>
                 </thead>
                 <tbody>
-                  {submissions.length === 0 && (
+                  {!loading && !error && submissions.length === 0 && (
                     <tr>
                       <td className="p-4 text-text-secondary" colSpan={6}>No submissions yet.</td>
                     </tr>
                   )}
-                  {submissions.map((sub) => (
+                  {submissions.map((sub) => {
+                    const formName = sub.form || sub.type || sub.payload?.type || 'Contact';
+                    const name = sub.name || sub.fullName || sub.payload?.name || '-';
+                    const email = sub.email || sub.payload?.email || '-';
+                    const date = sub.date || sub.receivedAt || '-';
+                    const status = sub.status || 'Received';
+                    return (
                     <tr key={sub.id} className="border-t border-dark-border hover:bg-dark-lighter transition-colors">
-                      <td className="p-4 text-text-primary">{sub.form || sub.type || 'Contact'}</td>
-                      <td className="p-4 text-text-secondary">{sub.name || sub.fullName || '-'}</td>
-                      <td className="p-4 text-text-secondary font-mono text-sm">{sub.email || '-'}</td>
-                      <td className="p-4 text-text-secondary">{sub.date || sub.receivedAt || '-'}</td>
+                      <td className="p-4 text-text-primary">{formName}</td>
+                      <td className="p-4 text-text-secondary">{name}</td>
+                      <td className="p-4 text-text-secondary font-mono text-sm">{email}</td>
+                      <td className="p-4 text-text-secondary">{date}</td>
                       <td className="p-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          (sub.status || 'Received') === 'New' ? 'bg-cyber-green/20 text-cyber-green' :
-                          (sub.status || 'Received') === 'Reviewed' ? 'bg-cyber-cyan/20 text-cyber-cyan' :
+                          status === 'New' ? 'bg-cyber-green/20 text-cyber-green' :
+                          status === 'Reviewed' ? 'bg-cyber-cyan/20 text-cyber-cyan' :
                           'bg-cyber-blue/20 text-cyber-blue'
                         }`}>
-                          {sub.status || 'Received'}
+                          {status}
                         </span>
                       </td>
                       <td className="p-4 text-right">
                         <button className="btn-secondary py-2 px-4">View</button>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
