@@ -188,24 +188,42 @@ export default function ThemeManagement() {
                       {key} Font
                     </label>
 
-                    {/* Dropdown selector */}
-                    <select
-                      value={fontOptions.find((opt) => opt.value === value)?.value || ''}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          fonts: { ...formData.fonts, [key]: e.target.value },
-                        })
-                      }
-                      className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
-                    >
-                      <option value="">Choose a font</option>
-                      {fontOptions.map((opt) => (
-                        <option key={`${key}-${opt.value}`} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                    {/* Font select + size inline */}
+                    <div className="flex items-center gap-3">
+                      <select
+                        value={fontOptions.find((opt) => opt.value === value)?.value || ''}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            fonts: { ...formData.fonts, [key]: e.target.value },
+                          })
+                        }
+                        className="flex-1 bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                      >
+                        <option value="">Choose a font</option>
+                        {fontOptions.map((opt) => (
+                          <option key={`${key}-${opt.value}`} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        value={formData.fontSizes?.[key as keyof ThemeFontSizes] || ''}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            fontSizes: {
+                              ...formData.fontSizes,
+                              [key]: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-28 bg-dark border-2 border-dark-border rounded-lg px-3 py-2 text-text-primary text-center font-mono"
+                        placeholder="16px"
+                        aria-label={`${key} font size`}
+                      />
+                    </div>
 
                     {/* Inline preview */}
                     <div
@@ -214,23 +232,6 @@ export default function ThemeManagement() {
                     >
                       The quick brown fox jumps over the lazy dog
                     </div>
-
-                    <label className="block text-text-primary font-semibold mb-1">{key} Font Size</label>
-                    <input
-                      type="text"
-                      value={formData.fontSizes?.[key as keyof ThemeFontSizes] || ''}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          fontSizes: {
-                            ...formData.fontSizes,
-                            [key]: e.target.value,
-                          },
-                        })
-                      }
-                      className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
-                      placeholder="e.g., 16px or 1rem"
-                    />
                   </div>
                 ))}
               </div>
