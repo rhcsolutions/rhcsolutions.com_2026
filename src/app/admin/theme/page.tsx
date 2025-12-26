@@ -117,7 +117,9 @@ export default function ThemeManagement() {
                 <FaPalette /> Colors
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(formData.colors).map(([key, value]) => (
+                {Object.entries(formData.colors).map(([key, value]) => {
+                  const safeValue = /^#([0-9a-fA-F]{3}){1,2}$/i.test(value) ? value : '#000000';
+                  return (
                   <div key={key}>
                     <label className="block text-text-primary font-semibold mb-2 capitalize">
                       {key.replace(/([A-Z])/g, ' $1').trim()}
@@ -125,14 +127,14 @@ export default function ThemeManagement() {
                     <div className="flex gap-2">
                       <input
                         type="color"
-                        value={value}
+                        value={safeValue}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
                             colors: { ...formData.colors, [key]: e.target.value },
                           })
                         }
-                        className="w-16 h-12 rounded-lg cursor-pointer"
+                        className="w-24 md:w-28 h-12 rounded-lg border-2 border-dark-border cursor-pointer bg-dark-card"
                       />
                       <input
                         type="text"
@@ -147,7 +149,8 @@ export default function ThemeManagement() {
                       />
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
