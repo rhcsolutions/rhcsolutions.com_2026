@@ -463,7 +463,7 @@ export default function CMSPagesEditor() {
             </thead>
             <tbody>
               {filteredPages.map((page) => (
-                <tr key={page.id} className="border-t border-dark-border hover:bg-dark-lighter/50">
+                <tr key={page.slug || page.id} className="border-t border-dark-border hover:bg-dark-lighter/50">
                   <td className="px-4 py-3 font-medium text-text-primary">{page.title}</td>
                   <td className="px-4 py-3 font-mono text-text-muted">{page.slug}</td>
                   <td className="px-4 py-3">
