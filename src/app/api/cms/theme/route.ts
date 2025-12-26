@@ -132,7 +132,7 @@ export async function PUT(request: NextRequest) {
       email && role ? `email=${email}, role=${role}` : token ? 'token only, no email/role' : session ? 'session only, no email/role' : 'no auth'
     );
 
-    if (!role || !['admin', 'editor'].includes(role as string)) {
+    if (!role || !['admin', 'editor', 'jobs_manager'].includes(role as string)) {
       console.warn('[API] PUT /api/cms/theme - Forbidden: user role not admin/editor');
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

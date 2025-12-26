@@ -26,13 +26,27 @@ export async function proxy(req: NextRequest) {
   // Role-based access control
   const userRole = token && (token as any).role ? (token as any).role : null;
 
-  // jobs_manager can only access /admin/jobs and /api/cms/jobs
+  // jobs_manager: allow Jobs and Theme
   if (userRole === 'jobs_manager') {
-    if (
-      (pathname.startsWith('/admin') && !pathname.startsWith('/admin/jobs') && pathname !== '/admin') ||
-      (pathname.startsWith('/api/cms') && !pathname.startsWith('/api/cms/jobs'))
-    ) {
-      return NextResponse.json({ error: 'Forbidden: access restricted to jobs management' }, { status: 403 });
+    const adminAllowed = [
+      '/admin',
+      '/admin/jobs',
+      '/admin/theme',
+      '/admin/theme-settings',
+    ];
+    const apiAllowed = [
+      '/api/cms/jobs',
+      '/api/cms/theme',
+    ];
+
+    const isAdminPath = pathname.startsWith('/admin');
+    const isApiCmsPath = pathname.startsWith('/api/cms');
+
+    const adminOk = adminAllowed.some((p) => pathname === p || pathname.startsWith(p + '/'));
+    const apiOk = apiAllowed.some((p) => pathname === p || pathname.startsWith(p + '/'));
+
+    if ((isAdminPath && !adminOk) || (isApiCmsPath && !apiOk)) {
+      return NextResponse.json({ error: 'Forbidden: access restricted to jobs and theme management' }, { status: 403 });
     }
   }
 
