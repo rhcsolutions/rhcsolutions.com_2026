@@ -31,10 +31,26 @@ interface ThemeFontSizes {
   mono: string;
 }
 
+interface ButtonStyles {
+  fontFamily: string;
+  fontSize: string;
+  fontWeight: string;
+  paddingX: string;
+  paddingY: string;
+  borderRadius: string;
+  primaryBg: string;
+  primaryHoverBg: string;
+  primaryText: string;
+  outlineBorder: string;
+  outlineText: string;
+  outlineHoverBg: string;
+}
+
 interface Theme {
   colors: ThemeColors;
   fonts: ThemeFonts;
   fontSizes: ThemeFontSizes;
+  buttonStyles?: ButtonStyles;
   borderRadius: string;
   shadowIntensity: 'light' | 'medium' | 'heavy';
   updatedAt: string;
@@ -62,6 +78,20 @@ const defaultTheme: Theme = {
     secondary: '16px',
     mono: '14px',
   },
+  buttonStyles: {
+    fontFamily: 'inherit',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    paddingX: '2rem',
+    paddingY: '1rem',
+    borderRadius: '0.5rem',
+    primaryBg: 'linear-gradient(to right, var(--color-primary), var(--color-secondary))',
+    primaryHoverBg: 'linear-gradient(to right, var(--color-secondary), var(--color-primary))',
+    primaryText: '#0A0E27',
+    outlineBorder: 'var(--color-secondary)',
+    outlineText: 'var(--color-secondary)',
+    outlineHoverBg: 'var(--color-secondary)',
+  },
   borderRadius: '0.5rem',
   shadowIntensity: 'medium',
   updatedAt: new Date().toISOString(),
@@ -75,6 +105,7 @@ function mergeTheme(data: any): Theme {
     colors: { ...defaultTheme.colors, ...(incoming.colors || {}) },
     fonts: { ...defaultTheme.fonts, ...(incoming.fonts || {}) },
     fontSizes: { ...defaultTheme.fontSizes, ...(incoming.fontSizes || {}) },
+    buttonStyles: { ...defaultTheme.buttonStyles, ...(incoming.buttonStyles || {}) },
     updatedAt: incoming.updatedAt || defaultTheme.updatedAt,
     updatedBy: incoming.updatedBy,
   };

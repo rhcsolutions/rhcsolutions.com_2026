@@ -68,10 +68,26 @@ interface ThemeFontSizes {
   mono: string;
 }
 
+interface ButtonStyles {
+  fontFamily: string;
+  fontSize: string;
+  fontWeight: string;
+  paddingX: string;
+  paddingY: string;
+  borderRadius: string;
+  primaryBg: string;
+  primaryHoverBg: string;
+  primaryText: string;
+  outlineBorder: string;
+  outlineText: string;
+  outlineHoverBg: string;
+}
+
 interface Theme {
   colors: ThemeColors;
   fonts: ThemeFonts;
   fontSizes: ThemeFontSizes;
+  buttonStyles?: ButtonStyles;
   borderRadius: string;
   shadowIntensity: 'light' | 'medium' | 'heavy';
   updatedAt: string;
@@ -108,6 +124,21 @@ export default function ThemeManagement() {
     const primaryPx = parseFloat(themeData.fontSizes?.primary || '16px');
     const scale = isNaN(primaryPx) ? 1 : primaryPx / 16;
     root.style.setProperty('--type-scale', String(scale));
+    // Buttons
+    if (themeData.buttonStyles) {
+      root.style.setProperty('--btn-font-family', themeData.buttonStyles.fontFamily || 'inherit');
+      root.style.setProperty('--btn-font-size', themeData.buttonStyles.fontSize || '16px');
+      root.style.setProperty('--btn-font-weight', themeData.buttonStyles.fontWeight || 'bold');
+      root.style.setProperty('--btn-padding-x', themeData.buttonStyles.paddingX || '2rem');
+      root.style.setProperty('--btn-padding-y', themeData.buttonStyles.paddingY || '1rem');
+      root.style.setProperty('--btn-border-radius', themeData.buttonStyles.borderRadius || '0.5rem');
+      root.style.setProperty('--btn-primary-bg', themeData.buttonStyles.primaryBg || 'linear-gradient(to right, var(--color-primary), var(--color-secondary))');
+      root.style.setProperty('--btn-primary-hover-bg', themeData.buttonStyles.primaryHoverBg || 'linear-gradient(to right, var(--color-secondary), var(--color-primary))');
+      root.style.setProperty('--btn-primary-text', themeData.buttonStyles.primaryText || '#0A0E27');
+      root.style.setProperty('--btn-outline-border', themeData.buttonStyles.outlineBorder || 'var(--color-secondary)');
+      root.style.setProperty('--btn-outline-text', themeData.buttonStyles.outlineText || 'var(--color-secondary)');
+      root.style.setProperty('--btn-outline-hover-bg', themeData.buttonStyles.outlineHoverBg || 'var(--color-secondary)');
+    }
   };
 
   useEffect(() => {
@@ -127,7 +158,21 @@ export default function ThemeManagement() {
           secondary: (data as any)?.fontSizes?.secondary || '16px',
           mono: (data as any)?.fontSizes?.mono || '14px',
         };
-        const hydrated = { ...data, fontSizes } as Theme;
+        const buttonStyles: ButtonStyles = {
+          fontFamily: (data as any)?.buttonStyles?.fontFamily || 'inherit',
+          fontSize: (data as any)?.buttonStyles?.fontSize || '16px',
+          fontWeight: (data as any)?.buttonStyles?.fontWeight || 'bold',
+          paddingX: (data as any)?.buttonStyles?.paddingX || '2rem',
+          paddingY: (data as any)?.buttonStyles?.paddingY || '1rem',
+          borderRadius: (data as any)?.buttonStyles?.borderRadius || '0.5rem',
+          primaryBg: (data as any)?.buttonStyles?.primaryBg || 'linear-gradient(to right, var(--color-primary), var(--color-secondary))',
+          primaryHoverBg: (data as any)?.buttonStyles?.primaryHoverBg || 'linear-gradient(to right, var(--color-secondary), var(--color-primary))',
+          primaryText: (data as any)?.buttonStyles?.primaryText || '#0A0E27',
+          outlineBorder: (data as any)?.buttonStyles?.outlineBorder || 'var(--color-secondary)',
+          outlineText: (data as any)?.buttonStyles?.outlineText || 'var(--color-secondary)',
+          outlineHoverBg: (data as any)?.buttonStyles?.outlineHoverBg || 'var(--color-secondary)',
+        };
+        const hydrated = { ...data, fontSizes, buttonStyles } as Theme;
         setTheme(hydrated);
         setFormData(hydrated);
         applyThemeCSSVariables(hydrated);
@@ -199,13 +244,35 @@ export default function ThemeManagement() {
                     <label className="block text-text-primary font-semibold mb-2 capitalize">
                       {key.replace(/([A-Z])/g, ' $1').trim()}
                     </label>
-                    <div className="flex gap-3 items-center">
-                      <div
-                        className="w-12 h-12 rounded-lg border-2 border-dark-border flex-shrink-0"
-                        style={{ backgroundColor: value }}
-                      />
-                      <select
-                        value={colorOptions.find((opt) => opt.value === value)?.value || ''}
+                    <div className="space-y-2">
+                      <div className="flex gap-3 items-center">
+                        <div
+                          className="w-12 h-12 rounded-lg border-2 border-dark-border flex-shrink-0"
+                          style={{ backgroundColor: value }}
+                        />
+                        <select
+                          value={colorOptions.find((opt) => opt.value === value)?.value || ''}
+                          onChange={(e) => {
+                            const updated = {
+                              ...formData,
+                              colors: { ...formData.colors, [key]: e.target.value },
+                            };
+                            setFormData(updated);
+                            applyThemeCSSVariables(updated);
+                          }}
+                          className="flex-1 bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                        >
+                          <option value="">Choose preset</option>
+                          {colorOptions.map((opt) => (
+                            <option key={`${key}-${opt.value}`} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <input
+                        type="text"
+                        value={value}
                         onChange={(e) => {
                           const updated = {
                             ...formData,
@@ -214,15 +281,9 @@ export default function ThemeManagement() {
                           setFormData(updated);
                           applyThemeCSSVariables(updated);
                         }}
-                        className="flex-1 bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
-                      >
-                        <option value="">Choose color</option>
-                        {colorOptions.map((opt) => (
-                          <option key={`${key}-${opt.value}`} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
+                        placeholder="#00FF41 or custom color"
+                        className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-2 text-text-primary text-sm font-mono"
+                      />
                     </div>
                   </div>
                 ))}
@@ -294,6 +355,232 @@ export default function ThemeManagement() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Button Styles Section */}
+            <div className="card-cyber p-6">
+              <h2 className="heading-lg text-gradient mb-6">Button Styles</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Button Font Family</label>
+                  <select
+                    value={formData.buttonStyles?.fontFamily || 'inherit'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, fontFamily: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                  >
+                    <option value="inherit">Inherit from Primary</option>
+                    {fontOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Button Font Size</label>
+                  <select
+                    value={formData.buttonStyles?.fontSize || '16px'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, fontSize: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                  >
+                    {fontSizeOptions.map((sz) => (
+                      <option key={sz} value={sz}>
+                        {sz}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Font Weight</label>
+                  <select
+                    value={formData.buttonStyles?.fontWeight || 'bold'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, fontWeight: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                  >
+                    <option value="normal">Normal (400)</option>
+                    <option value="500">Medium (500)</option>
+                    <option value="600">Semi-Bold (600)</option>
+                    <option value="bold">Bold (700)</option>
+                    <option value="800">Extra Bold (800)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Border Radius</label>
+                  <input
+                    type="text"
+                    value={formData.buttonStyles?.borderRadius || '0.5rem'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, borderRadius: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    placeholder="0.5rem"
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Horizontal Padding</label>
+                  <input
+                    type="text"
+                    value={formData.buttonStyles?.paddingX || '2rem'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, paddingX: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    placeholder="2rem"
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Vertical Padding</label>
+                  <input
+                    type="text"
+                    value={formData.buttonStyles?.paddingY || '1rem'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, paddingY: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    placeholder="1rem"
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-text-primary font-semibold mb-2">Primary Button Background</label>
+                  <input
+                    type="text"
+                    value={formData.buttonStyles?.primaryBg || 'linear-gradient(to right, var(--color-primary), var(--color-secondary))'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, primaryBg: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    placeholder="CSS gradient or color"
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary font-mono text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Primary Button Text Color</label>
+                  <input
+                    type="text"
+                    value={formData.buttonStyles?.primaryText || '#0A0E27'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, primaryText: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    placeholder="#0A0E27"
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Outline Button Border Color</label>
+                  <input
+                    type="text"
+                    value={formData.buttonStyles?.outlineBorder || 'var(--color-secondary)'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, outlineBorder: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    placeholder="var(--color-secondary)"
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Outline Button Text Color</label>
+                  <input
+                    type="text"
+                    value={formData.buttonStyles?.outlineText || 'var(--color-secondary)'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, outlineText: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    placeholder="var(--color-secondary)"
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-text-primary font-semibold mb-2">Outline Hover Background</label>
+                  <input
+                    type="text"
+                    value={formData.buttonStyles?.outlineHoverBg || 'var(--color-secondary)'}
+                    onChange={(e) => {
+                      const updated = {
+                        ...formData,
+                        buttonStyles: { ...formData.buttonStyles!, outlineHoverBg: e.target.value },
+                      };
+                      setFormData(updated);
+                      applyThemeCSSVariables(updated);
+                    }}
+                    placeholder="var(--color-secondary)"
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Button Preview */}
+              <div className="mt-6 pt-6 border-t border-dark-border">
+                <p className="text-text-secondary text-sm mb-4">Button Preview</p>
+                <div className="flex gap-4 flex-wrap">
+                  <button className="btn-primary">Primary Button</button>
+                  <button className="btn-outline">Outline Button</button>
+                </div>
               </div>
             </div>
 

@@ -116,27 +116,40 @@
 
   /* Button colors using theme variables */
   .btn-primary {
-    @apply relative text-dark-card font-bold py-4 px-8 rounded-lg overflow-hidden transition-all duration-300 inline-flex items-center justify-center;
-    background: linear-gradient(to right, var(--color-primary, #00FF41), var(--color-secondary, #00F0FF));
+    @apply relative overflow-hidden transition-all duration-300 inline-flex items-center justify-center;
+    font-family: var(--btn-font-family, inherit);
+    font-size: var(--btn-font-size, 1rem);
+    font-weight: var(--btn-font-weight, bold);
+    padding: var(--btn-padding-y, 1rem) var(--btn-padding-x, 2rem);
+    border-radius: var(--btn-border-radius, 0.5rem);
+    color: var(--btn-primary-text, #0A0E27);
+    background: var(--btn-primary-bg, linear-gradient(to right, var(--color-primary, #00FF41), var(--color-secondary, #00F0FF)));
     box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary, #00FF41) 30%, transparent);
   }
 
   .btn-primary:hover {
     @apply scale-105;
+    background: var(--btn-primary-hover-bg, linear-gradient(to right, var(--color-secondary, #00F0FF), var(--color-primary, #00FF41)));
     box-shadow: 0 0 40px color-mix(in srgb, var(--color-primary, #00FF41) 60%, transparent);
   }
 
   .btn-outline {
-    @apply relative border font-bold py-4 px-8 rounded-lg overflow-hidden transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm;
-    border-color: var(--color-secondary, #00F0FF);
-    color: var(--color-secondary, #00F0FF);
-    background-color: color-mix(in srgb, var(--color-secondary, #00F0FF) 10%, transparent);
+    @apply relative overflow-hidden transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm;
+    font-family: var(--btn-font-family, inherit);
+    font-size: var(--btn-font-size, 1rem);
+    font-weight: var(--btn-font-weight, bold);
+    padding: var(--btn-padding-y, 1rem) var(--btn-padding-x, 2rem);
+    border-radius: var(--btn-border-radius, 0.5rem);
+    border: 2px solid var(--btn-outline-border, var(--color-secondary, #00F0FF));
+    color: var(--btn-outline-text, var(--color-secondary, #00F0FF));
+    background-color: color-mix(in srgb, var(--btn-outline-border, var(--color-secondary, #00F0FF)) 10%, transparent);
   }
 
   .btn-outline:hover {
-    border-color: var(--color-secondary, #00F0FF);
+    border-color: var(--btn-outline-border, var(--color-secondary, #00F0FF));
+    background-color: var(--btn-outline-hover-bg, var(--color-secondary, #00F0FF));
     color: white;
-    box-shadow: 0 0 30px color-mix(in srgb, var(--color-secondary, #00F0FF) 40%, transparent);
+    box-shadow: 0 0 30px color-mix(in srgb, var(--btn-outline-border, var(--color-secondary, #00F0FF)) 40%, transparent);
   }
 
   /* Cyber/Tech Elements */

@@ -32,6 +32,22 @@ export function useTheme() {
         const primaryPx = parseFloat(theme.fontSizes?.primary || '16px');
         const scale = isNaN(primaryPx) ? 1 : primaryPx / 16;
         root.style.setProperty('--type-scale', String(scale));
+        
+        // Apply button styles
+        if (theme.buttonStyles) {
+          root.style.setProperty('--btn-font-family', theme.buttonStyles.fontFamily || 'inherit');
+          root.style.setProperty('--btn-font-size', theme.buttonStyles.fontSize || '16px');
+          root.style.setProperty('--btn-font-weight', theme.buttonStyles.fontWeight || 'bold');
+          root.style.setProperty('--btn-padding-x', theme.buttonStyles.paddingX || '2rem');
+          root.style.setProperty('--btn-padding-y', theme.buttonStyles.paddingY || '1rem');
+          root.style.setProperty('--btn-border-radius', theme.buttonStyles.borderRadius || '0.5rem');
+          root.style.setProperty('--btn-primary-bg', theme.buttonStyles.primaryBg || 'linear-gradient(to right, var(--color-primary), var(--color-secondary))');
+          root.style.setProperty('--btn-primary-hover-bg', theme.buttonStyles.primaryHoverBg || 'linear-gradient(to right, var(--color-secondary), var(--color-primary))');
+          root.style.setProperty('--btn-primary-text', theme.buttonStyles.primaryText || '#0A0E27');
+          root.style.setProperty('--btn-outline-border', theme.buttonStyles.outlineBorder || 'var(--color-secondary)');
+          root.style.setProperty('--btn-outline-text', theme.buttonStyles.outlineText || 'var(--color-secondary)');
+          root.style.setProperty('--btn-outline-hover-bg', theme.buttonStyles.outlineHoverBg || 'var(--color-secondary)');
+        }
       } catch (error) {
         console.error('[useTheme] Failed to fetch theme:', error);
       }
