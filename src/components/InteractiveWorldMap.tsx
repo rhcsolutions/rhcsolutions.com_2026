@@ -3,8 +3,6 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FaMapMarkerAlt } from 'react-icons/fa';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 
 interface Office {
   city: string;
@@ -24,9 +22,10 @@ const offices: Office[] = [
 
 export default function InteractiveWorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<L.Map | null>(null);
+  const map = useRef<any>(null);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     if (!mapContainer.current) return;
 
     // Prevent reinitializing if already mounted
@@ -35,82 +34,87 @@ export default function InteractiveWorldMap() {
       return;
     }
 
-    // Initialize map centered on Europe
-    map.current = L.map(mapContainer.current, {
-      center: [20, 10],
-      zoom: 3,
-      zoomControl: true,
-      scrollWheelZoom: true,
-      dragging: true,
-    });
+    (async () => {
+      const L = (await import('leaflet')).default;
+      await import('leaflet/dist/leaflet.css');
 
-    // Use a darker tile provider that matches the theme
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      maxZoom: 19,
-      opacity: 0.8,
-    }).addTo(map.current);
-
-    // Custom icon for office markers
-    const customIcon = L.icon({
-      iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2300D9FF" width="32" height="32"><path d="M12 0C7.58 0 4 3.58 4 8c0 5.25 8 16 8 16s8-10.75 8-16c0-4.42-3.58-8-8-8zm0 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32],
-    });
-
-    // Add markers for each office
-    offices.forEach((office) => {
-      const marker = L.marker([office.lat, office.lng], {
-        icon: customIcon,
-      }).addTo(map.current!);
-
-      marker.bindPopup(
-        `<div style="color: #fff; font-family: system-ui, -apple-system, sans-serif;">
-          <strong style="font-size: 16px; color: #00D9FF;">${office.city}</strong><br/>
-          <span style="color: #aaa; font-size: 14px;">${office.country}</span><br/>
-          <span style="color: #888; font-size: 12px; font-family: monospace;">${office.timezone}</span>
-        </div>`,
-        {
-          className: 'dark-popup',
-          closeButton: true,
-        }
-      );
-    });
-
-    // Draw lines between offices
-    offices.forEach((office, idx) => {
-      offices.slice(idx + 1).forEach((targetOffice) => {
-        L.polyline(
-          [[office.lat, office.lng], [targetOffice.lat, targetOffice.lng]],
-          {
-            color: '#00D9FF',
-            weight: 1,
-            opacity: 0.3,
-            dashArray: '5, 5',
-          }
-        ).addTo(map.current!);
+      // Initialize map centered on Europe
+      map.current = L.map(mapContainer.current!, {
+        center: [20, 10],
+        zoom: 3,
+        zoomControl: true,
+        scrollWheelZoom: true,
+        dragging: true,
       });
-    });
 
-    // Style popup
-    const style = document.createElement('style');
-    style.textContent = `
-      .dark-popup .leaflet-popup-content-wrapper {
-        background-color: #1a1a2e !important;
-        border: 1px solid #00D9FF !important;
-        border-radius: 8px !important;
-        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
-      }
-      .dark-popup .leaflet-popup-tip {
-        background-color: #1a1a2e !important;
-        border-top-color: #00D9FF !important;
-      }
-      .dark-popup .leaflet-popup-close-button {
-        color: #00D9FF !important;
-      }
-    `;
-    document.head.appendChild(style);
+      // Use a darker tile provider that matches the theme
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        maxZoom: 19,
+        opacity: 0.8,
+      }).addTo(map.current);
+
+      // Custom icon for office markers
+      const customIcon = L.icon({
+        iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2300D9FF" width="32" height="32"><path d="M12 0C7.58 0 4 3.58 4 8c0 5.25 8 16 8 16s8-10.75 8-16c0-4.42-3.58-8-8-8zm0 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32],
+      });
+
+      // Add markers for each office
+      offices.forEach((office) => {
+        const marker = L.marker([office.lat, office.lng], {
+          icon: customIcon,
+        }).addTo(map.current!);
+
+        marker.bindPopup(
+          `<div style="color: #fff; font-family: system-ui, -apple-system, sans-serif;">
+            <strong style="font-size: 16px; color: #00D9FF;">${office.city}</strong><br/>
+            <span style="color: #aaa; font-size: 14px;">${office.country}</span><br/>
+            <span style="color: #888; font-size: 12px; font-family: monospace;">${office.timezone}</span>
+          </div>`,
+          {
+            className: 'dark-popup',
+            closeButton: true,
+          }
+        );
+      });
+
+      // Draw lines between offices
+      offices.forEach((office, idx) => {
+        offices.slice(idx + 1).forEach((targetOffice) => {
+          L.polyline(
+            [[office.lat, office.lng], [targetOffice.lat, targetOffice.lng]],
+            {
+              color: '#00D9FF',
+              weight: 1,
+              opacity: 0.3,
+              dashArray: '5, 5',
+            }
+          ).addTo(map.current!);
+        });
+      });
+
+      // Style popup
+      const style = document.createElement('style');
+      style.textContent = `
+        .dark-popup .leaflet-popup-content-wrapper {
+          background-color: #1a1a2e !important;
+          border: 1px solid #00D9FF !important;
+          border-radius: 8px !important;
+          box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
+        }
+        .dark-popup .leaflet-popup-tip {
+          background-color: #1a1a2e !important;
+          border-top-color: #00D9FF !important;
+        }
+        .dark-popup .leaflet-popup-close-button {
+          color: #00D9FF !important;
+        }
+      `;
+      document.head.appendChild(style);
+    })();
 
     return () => {
       if (map.current) {
