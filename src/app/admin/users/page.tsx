@@ -48,7 +48,7 @@ export default function UsersManagement() {
       });
       if (!response.ok) {
         const msg = await response.text();
-        alert(`Failed to generate 2FA secret: ${msg || response.status}`);
+        
         return;
       }
       const data = await response.json();
@@ -57,7 +57,7 @@ export default function UsersManagement() {
       setTwoFAModalOpen(true);
     } catch (error) {
       console.error('Error generating 2FA:', error);
-      alert('Error generating 2FA secret');
+      
     }
   };
 
@@ -70,7 +70,7 @@ export default function UsersManagement() {
         body: JSON.stringify({ id: twoFAModalUser.id, token: otpInput }),
       });
       if (response.ok) {
-        alert('2FA enabled successfully!');
+        
         setTwoFAModalOpen(false);
         setTwoFAModalUser(null);
         setTwoFASecret(null);
@@ -82,11 +82,11 @@ export default function UsersManagement() {
         setUsers(Array.isArray(usersData) ? usersData : []);
       } else {
         const msg = await response.text();
-        alert(`Invalid or expired OTP: ${msg || response.status}`);
+        
       }
     } catch (error) {
       console.error('Error verifying 2FA:', error);
-      alert('Error verifying 2FA');
+      
     } finally {
       setActionLoading(false);
     }
@@ -110,18 +110,18 @@ export default function UsersManagement() {
         body: JSON.stringify(editFormData),
       });
       if (response.ok) {
-        alert('User updated successfully!');
+        
         setEditModalOpen(false);
         setEditModalUser(null);
         const usersResponse = await fetch('/api/cms/users');
         const usersData = await usersResponse.json();
         setUsers(Array.isArray(usersData) ? usersData : []);
       } else {
-        alert('Error updating user');
+        
       }
     } catch (error) {
       console.error('Error updating user:', error);
-      alert('Error updating user');
+      
     } finally {
       setActionLoading(false);
     }
@@ -129,7 +129,7 @@ export default function UsersManagement() {
 
   const sendPasswordReset = async () => {
     if (!editModalUser?.email) {
-      alert('User email not found');
+      
       return;
     }
     
@@ -141,14 +141,14 @@ export default function UsersManagement() {
         body: JSON.stringify({ email: editModalUser.email }),
       });
       if (response.ok) {
-        alert('Password reset email sent successfully!');
+        
         setPasswordTab('none');
       } else {
-        alert('Error sending reset email');
+        
       }
     } catch (error) {
       console.error('Error sending reset email:', error);
-      alert('Error sending reset email');
+      
     } finally {
       setActionLoading(false);
     }
@@ -156,12 +156,12 @@ export default function UsersManagement() {
 
   const setPasswordDirectly = async () => {
     if (newPassword.length < 6) {
-      alert('Password must be at least 6 characters long');
+      
       return;
     }
     
     if (newPassword !== confirmPassword) {
-      alert('Passwords do not match');
+      
       return;
     }
 
@@ -173,16 +173,16 @@ export default function UsersManagement() {
         body: JSON.stringify({ password: newPassword }),
       });
       if (response.ok) {
-        alert('Password set successfully!');
+        
         setNewPassword('');
         setConfirmPassword('');
         setPasswordTab('none');
       } else {
-        alert('Error setting password');
+        
       }
     } catch (error) {
       console.error('Error setting password:', error);
-      alert('Error setting password');
+      
     } finally {
       setActionLoading(false);
     }
@@ -193,14 +193,14 @@ export default function UsersManagement() {
       try {
         const response = await fetch(`/api/cms/users?id=${id}`, { method: 'DELETE' });
         if (response.ok) {
-          alert('User deleted successfully!');
+          
           setUsers(users.filter(u => u.id !== id));
         } else {
-          alert('Error deleting user');
+          
         }
       } catch (error) {
         console.error('Error deleting user:', error);
-        alert('Error deleting user');
+        
       }
     }
   };
@@ -288,7 +288,7 @@ export default function UsersManagement() {
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(twoFASecret || '');
-                      alert('Secret copied!');
+                      
                     }}
                     className="ml-2 text-blue-500 hover:text-blue-700"
                   >

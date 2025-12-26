@@ -132,13 +132,13 @@ export default function JobManagement() {
           setJobs([...jobs, result]);
         }
         handleCloseModal();
-        alert('✓ Job saved successfully!');
+        
       } else {
-        alert('Failed to save job');
+        
       }
     } catch (error) {
       console.error('Save failed:', error);
-      alert('Failed to save job');
+      
     } finally {
       setSaving(false);
     }

@@ -70,13 +70,13 @@ export default function TypographyManagement() {
       if (res.ok) {
         const updated = await res.json();
         setTypography(updated);
-        alert('✓ Typography saved successfully!');
+        
       } else {
-        alert('Failed to save typography');
+        
       }
     } catch (error) {
       console.error('Save failed:', error);
-      alert('Failed to save typography');
+      
     } finally {
       setSaving(false);
     }

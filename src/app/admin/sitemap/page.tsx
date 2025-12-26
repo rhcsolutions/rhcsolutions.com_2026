@@ -18,7 +18,9 @@ export default function SitemapPage() {
 
   const regen = async () => {
     const res = await fetch('/api/sitemap', { method: 'POST' });
-    if (res.ok) { alert('sitemap.xml regenerated'); fetchSitemap(); }
+    if (res.ok) {
+      fetchSitemap();
+    }
   };
 
   return (

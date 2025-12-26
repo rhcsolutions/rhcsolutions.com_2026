@@ -129,14 +129,14 @@ export default function SettingsPage() {
       });
       if (!res.ok) {
         const text = await res.text();
-        alert(`Save failed: ${text || res.status}`);
+        
         return;
       }
       await fetchSettings();
-      alert("✓ Settings saved");
+      
     } catch (e) {
       console.error("Save settings failed", e);
-      alert("Failed to save settings");
+      
     } finally {
       setSaving(false);
     }
@@ -156,14 +156,14 @@ export default function SettingsPage() {
         const updated = await res.json();
         setTheme(updated);
         setThemeForm(updated);
-        alert("✓ Theme saved successfully!");
+        
       } else {
         const msg = await res.text();
-        alert(`Failed to save theme: ${msg || res.status}`);
+        
       }
     } catch (e) {
       console.error("Save theme failed", e);
-      alert("Failed to save theme");
+      
     } finally {
       setSaving(false);
     }

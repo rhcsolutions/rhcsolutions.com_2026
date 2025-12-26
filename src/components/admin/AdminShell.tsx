@@ -103,16 +103,13 @@ export default function AdminShell({ children, title }: AdminShellProps) {
                     try {
                       const res = await fetch('/api/cms/theme', { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(theme) });
                       if (res.ok) {
-                        alert(`✓ Theme "${preset}" applied successfully!`);
                         console.log(`[AdminShell] Theme preset "${preset}" applied`);
                       } else {
                         const msg = await res.text();
                         console.error(`[AdminShell] Theme apply failed: ${msg || res.status}`);
-                        alert(`Failed to apply theme: ${res.status}. Check auth or permissions.`);
                       }
                     } catch (e) {
                       console.error('[AdminShell] Theme apply error:', e);
-                      alert('Failed to apply theme. Check browser console.');
                     } finally {
                       setThemeSaving(false);
                     }

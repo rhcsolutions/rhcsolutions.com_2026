@@ -20,8 +20,7 @@ export default function CookieSettings() {
   const save = async () => {
     try {
       await fetch('/api/cms/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) });
-      alert('Saved');
-    } catch (e) { console.error(e); alert('Save failed'); }
+    } catch (e) { console.error('Save failed:', e); }
   };
 
   if (loading || !settings) return (

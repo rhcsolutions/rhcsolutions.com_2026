@@ -23,7 +23,7 @@ export default function MediaLibrary() {
 
   const handleUpload = async (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('Only images are currently supported');
+      
       return;
     }
 
@@ -36,14 +36,14 @@ export default function MediaLibrary() {
       if (res.ok) {
         const item = await res.json();
         setMedia(prev => [...prev, item]);
-        alert('Upload successful!');
+        
       } else {
         const err = await res.json();
         alert('Upload failed: ' + (err?.error || 'Unknown error'));
       }
     } catch (e) {
       console.error(e);
-      alert('Upload error');
+      
     } finally {
       setUploading(false);
     }
@@ -67,11 +67,11 @@ export default function MediaLibrary() {
       if (res.ok) {
         setMedia(prev => prev.filter(m => m.id !== id));
       } else {
-        alert('Delete failed');
+        
       }
     } catch (e) {
       console.error(e);
-      alert('Error');
+      
     }
   };
 

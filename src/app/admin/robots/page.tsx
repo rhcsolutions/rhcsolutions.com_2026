@@ -18,14 +18,15 @@ export default function RobotsPage() {
 
   const save = async () => {
     await fetch('/api/robots', { method: 'PUT', body: text });
-    alert('Saved');
   };
 
   const addAhrefs = async () => {
     const code = prompt('Enter Ahrefs verification code');
     if (!code) return;
     const res = await fetch('/api/robots', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ahrefs: code }) });
-    if (res.ok) alert('Verification file created');
+    if (res.ok) {
+      console.log('Verification file created');
+    }
   };
 
   return (

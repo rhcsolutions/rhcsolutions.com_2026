@@ -98,15 +98,15 @@ export default function CMSPagesEditor() {
       });
 
       if (res.ok) {
-        alert('✓ Page saved successfully!');
+        
         setShowEditor(false);
         fetchPages();
       } else {
-        alert('Failed to save page');
+        
       }
     } catch (error) {
       console.error('Save failed:', error);
-      alert('Failed to save page');
+      
     } finally {
       setSaving(false);
     }
@@ -122,7 +122,7 @@ export default function CMSPagesEditor() {
       }
     } catch (error) {
       console.error('Delete failed:', error);
-      alert('Failed to delete page');
+      
     }
   };
 
