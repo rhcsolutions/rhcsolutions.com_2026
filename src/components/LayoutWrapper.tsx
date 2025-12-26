@@ -4,6 +4,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CookieConsent from '@/components/CookieConsent';
 import { SiteSettings } from '@/lib/cms/database';
+import { useTheme } from '@/lib/useTheme';
 
 interface LayoutWrapperProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ interface LayoutWrapperProps {
 export default function LayoutWrapper({ children, settings }: LayoutWrapperProps) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith('/admin');
+  useTheme(); // Apply theme CSS variables on client mount
 
   // Admin routes: no Header/Footer/CookieConsent
   if (isAdminRoute) {

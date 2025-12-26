@@ -70,6 +70,20 @@ export default function ThemeManagement() {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Theme | null>(null);
 
+  // Apply theme CSS variables to document root for real-time preview
+  const applyThemeCSSVariables = (themeData: Theme) => {
+    const root = document.documentElement;
+    root.style.setProperty('--font-primary-family', themeData.fonts?.primary || 'Inter, system-ui, sans-serif');
+    root.style.setProperty('--font-secondary-family', themeData.fonts?.secondary || 'Space Grotesk, system-ui, sans-serif');
+    root.style.setProperty('--font-mono-family', themeData.fonts?.mono || 'JetBrains Mono, Courier New, monospace');
+    root.style.setProperty('--font-primary-size', themeData.fontSizes?.primary || '16px');
+    root.style.setProperty('--font-secondary-size', themeData.fontSizes?.secondary || '16px');
+    root.style.setProperty('--font-mono-size', themeData.fontSizes?.mono || '14px');
+    const primaryPx = parseFloat(themeData.fontSizes?.primary || '16px');
+    const scale = isNaN(primaryPx) ? 1 : primaryPx / 16;
+    root.style.setProperty('--type-scale', String(scale));
+  };
+
   useEffect(() => {
     fetchTheme();
   }, []);
@@ -90,6 +104,7 @@ export default function ThemeManagement() {
         const hydrated = { ...data, fontSizes } as Theme;
         setTheme(hydrated);
         setFormData(hydrated);
+        applyThemeCSSVariables(hydrated);
       }
     } catch (error) {
       console.error('Failed to fetch theme:', error);
@@ -115,14 +130,12 @@ export default function ThemeManagement() {
         const updated = await res.json();
         setTheme(updated);
         setFormData(updated);
-        alert('✓ Theme saved successfully!');
       } else {
         const message = await res.text();
-        alert(`Failed to save theme: ${message || res.status}`);
+        console.error(`Failed to save theme: ${message || res.status}`);
       }
     } catch (error) {
       console.error('Save failed:', error);
-      alert('Failed to save theme');
     } finally {
       setSaving(false);
     }
@@ -206,12 +219,14 @@ export default function ThemeManagement() {
                     <div className="flex items-center gap-3">
                       <select
                         value={fontOptions.find((opt) => opt.value === value)?.value || ''}
-                        onChange={(e) =>
-                          setFormData({
+                        onChange={(e) => {
+                          const updated = {
                             ...formData,
                             fonts: { ...formData.fonts, [key]: e.target.value },
-                          })
-                        }
+                          };
+                          setFormData(updated);
+                          applyThemeCSSVariables(updated);
+                        }}
                         className="flex-1 bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
                       >
                         <option value="">Choose a font</option>
@@ -223,15 +238,17 @@ export default function ThemeManagement() {
                       </select>
                       <select
                         value={formData.fontSizes?.[key as keyof ThemeFontSizes] || ''}
-                        onChange={(e) =>
-                          setFormData({
+                        onChange={(e) => {
+                          const updated = {
                             ...formData,
                             fontSizes: {
                               ...formData.fontSizes,
                               [key]: e.target.value,
                             },
-                          })
-                        }
+                          };
+                          setFormData(updated);
+                          applyThemeCSSVariables(updated);
+                        }}
                         className="w-32 bg-dark border-2 border-dark-border rounded-lg px-3 py-2 text-text-primary"
                         aria-label={`${key} font size`}
                       >
