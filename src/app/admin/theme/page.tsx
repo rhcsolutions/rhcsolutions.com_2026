@@ -486,8 +486,7 @@ export default function ThemeManagement() {
 
                 <div className="md:col-span-2">
                   <label className="block text-text-primary font-semibold mb-2">Primary Button Background</label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.buttonStyles?.primaryBg || 'linear-gradient(to right, var(--color-primary), var(--color-secondary))'}
                     onChange={(e) => {
                       const updated = {
@@ -497,81 +496,112 @@ export default function ThemeManagement() {
                       setFormData(updated);
                       applyThemeCSSVariables(updated);
                     }}
-                    placeholder="CSS gradient or color"
-                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary font-mono text-sm"
-                  />
+                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                  >
+                    <option value="linear-gradient(to right, var(--color-primary), var(--color-secondary))">Primary → Secondary</option>
+                    <option value="linear-gradient(to right, var(--color-secondary), var(--color-primary))">Secondary → Primary</option>
+                    <option value="linear-gradient(135deg, var(--color-primary), var(--color-accent))">Primary → Accent (Diagonal)</option>
+                    <option value="linear-gradient(to right, var(--color-primary), var(--color-accent))">Primary → Accent</option>
+                    <option value="var(--color-primary)">Solid Primary</option>
+                    <option value="var(--color-secondary)">Solid Secondary</option>
+                    <option value="var(--color-accent)">Solid Accent</option>
+                  </select>
                 </div>
 
                 <div>
                   <label className="block text-text-primary font-semibold mb-2">Primary Button Text Color</label>
-                  <input
-                    type="text"
-                    value={formData.buttonStyles?.primaryText || '#0A0E27'}
-                    onChange={(e) => {
-                      const updated = {
-                        ...formData,
-                        buttonStyles: { ...formData.buttonStyles!, primaryText: e.target.value },
-                      };
-                      setFormData(updated);
-                      applyThemeCSSVariables(updated);
-                    }}
-                    placeholder="#0A0E27"
-                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary font-mono"
-                  />
+                  <div className="flex gap-3 items-center">
+                    <div
+                      className="w-12 h-12 rounded-lg border-2 border-dark-border flex-shrink-0"
+                      style={{ backgroundColor: formData.buttonStyles?.primaryText || '#0A0E27' }}
+                    />
+                    <input
+                      type="color"
+                      value={formData.buttonStyles?.primaryText || '#0A0E27'}
+                      onChange={(e) => {
+                        const updated = {
+                          ...formData,
+                          buttonStyles: { ...formData.buttonStyles!, primaryText: e.target.value },
+                        };
+                        setFormData(updated);
+                        applyThemeCSSVariables(updated);
+                      }}
+                      className="w-20 h-12 rounded-lg border-2 border-dark-border cursor-pointer"
+                    />
+                  </div>
+                  <p className="text-xs text-text-muted font-mono mt-2">{formData.buttonStyles?.primaryText || '#0A0E27'}</p>
                 </div>
 
                 <div>
                   <label className="block text-text-primary font-semibold mb-2">Outline Button Border Color</label>
-                  <input
-                    type="text"
-                    value={formData.buttonStyles?.outlineBorder || 'var(--color-secondary)'}
-                    onChange={(e) => {
-                      const updated = {
-                        ...formData,
-                        buttonStyles: { ...formData.buttonStyles!, outlineBorder: e.target.value },
-                      };
-                      setFormData(updated);
-                      applyThemeCSSVariables(updated);
-                    }}
-                    placeholder="var(--color-secondary)"
-                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary font-mono"
-                  />
+                  <div className="flex gap-3 items-center">
+                    <div
+                      className="w-12 h-12 rounded-lg border-2 border-dark-border flex-shrink-0"
+                      style={{ backgroundColor: formData.buttonStyles?.outlineBorder?.replace('var(--color-secondary)', '#00F0FF') || '#00F0FF' }}
+                    />
+                    <input
+                      type="color"
+                      value={formData.buttonStyles?.outlineBorder?.replace('var(--color-secondary)', '#00F0FF') || '#00F0FF'}
+                      onChange={(e) => {
+                        const updated = {
+                          ...formData,
+                          buttonStyles: { ...formData.buttonStyles!, outlineBorder: e.target.value },
+                        };
+                        setFormData(updated);
+                        applyThemeCSSVariables(updated);
+                      }}
+                      className="w-20 h-12 rounded-lg border-2 border-dark-border cursor-pointer"
+                    />
+                  </div>
+                  <p className="text-xs text-text-muted font-mono mt-2">{formData.buttonStyles?.outlineBorder || '#00F0FF'}</p>
                 </div>
 
                 <div>
                   <label className="block text-text-primary font-semibold mb-2">Outline Button Text Color</label>
-                  <input
-                    type="text"
-                    value={formData.buttonStyles?.outlineText || 'var(--color-secondary)'}
-                    onChange={(e) => {
-                      const updated = {
-                        ...formData,
-                        buttonStyles: { ...formData.buttonStyles!, outlineText: e.target.value },
-                      };
-                      setFormData(updated);
-                      applyThemeCSSVariables(updated);
-                    }}
-                    placeholder="var(--color-secondary)"
-                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary font-mono"
-                  />
+                  <div className="flex gap-3 items-center">
+                    <div
+                      className="w-12 h-12 rounded-lg border-2 border-dark-border flex-shrink-0"
+                      style={{ backgroundColor: formData.buttonStyles?.outlineText?.replace('var(--color-secondary)', '#00F0FF') || '#00F0FF' }}
+                    />
+                    <input
+                      type="color"
+                      value={formData.buttonStyles?.outlineText?.replace('var(--color-secondary)', '#00F0FF') || '#00F0FF'}
+                      onChange={(e) => {
+                        const updated = {
+                          ...formData,
+                          buttonStyles: { ...formData.buttonStyles!, outlineText: e.target.value },
+                        };
+                        setFormData(updated);
+                        applyThemeCSSVariables(updated);
+                      }}
+                      className="w-20 h-12 rounded-lg border-2 border-dark-border cursor-pointer"
+                    />
+                  </div>
+                  <p className="text-xs text-text-muted font-mono mt-2">{formData.buttonStyles?.outlineText || '#00F0FF'}</p>
                 </div>
 
                 <div>
                   <label className="block text-text-primary font-semibold mb-2">Outline Hover Background</label>
-                  <input
-                    type="text"
-                    value={formData.buttonStyles?.outlineHoverBg || 'var(--color-secondary)'}
-                    onChange={(e) => {
-                      const updated = {
-                        ...formData,
-                        buttonStyles: { ...formData.buttonStyles!, outlineHoverBg: e.target.value },
-                      };
-                      setFormData(updated);
-                      applyThemeCSSVariables(updated);
-                    }}
-                    placeholder="var(--color-secondary)"
-                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary font-mono"
-                  />
+                  <div className="flex gap-3 items-center">
+                    <div
+                      className="w-12 h-12 rounded-lg border-2 border-dark-border flex-shrink-0"
+                      style={{ backgroundColor: formData.buttonStyles?.outlineHoverBg?.replace('var(--color-secondary)', '#00F0FF') || '#00F0FF' }}
+                    />
+                    <input
+                      type="color"
+                      value={formData.buttonStyles?.outlineHoverBg?.replace('var(--color-secondary)', '#00F0FF') || '#00F0FF'}
+                      onChange={(e) => {
+                        const updated = {
+                          ...formData,
+                          buttonStyles: { ...formData.buttonStyles!, outlineHoverBg: e.target.value },
+                        };
+                        setFormData(updated);
+                        applyThemeCSSVariables(updated);
+                      }}
+                      className="w-20 h-12 rounded-lg border-2 border-dark-border cursor-pointer"
+                    />
+                  </div>
+                  <p className="text-xs text-text-muted font-mono mt-2">{formData.buttonStyles?.outlineHoverBg || '#00F0FF'}</p>
                 </div>
               </div>
 
