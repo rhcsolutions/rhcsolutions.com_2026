@@ -33,12 +33,18 @@ interface ThemeFonts {
   mono: string;
 }
 
+interface ThemeFontSizes {
+  primary: string;
+  secondary: string;
+  mono: string;
+}
+
 interface Theme {
   colors: ThemeColors;
   fonts: ThemeFonts;
+  fontSizes: ThemeFontSizes;
   borderRadius: string;
   shadowIntensity: 'light' | 'medium' | 'heavy';
-  fontSize?: string;
   updatedAt: string;
   updatedBy?: string;
 }
@@ -62,8 +68,12 @@ export default function ThemeManagement() {
       });
       if (res.ok) {
         const data = await res.json();
-        const fontSize = data.fontSize || '16px';
-        const hydrated = { ...data, fontSize } as Theme;
+        const fontSizes: ThemeFontSizes = {
+          primary: (data as any)?.fontSizes?.primary || '16px',
+          secondary: (data as any)?.fontSizes?.secondary || '16px',
+          mono: (data as any)?.fontSizes?.mono || '14px',
+        };
+        const hydrated = { ...data, fontSizes } as Theme;
         setTheme(hydrated);
         setFormData(hydrated);
       }
@@ -169,20 +179,9 @@ export default function ThemeManagement() {
             </div>
 
             {/* Fonts Section */}
-            <div className="card-cyber p-6">
+              <div className="card-cyber p-6">
               <h2 className="heading-lg text-gradient mb-6">Fonts</h2>
               <div className="space-y-6">
-                <div>
-                  <label className="block text-text-primary font-semibold mb-2">Base Font Size</label>
-                  <input
-                    type="text"
-                    value={formData.fontSize || '16px'}
-                    onChange={(e) => setFormData({ ...formData, fontSize: e.target.value })}
-                    className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
-                    placeholder="e.g., 16px or 1rem"
-                  />
-                </div>
-
                 {Object.entries(formData.fonts).map(([key, value]) => (
                   <div key={key} className="space-y-2">
                     <label className="block text-text-primary font-semibold mb-1 capitalize">
@@ -211,10 +210,27 @@ export default function ThemeManagement() {
                     {/* Inline preview */}
                     <div
                       className="p-3 bg-dark border border-dark-border rounded text-text-primary text-sm"
-                      style={{ fontFamily: value, fontSize: formData.fontSize || '16px' }}
+                      style={{ fontFamily: value, fontSize: formData.fontSizes?.[key as keyof ThemeFontSizes] || '16px' }}
                     >
                       The quick brown fox jumps over the lazy dog
                     </div>
+
+                    <label className="block text-text-primary font-semibold mb-1">{key} Font Size</label>
+                    <input
+                      type="text"
+                      value={formData.fontSizes?.[key as keyof ThemeFontSizes] || ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          fontSizes: {
+                            ...formData.fontSizes,
+                            [key]: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                      placeholder="e.g., 16px or 1rem"
+                    />
                   </div>
                 ))}
               </div>
