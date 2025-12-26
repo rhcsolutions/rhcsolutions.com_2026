@@ -5,6 +5,17 @@ import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { FaPalette, FaSave, FaTimes } from 'react-icons/fa';
 
+const fontOptions = [
+  { label: 'Inter, system-ui, sans-serif', value: 'Inter, system-ui, sans-serif' },
+  { label: 'Space Grotesk, system-ui, sans-serif', value: 'Space Grotesk, system-ui, sans-serif' },
+  { label: 'Roboto, system-ui, sans-serif', value: 'Roboto, system-ui, sans-serif' },
+  { label: 'Poppins, system-ui, sans-serif', value: 'Poppins, system-ui, sans-serif' },
+  { label: 'Open Sans, system-ui, sans-serif', value: 'Open Sans, system-ui, sans-serif' },
+  { label: 'JetBrains Mono, monospace', value: 'JetBrains Mono, monospace' },
+  { label: 'Fira Code, monospace', value: 'Fira Code, monospace' },
+  { label: 'Source Code Pro, monospace', value: 'Source Code Pro, monospace' },
+];
+
 interface ThemeColors {
   primary: string;
   primaryDark: string;
@@ -159,10 +170,31 @@ export default function ThemeManagement() {
               <h2 className="heading-lg text-gradient mb-6">Fonts</h2>
               <div className="space-y-4">
                 {Object.entries(formData.fonts).map(([key, value]) => (
-                  <div key={key}>
-                    <label className="block text-text-primary font-semibold mb-2 capitalize">
+                  <div key={key} className="space-y-2">
+                    <label className="block text-text-primary font-semibold mb-1 capitalize">
                       {key} Font
                     </label>
+
+                    {/* Dropdown selector */}
+                    <select
+                      value={fontOptions.find((opt) => opt.value === value)?.value || ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          fonts: { ...formData.fonts, [key]: e.target.value },
+                        })
+                      }
+                      className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                    >
+                      <option value="">Choose a font</option>
+                      {fontOptions.map((opt) => (
+                        <option key={`${key}-${opt.value}`} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Freeform input */}
                     <input
                       type="text"
                       value={value}
@@ -173,8 +205,16 @@ export default function ThemeManagement() {
                         })
                       }
                       className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
-                      placeholder="e.g., Inter, system-ui, sans-serif"
+                      placeholder="Custom font family (e.g., Inter, system-ui, sans-serif)"
                     />
+
+                    {/* Inline preview */}
+                    <div
+                      className="p-3 bg-dark border border-dark-border rounded text-text-primary text-sm"
+                      style={{ fontFamily: value }}
+                    >
+                      The quick brown fox jumps over the lazy dog
+                    </div>
                   </div>
                 ))}
               </div>
