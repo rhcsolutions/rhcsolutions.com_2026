@@ -88,12 +88,23 @@ export default function ThemeManagement() {
   // Apply theme CSS variables to document root for real-time preview
   const applyThemeCSSVariables = (themeData: Theme) => {
     const root = document.documentElement;
+    // Fonts
     root.style.setProperty('--font-primary-family', themeData.fonts?.primary || 'Inter, system-ui, sans-serif');
     root.style.setProperty('--font-secondary-family', themeData.fonts?.secondary || 'Space Grotesk, system-ui, sans-serif');
     root.style.setProperty('--font-mono-family', themeData.fonts?.mono || 'JetBrains Mono, Courier New, monospace');
     root.style.setProperty('--font-primary-size', themeData.fontSizes?.primary || '16px');
     root.style.setProperty('--font-secondary-size', themeData.fontSizes?.secondary || '16px');
     root.style.setProperty('--font-mono-size', themeData.fontSizes?.mono || '14px');
+    // Colors
+    root.style.setProperty('--color-primary', themeData.colors?.primary || '#00FF41');
+    root.style.setProperty('--color-primary-dark', themeData.colors?.primaryDark || '#0A0E27');
+    root.style.setProperty('--color-secondary', themeData.colors?.secondary || '#00F0FF');
+    root.style.setProperty('--color-accent', themeData.colors?.accent || '#00AAFF');
+    root.style.setProperty('--color-success', themeData.colors?.success || '#00FF88');
+    root.style.setProperty('--color-error', themeData.colors?.error || '#FF4458');
+    root.style.setProperty('--color-warning', themeData.colors?.warning || '#FFB800');
+    root.style.setProperty('--color-info', themeData.colors?.info || '#00F0FF');
+    // Scale
     const primaryPx = parseFloat(themeData.fontSizes?.primary || '16px');
     const scale = isNaN(primaryPx) ? 1 : primaryPx / 16;
     root.style.setProperty('--type-scale', String(scale));

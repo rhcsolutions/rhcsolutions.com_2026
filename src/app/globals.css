@@ -11,6 +11,14 @@
     --font-primary-size: 16px;
     --font-secondary-size: 16px;
     --font-mono-size: 14px;
+    --color-primary: #00FF41;
+    --color-primary-dark: #0A0E27;
+    --color-secondary: #00F0FF;
+    --color-accent: #00AAFF;
+    --color-success: #00FF88;
+    --color-error: #FF4458;
+    --color-warning: #FFB800;
+    --color-info: #00F0FF;
     --glass-border: rgba(255, 255, 255, 0.08);
     --glass-bg: rgba(10, 14, 39, 0.7);
     --neon-green: #00FF41;
@@ -20,7 +28,7 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #0A0E27;
+    background-color: var(--color-primary-dark, #0A0E27);
     /* Typography scaling: multiplied against base 16px */
     font-size: calc(16px * var(--type-scale, 1));
   }
@@ -35,6 +43,7 @@
     font-feature-settings: 'liga' 1, 'calt' 1;
     font-family: var(--font-primary-family);
     font-size: var(--font-primary-size);
+    color: #E8E8E8;
   }
 
   * {
@@ -43,7 +52,8 @@
 
   /* Selection color */
   ::selection {
-    @apply bg-neon-cyan/30 text-white;
+    background-color: color-mix(in srgb, var(--color-secondary, #00F0FF) 30%, transparent);
+    color: white;
   }
 }
 
@@ -98,37 +108,35 @@
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-neon-green via-neon-cyan to-neon-blue;
+    background: linear-gradient(to right, var(--color-primary, #00FF41), var(--color-secondary, #00F0FF), var(--color-accent, #00AAFF));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
-  /* Monospace override using theme variable */
-  .use-mono,
-  code,
-  pre,
-  kbd,
-  samp {
-    font-family: var(--font-mono-family);
-    font-size: var(--font-mono-size);
-  }
-
-  /* Buttons */
+  /* Button colors using theme variables */
   .btn-primary {
-    @apply relative bg-gradient-to-r from-neon-green to-neon-cyan text-dark-card font-bold py-4 px-8 rounded-lg overflow-hidden transition-all duration-300 inline-flex items-center justify-center;
-    box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+    @apply relative text-dark-card font-bold py-4 px-8 rounded-lg overflow-hidden transition-all duration-300 inline-flex items-center justify-center;
+    background: linear-gradient(to right, var(--color-primary, #00FF41), var(--color-secondary, #00F0FF));
+    box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary, #00FF41) 30%, transparent);
   }
 
   .btn-primary:hover {
     @apply scale-105;
-    box-shadow: 0 0 40px rgba(0, 255, 65, 0.6);
+    box-shadow: 0 0 40px color-mix(in srgb, var(--color-primary, #00FF41) 60%, transparent);
   }
 
   .btn-outline {
-    @apply relative bg-transparent text-neon-cyan border border-neon-cyan/50 font-bold py-4 px-8 rounded-lg overflow-hidden transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm;
+    @apply relative border font-bold py-4 px-8 rounded-lg overflow-hidden transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm;
+    border-color: var(--color-secondary, #00F0FF);
+    color: var(--color-secondary, #00F0FF);
+    background-color: color-mix(in srgb, var(--color-secondary, #00F0FF) 10%, transparent);
   }
 
   .btn-outline:hover {
-    @apply bg-neon-cyan/10 border-neon-cyan text-white;
-    box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+    border-color: var(--color-secondary, #00F0FF);
+    color: white;
+    box-shadow: 0 0 30px color-mix(in srgb, var(--color-secondary, #00F0FF) 40%, transparent);
   }
 
   /* Cyber/Tech Elements */
