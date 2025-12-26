@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "functions": {
+    "api/**": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "NEXTAUTH_URL": "https://your-domain.com"
+  }
+}

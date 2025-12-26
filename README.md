@@ -4,7 +4,7 @@ High-performance Next.js site with an integrated file-based CMS, admin dashboard
 
 ## Overview
 
-- Framework: Next.js 16 (App Router)
+- Framework: Next.js 15 (App Router)
 - Styling: Tailwind CSS + custom cyber theme
 - Auth: NextAuth (Credentials provider)
 - CMS: JSON files in `cms-data/`
@@ -96,6 +96,7 @@ Notes:
 4. Deploy
 
 If you need to keep `cms-data/` persistent in Vercel, use an external store (S3/R2/DB). The local file CMS is best for single-host deployments like Docker/Railway.
+This repo includes a minimal `vercel.json` to use Node 18 for API routes.
 
 ## Features
 
