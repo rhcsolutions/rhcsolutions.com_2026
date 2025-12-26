@@ -29,6 +29,9 @@ yarn-error.log*
 # sensitive documentation (keep locally, don't commit)
 TELEGRAM_SETUP.md
 
+# CMS data with sensitive information (passwords, 2FA secrets)
+/cms-data/users.json
+
 # vercel
 .vercel
 
