@@ -86,6 +86,28 @@ Notes:
 - Content persists in the bind-mounted `cms-data/` folder
 - App listens on port 3000 inside the container
 
+## Nginx Reverse Proxy (Recommended)
+
+Use Nginx in front for TLS, caching and gzip.
+
+- Compose file: [docker-compose.nginx.yml](docker-compose.nginx.yml)
+- Config: [nginx/default.conf](nginx/default.conf)
+
+Steps:
+
+1. Update `server_name` in the Nginx config to your domain
+2. Place TLS certs in `nginx/certs/` as `fullchain.pem` and `privkey.pem`
+3. Start both services:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.nginx.yml up --build -d
+```
+
+Notes:
+
+- If you don’t have certs yet, point DNS and use a companion (e.g., Caddy/LetsEncrypt container) or temporarily comment SSL lines and serve HTTP first.
+- The web app is only exposed internally; Nginx publishes ports 80/443 to the host.
+
 ## Vercel (Option)
 
 1. Push this repo to GitHub
