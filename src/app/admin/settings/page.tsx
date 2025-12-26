@@ -19,13 +19,42 @@ type Settings = {
   };
 };
 
+type ThemeColors = {
+  primary: string;
+  primaryDark: string;
+  secondary: string;
+  accent: string;
+  success: string;
+  error: string;
+  warning: string;
+  info: string;
+};
+
+type ThemeFonts = {
+  primary: string;
+  secondary: string;
+  mono: string;
+};
+
+type Theme = {
+  colors: ThemeColors;
+  fonts: ThemeFonts;
+  borderRadius: string;
+  shadowIntensity: "none" | "low" | "medium" | "high";
+  updatedAt?: string;
+  updatedBy?: string;
+};
+
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Settings | null>(null);
+  const [theme, setTheme] = useState<Theme | null>(null);
+  const [themeForm, setThemeForm] = useState<Theme | null>(null);
 
   useEffect(() => {
     fetchSettings();
+    fetchTheme();
   }, []);
 
   const fetchSettings = async () => {
@@ -55,6 +84,22 @@ export default function SettingsPage() {
       console.error("Failed to load settings", e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTheme = async () => {
+    try {
+      const res = await fetch("/api/cms/theme", {
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTheme(data);
+        setThemeForm(data);
+      }
+    } catch (e) {
+      console.error("Failed to load theme", e);
     }
   };
 
@@ -92,6 +137,33 @@ export default function SettingsPage() {
     } catch (e) {
       console.error("Save settings failed", e);
       alert("Failed to save settings");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveTheme = async () => {
+    if (!themeForm) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/cms/theme", {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(themeForm),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setTheme(updated);
+        setThemeForm(updated);
+        alert("✓ Theme saved successfully!");
+      } else {
+        const msg = await res.text();
+        alert(`Failed to save theme: ${msg || res.status}`);
+      }
+    } catch (e) {
+      console.error("Save theme failed", e);
+      alert("Failed to save theme");
     } finally {
       setSaving(false);
     }
@@ -302,30 +374,367 @@ export default function SettingsPage() {
       <div className="card-cyber p-8 mb-8">
         <div className="flex items-center space-x-3 mb-6">
           <FaPalette className="text-3xl text-cyber-purple" />
-          <h2 className="text-xl font-bold text-text-primary">Theme & Appearance</h2>
+          <h2 className="text-xl font-bold text-text-primary">Theme Settings</h2>
         </div>
-        <div className="space-y-6">
-          <div>
-            <label className="block text-text-primary font-semibold mb-2">Current Theme</label>
-            <select className="w-full bg-dark-card border-2 border-dark-border rounded-lg py-3 px-4 text-text-primary 
-                             focus:border-cyber-purple focus:outline-none">
-              <option>Terminal Green (Current)</option>
-              <option>Cyber Blue</option>
-              <option>Purple Haze</option>
-              <option>Matrix</option>
-            </select>
-          </div>
 
-          <div className="flex items-center space-x-3">
-            <input type="checkbox" id="dark-mode" className="w-5 h-5" defaultChecked />
-            <label htmlFor="dark-mode" className="text-text-primary">Enable dark mode (recommended)</label>
-          </div>
+        {themeForm && (
+          <div className="space-y-8">
+            {/* Colors Section */}
+            <div>
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Colors</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Primary Color */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Primary</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="color"
+                      value={themeForm.colors.primary}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, primary: e.target.value }
+                      })}
+                      className="w-12 h-12 rounded border-2 border-dark-border cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={themeForm.colors.primary}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, primary: e.target.value }
+                      })}
+                      className="flex-1 bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary text-sm
+                               focus:border-cyber-purple focus:outline-none"
+                      placeholder="#hex"
+                    />
+                  </div>
+                </div>
 
-          <div className="flex items-center space-x-3">
-            <input type="checkbox" id="animations" className="w-5 h-5" defaultChecked />
-            <label htmlFor="animations" className="text-text-primary">Enable page animations</label>
+                {/* Primary Dark Color */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Primary Dark</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="color"
+                      value={themeForm.colors.primaryDark}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, primaryDark: e.target.value }
+                      })}
+                      className="w-12 h-12 rounded border-2 border-dark-border cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={themeForm.colors.primaryDark}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, primaryDark: e.target.value }
+                      })}
+                      className="flex-1 bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary text-sm
+                               focus:border-cyber-purple focus:outline-none"
+                      placeholder="#hex"
+                    />
+                  </div>
+                </div>
+
+                {/* Secondary Color */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Secondary</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="color"
+                      value={themeForm.colors.secondary}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, secondary: e.target.value }
+                      })}
+                      className="w-12 h-12 rounded border-2 border-dark-border cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={themeForm.colors.secondary}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, secondary: e.target.value }
+                      })}
+                      className="flex-1 bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary text-sm
+                               focus:border-cyber-purple focus:outline-none"
+                      placeholder="#hex"
+                    />
+                  </div>
+                </div>
+
+                {/* Accent Color */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Accent</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="color"
+                      value={themeForm.colors.accent}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, accent: e.target.value }
+                      })}
+                      className="w-12 h-12 rounded border-2 border-dark-border cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={themeForm.colors.accent}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, accent: e.target.value }
+                      })}
+                      className="flex-1 bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary text-sm
+                               focus:border-cyber-purple focus:outline-none"
+                      placeholder="#hex"
+                    />
+                  </div>
+                </div>
+
+                {/* Success Color */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Success</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="color"
+                      value={themeForm.colors.success}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, success: e.target.value }
+                      })}
+                      className="w-12 h-12 rounded border-2 border-dark-border cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={themeForm.colors.success}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, success: e.target.value }
+                      })}
+                      className="flex-1 bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary text-sm
+                               focus:border-cyber-purple focus:outline-none"
+                      placeholder="#hex"
+                    />
+                  </div>
+                </div>
+
+                {/* Error Color */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Error</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="color"
+                      value={themeForm.colors.error}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, error: e.target.value }
+                      })}
+                      className="w-12 h-12 rounded border-2 border-dark-border cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={themeForm.colors.error}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, error: e.target.value }
+                      })}
+                      className="flex-1 bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary text-sm
+                               focus:border-cyber-purple focus:outline-none"
+                      placeholder="#hex"
+                    />
+                  </div>
+                </div>
+
+                {/* Warning Color */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Warning</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="color"
+                      value={themeForm.colors.warning}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, warning: e.target.value }
+                      })}
+                      className="w-12 h-12 rounded border-2 border-dark-border cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={themeForm.colors.warning}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, warning: e.target.value }
+                      })}
+                      className="flex-1 bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary text-sm
+                               focus:border-cyber-purple focus:outline-none"
+                      placeholder="#hex"
+                    />
+                  </div>
+                </div>
+
+                {/* Info Color */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Info</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="color"
+                      value={themeForm.colors.info}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, info: e.target.value }
+                      })}
+                      className="w-12 h-12 rounded border-2 border-dark-border cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={themeForm.colors.info}
+                      onChange={(e) => setThemeForm({
+                        ...themeForm,
+                        colors: { ...themeForm.colors, info: e.target.value }
+                      })}
+                      className="flex-1 bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary text-sm
+                               focus:border-cyber-purple focus:outline-none"
+                      placeholder="#hex"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Fonts Section */}
+            <div>
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Fonts</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Primary Font */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Primary Font</label>
+                  <input
+                    type="text"
+                    value={themeForm.fonts.primary}
+                    onChange={(e) => setThemeForm({
+                      ...themeForm,
+                      fonts: { ...themeForm.fonts, primary: e.target.value }
+                    })}
+                    className="w-full bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary
+                             focus:border-cyber-purple focus:outline-none mb-2"
+                    placeholder="e.g., Inter, sans-serif"
+                  />
+                  <div 
+                    className="p-3 bg-dark-card border border-dark-border rounded text-text-primary"
+                    style={{ fontFamily: themeForm.fonts.primary }}
+                  >
+                    The quick brown fox jumps over the lazy dog
+                  </div>
+                </div>
+
+                {/* Secondary Font */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Secondary Font</label>
+                  <input
+                    type="text"
+                    value={themeForm.fonts.secondary}
+                    onChange={(e) => setThemeForm({
+                      ...themeForm,
+                      fonts: { ...themeForm.fonts, secondary: e.target.value }
+                    })}
+                    className="w-full bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary
+                             focus:border-cyber-purple focus:outline-none mb-2"
+                    placeholder="e.g., Roboto, sans-serif"
+                  />
+                  <div 
+                    className="p-3 bg-dark-card border border-dark-border rounded text-text-primary"
+                    style={{ fontFamily: themeForm.fonts.secondary }}
+                  >
+                    The quick brown fox jumps over the lazy dog
+                  </div>
+                </div>
+
+                {/* Mono Font */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Mono Font</label>
+                  <input
+                    type="text"
+                    value={themeForm.fonts.mono}
+                    onChange={(e) => setThemeForm({
+                      ...themeForm,
+                      fonts: { ...themeForm.fonts, mono: e.target.value }
+                    })}
+                    className="w-full bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary
+                             focus:border-cyber-purple focus:outline-none mb-2"
+                    placeholder="e.g., Fira Code, monospace"
+                  />
+                  <div 
+                    className="p-3 bg-dark-card border border-dark-border rounded text-text-primary"
+                    style={{ fontFamily: themeForm.fonts.mono }}
+                  >
+                    The quick brown fox jumps over the lazy dog
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sizes Section */}
+            <div>
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Sizes & Effects</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Border Radius */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Border Radius</label>
+                  <input
+                    type="text"
+                    value={themeForm.borderRadius}
+                    onChange={(e) => setThemeForm({
+                      ...themeForm,
+                      borderRadius: e.target.value
+                    })}
+                    className="w-full bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary
+                             focus:border-cyber-purple focus:outline-none"
+                    placeholder="e.g., 0.5rem or 8px"
+                  />
+                  <p className="text-sm text-text-secondary mt-1">Controls corner roundness of elements</p>
+                </div>
+
+                {/* Shadow Intensity */}
+                <div>
+                  <label className="block text-text-primary font-medium mb-2">Shadow Intensity</label>
+                  <select
+                    value={themeForm.shadowIntensity}
+                    onChange={(e) => setThemeForm({
+                      ...themeForm,
+                      shadowIntensity: e.target.value as 'none' | 'low' | 'medium' | 'high'
+                    })}
+                    className="w-full bg-dark-card border-2 border-dark-border rounded py-2 px-3 text-text-primary
+                             focus:border-cyber-purple focus:outline-none"
+                  >
+                    <option value="none">None</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                  <p className="text-sm text-text-secondary mt-1">Controls depth and shadow effects</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Save Theme Button */}
+            <div className="flex justify-end pt-4 border-t border-dark-border">
+              <button
+                type="button"
+                onClick={handleSaveTheme}
+                disabled={saving}
+                className="btn-primary px-6 py-2"
+              >
+                {saving ? "Saving..." : "Save Theme"}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {!themeForm && (
+          <div className="text-center text-text-secondary py-8">
+            Loading theme settings...
+          </div>
+        )}
       </div>
 
       {/* Security Settings */}
