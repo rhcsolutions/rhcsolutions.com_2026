@@ -205,94 +205,93 @@ export default function UsersManagement() {
     }
   };
 
-  if (loading) return <AdminShell title="Users Management"><div>Loading users...</div></AdminShell>;
+  if (loading) return <AdminShell title="Users Management"><div className="p-8 text-text-primary">Loading users...</div></AdminShell>;
 
   return (
     <AdminShell title="Users Management">
-      <div className="p-6">
-        <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
-          <FaUser className="text-blue-500" />
-          Users Management
-        </h1>
+      <div className="p-6 space-y-8">
+        <div>
+          <h1 className="heading-xl text-gradient mb-2 flex items-center gap-3">
+            <FaUser /> Users Management
+          </h1>
+          <p className="text-text-secondary">Manage administrator and user accounts</p>
+        </div>
 
-        <div className="grid gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Users List</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-100 border-b">
-                  <tr>
-                    <th className="px-4 py-2 text-left">Name</th>
-                    <th className="px-4 py-2 text-left">Email</th>
-                    <th className="px-4 py-2 text-left">Role</th>
-                    <th className="px-4 py-2 text-left">Status</th>
-                    <th className="px-4 py-2 text-left">2FA</th>
-                    <th className="px-4 py-2 text-left">Actions</th>
+        <div className="card-cyber p-6">
+          <h2 className="heading-lg text-gradient mb-6">Users List</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-dark-border">
+                <tr>
+                  <th className="px-4 py-3 text-left text-text-primary font-semibold">Name</th>
+                  <th className="px-4 py-3 text-left text-text-primary font-semibold">Email</th>
+                  <th className="px-4 py-3 text-left text-text-primary font-semibold">Role</th>
+                  <th className="px-4 py-3 text-left text-text-primary font-semibold">Status</th>
+                  <th className="px-4 py-3 text-left text-text-primary font-semibold">2FA</th>
+                  <th className="px-4 py-3 text-left text-text-primary font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id} className="border-b border-dark-border hover:bg-dark-lighter transition-colors">
+                    <td className="px-4 py-3 text-text-primary">{user.name}</td>
+                    <td className="px-4 py-3 text-text-secondary">{user.email}</td>
+                    <td className="px-4 py-3 text-cyber-green font-medium uppercase text-xs">{user.role}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+                        {user.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => openTwoFAModal(user)}
+                        className="btn-outline text-sm py-2 px-3 flex items-center gap-2 whitespace-nowrap"
+                      >
+                        <FaShieldAlt className="text-sm" /> Setup
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 flex gap-2">
+                      <button
+                        onClick={() => openEditModal(user)}
+                        className="btn-outline text-sm py-2 px-3 flex items-center gap-2"
+                      >
+                        <FaEdit className="text-sm" /> Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(user.id)}
+                        className="relative border-2 border-red-500/50 text-red-400 px-3 py-2 rounded-lg overflow-hidden transition-all duration-300 inline-flex items-center justify-center gap-2 text-sm hover:bg-red-500/10"
+                      >
+                        <FaTrash className="text-sm" /> Delete
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id} className="border-b hover:bg-gray-50">
-                      <td className="px-4 py-2">{user.name}</td>
-                      <td className="px-4 py-2">{user.email}</td>
-                      <td className="px-4 py-2 text-blue-600 font-medium">{user.role}</td>
-                      <td className="px-4 py-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                          {user.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2">
-                        <button
-                          onClick={() => openTwoFAModal(user)}
-                          className="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600 flex items-center gap-1"
-                        >
-                          <FaShieldAlt /> Setup
-                        </button>
-                      </td>
-                      <td className="px-4 py-2 flex gap-2">
-                        <button
-                          onClick={() => openEditModal(user)}
-                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center gap-1"
-                        >
-                          <FaEdit /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(user.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex items-center gap-1"
-                        >
-                          <FaTrash /> Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
       {/* 2FA Modal */}
       {twoFAModalOpen && twoFAModalUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4">Setup Two-Factor Authentication</h2>
-            <p className="text-gray-600 mb-4">For: {twoFAModalUser.name}</p>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="card-cyber p-8 max-w-md w-full border border-dark-border">
+            <h2 className="heading-lg text-gradient mb-2">Setup Two-Factor Auth</h2>
+            <p className="text-text-secondary mb-6">User: <span className="text-text-primary font-semibold">{twoFAModalUser.name}</span></p>
             
             {twoFAUri && (
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-2">Scan with your authenticator app:</p>
+              <div className="mb-6 p-4 bg-dark-lighter border border-dark-border rounded-lg">
+                <p className="text-sm text-text-secondary mb-3">Scan with authenticator app:</p>
                 <QRCodeDisplay value={twoFAUri} size={200} />
-                <div className="mt-4 p-2 bg-gray-100 rounded break-all text-xs">
+                <div className="mt-4 p-3 bg-dark border border-dark-border rounded break-all text-xs text-text-muted font-mono">
                   Secret: {twoFASecret}
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(twoFASecret || '');
-                      
                     }}
-                    className="ml-2 text-blue-500 hover:text-blue-700"
+                    className="ml-2 text-cyber-green hover:text-cyber-cyan transition-colors inline-flex items-center gap-1"
                   >
-                    <FaCopy />
+                    <FaCopy className="text-xs" />
                   </button>
                 </div>
               </div>
@@ -303,14 +302,14 @@ export default function UsersManagement() {
               placeholder="Enter 6-digit code"
               value={otpInput}
               onChange={(e) => setOtpInput(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded mb-4 text-center text-lg tracking-widest"
+              className="w-full px-4 py-3 bg-dark border-2 border-dark-border rounded-lg mb-4 text-center text-lg tracking-widest text-text-primary font-mono focus:border-cyber-green focus:outline-none"
               maxLength={6}
             />
 
             <button
               onClick={verifyTwoFA}
               disabled={actionLoading || otpInput.length !== 6}
-              className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 disabled:bg-gray-400"
+              className="w-full btn-primary mb-2 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {actionLoading ? 'Verifying...' : 'Verify & Enable'}
             </button>
@@ -320,7 +319,7 @@ export default function UsersManagement() {
                 setTwoFAModalOpen(false);
                 setTwoFAModalUser(null);
               }}
-              className="w-full mt-2 bg-gray-300 text-gray-800 py-2 rounded hover:bg-gray-400"
+              className="w-full btn-outline py-3"
             >
               Close
             </button>
@@ -388,38 +387,38 @@ function EditUserModal({
   onResetPassword,
 }: EditUserModalProps) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">Edit User</h2>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="card-cyber p-8 max-w-md w-full max-h-[90vh] overflow-y-auto border border-dark-border">
+        <h2 className="heading-lg text-gradient mb-6">Edit User</h2>
 
         {/* Basic User Info */}
         <div className="space-y-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <label className="block text-sm font-semibold text-text-primary mb-2">Name</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded"
+              className="w-full px-4 py-2 bg-dark border-2 border-dark-border rounded-lg text-text-primary focus:border-cyber-green focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-semibold text-text-primary mb-2">Email</label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded"
+              className="w-full px-4 py-2 bg-dark border-2 border-dark-border rounded-lg text-text-primary focus:border-cyber-green focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Role</label>
+            <label className="block text-sm font-semibold text-text-primary mb-2">Role</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded"
+              className="w-full px-4 py-2 bg-dark border-2 border-dark-border rounded-lg text-text-primary focus:border-cyber-green focus:outline-none"
             >
               <option value="user">User</option>
               <option value="admin">Admin</option>
@@ -427,11 +426,11 @@ function EditUserModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Status</label>
+            <label className="block text-sm font-semibold text-text-primary mb-2">Status</label>
             <select
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded"
+              className="w-full px-4 py-2 bg-dark border-2 border-dark-border rounded-lg text-text-primary focus:border-cyber-green focus:outline-none"
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
@@ -440,29 +439,29 @@ function EditUserModal({
         </div>
 
         {/* Password Management Section */}
-        <div className="border-t pt-4">
-          <h3 className="text-lg font-semibold mb-3">Password Management</h3>
+        <div className="border-t border-dark-border pt-6">
+          <h3 className="heading-md text-gradient mb-4">Password Management</h3>
           
           <div className="flex gap-2 mb-4">
             <button
               onClick={() => setPasswordTab('set')}
-              className={`flex-1 px-3 py-2 rounded text-sm font-medium transition ${
+              className={`flex-1 px-4 py-2 rounded-lg text-sm font-semibold transition ${
                 passwordTab === 'set'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-gradient-to-r from-cyber-green to-cyber-cyan text-dark-card'
+                  : 'btn-outline'
               }`}
             >
               Set Password
             </button>
             <button
               onClick={() => setPasswordTab('reset')}
-              className={`flex-1 px-3 py-2 rounded text-sm font-medium transition ${
+              className={`flex-1 px-4 py-2 rounded-lg text-sm font-semibold transition ${
                 passwordTab === 'reset'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-gradient-to-r from-cyber-green to-cyber-cyan text-dark-card'
+                  : 'btn-outline'
               }`}
             >
-              Send Reset Email
+              Reset Email
             </button>
           </div>
 
@@ -470,31 +469,31 @@ function EditUserModal({
           {passwordTab === 'set' && (
             <div className="space-y-3 mb-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">New Password</label>
+                <label className="block text-sm font-semibold text-text-primary mb-2">New Password</label>
                 <input
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Minimum 6 characters"
-                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                  className="w-full px-4 py-2 bg-dark border-2 border-dark-border rounded-lg text-text-primary focus:border-cyber-green focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                <label className="block text-sm font-semibold text-text-primary mb-2">Confirm Password</label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded"
+                  className="w-full px-4 py-2 bg-dark border-2 border-dark-border rounded-lg text-text-primary focus:border-cyber-green focus:outline-none"
                 />
               </div>
 
               <button
                 onClick={onSetPassword}
                 disabled={actionLoading || !newPassword || !confirmPassword}
-                className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 disabled:bg-gray-400 font-medium"
+                className="w-full btn-primary py-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? 'Setting...' : 'Set Password'}
               </button>
@@ -504,13 +503,13 @@ function EditUserModal({
           {/* Send Reset Email Form */}
           {passwordTab === 'reset' && (
             <div className="space-y-3 mb-4">
-              <p className="text-sm text-gray-600">
-                Send a password reset email to: <strong>{user.email}</strong>
+              <p className="text-sm text-text-secondary">
+                Send a password reset email to: <span className="text-text-primary font-semibold">{user.email}</span>
               </p>
               <button
                 onClick={onResetPassword}
                 disabled={actionLoading}
-                className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 disabled:bg-gray-400 font-medium"
+                className="w-full btn-outline py-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? 'Sending...' : 'Send Reset Email'}
               </button>
@@ -523,13 +522,13 @@ function EditUserModal({
           <button
             onClick={onSave}
             disabled={actionLoading}
-            className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:bg-gray-400 font-medium"
+            className="flex-1 btn-primary py-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {actionLoading ? 'Saving...' : 'Save Changes'}
           </button>
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-300 text-gray-800 py-2 rounded hover:bg-gray-400 font-medium"
+            className="flex-1 btn-outline py-3"
           >
             Close
           </button>
