@@ -1,40 +1,31 @@
+import crypto from 'crypto';
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
+import { CMSDatabase } from '@/lib/cms/database';
+import { verifyTotp } from '@/lib/totp';
 
 // User type
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'editor' | 'jobs_manager';
+  role: 'admin' | 'editor' | 'jobs_manager' | string;
+  twoFAEnabled?: boolean;
+  twoFASecret?: string;
+  passwordHash?: string;
 }
 
-// Simple in-memory user store (replace with database in production)
-// Password: "admin123" for all users
-const users: Array<User & { password: string }> = [
-  {
-    id: '1',
-    email: 'admin@rhcsolutions.com',
-    name: 'Admin User',
-    role: 'admin',
-    password: 'admin123',
-  },
-  {
-    id: '2',
-    email: 'editor@rhcsolutions.com',
-    name: 'Editor User',
-    role: 'editor',
-    password: 'admin123',
-  },
-  {
-    id: '3',
-    email: 'jobs@rhcsolutions.com',
-    name: 'Jobs Manager',
-    role: 'jobs_manager',
-    password: 'admin123',
-  },
-];
+function verifyScryptPassword(password: string, storedHash: string): boolean {
+  try {
+    const [salt, hash] = storedHash.split('$');
+    if (!salt || !hash) return false;
+    const derived = crypto.scryptSync(password, salt, 64).toString('hex');
+    return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(derived, 'hex'));
+  } catch (e) {
+    console.error('[Auth] Password verification failed', e);
+    return false;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -43,26 +34,44 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email', placeholder: 'admin@rhcsolutions.com' },
         password: { label: 'Password', type: 'password' },
+        otp: { label: '2FA Code', type: 'text', placeholder: '123456' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           console.log('[Auth] Missing credentials');
           return null;
         }
-
-        const user = users.find((u) => u.email === credentials.email);
+        const dbUsers = CMSDatabase.getUsers();
+        const user = dbUsers.find((u) => u.email === credentials.email);
         if (!user) {
           console.log('[Auth] User not found:', credentials.email);
-          return null;
+          throw new Error('Invalid email or password');
         }
 
-        // For now, use plaintext comparison (replace with proper bcrypt in production)
-        console.log('[Auth] Checking password for:', user.email);
-        const isValid = credentials.password === 'admin123';
+        // Validate password (scrypt hash)
+        const passwordHash = user.passwordHash as string | undefined;
+        const passwordOk = passwordHash
+          ? verifyScryptPassword(credentials.password, passwordHash)
+          : credentials.password === 'admin123';
 
-        if (!isValid) {
-          console.log('[Auth] Invalid password - expected: admin123, got:', credentials.password);
-          return null;
+        if (!passwordOk) {
+          console.log('[Auth] Invalid password');
+          throw new Error('Invalid email or password');
+        }
+
+        // Enforce 2FA when enabled
+        if (user.twoFAEnabled) {
+          if (!credentials.otp) {
+            throw new Error('Two-factor code required');
+          }
+          if (!user.twoFASecret) {
+            console.error('[Auth] 2FA enabled but secret missing');
+            throw new Error('Two-factor configuration error');
+          }
+          const validOtp = verifyTotp(user.twoFASecret, credentials.otp);
+          if (!validOtp) {
+            throw new Error('Invalid two-factor code');
+          }
         }
 
         console.log('[Auth] Login successful:', user.email);
@@ -70,7 +79,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role,
+          role: (user as any).role || 'admin',
         };
       },
     }),

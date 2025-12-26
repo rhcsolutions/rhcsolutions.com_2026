@@ -2,17 +2,36 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CMSDatabase } from '@/lib/cms/database';
 import { generateBase32Secret, otpauthURI, verifyTotp } from '@/lib/totp';
 
+async function generateSecret(id: string) {
+  const secret = generateBase32Secret();
+  CMSDatabase.setTwoFASecret(id, secret);
+  const user = CMSDatabase.getUsers().find(u => u.id === id);
+  const uri = otpauthURI(secret, user?.email || user?.name || `user-${id}`, 'RHC');
+  return { secret, uri };
+}
+
+// GET /api/cms/users/2fa?id= - generate secret (compatibility)
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'User id required' }, { status: 400 });
+    const payload = await generateSecret(id);
+    return NextResponse.json(payload);
+  } catch (error) {
+    console.error('Error generating 2FA secret (GET):', error);
+    return NextResponse.json({ error: 'Failed' }, { status: 500 });
+  }
+}
+
 // POST /api/cms/users/2fa - generate secret for user (body: { id })
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { id } = body;
     if (!id) return NextResponse.json({ error: 'User id required' }, { status: 400 });
-    const secret = generateBase32Secret();
-    CMSDatabase.setTwoFASecret(id, secret);
-    const user = CMSDatabase.getUsers().find(u => u.id === id);
-    const uri = otpauthURI(secret, user?.email || user?.name || `user-${id}`, 'RHC');
-    return NextResponse.json({ secret, uri });
+    const payload = await generateSecret(id);
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('Error generating 2FA secret:', error);
     return NextResponse.json({ error: 'Failed' }, { status: 500 });

@@ -13,6 +13,7 @@ function LoginContent() {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -25,11 +26,12 @@ function LoginContent() {
       const result = await signIn('credentials', {
         email,
         password,
+        otp,
         redirect: false,
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        setError(result.error || 'Invalid email or password');
       } else if (result?.ok) {
         router.push(callbackUrl);
       }
@@ -109,6 +111,25 @@ function LoginContent() {
                 className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="••••••••"
               />
+            </div>
+
+            {/* OTP Input (2FA) */}
+            <div>
+              <label htmlFor="otp" className="block text-sm font-medium text-slate-300 mb-2">
+                2FA Code (if enabled)
+              </label>
+              <div className="relative">
+                <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  id="otp"
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  maxLength={6}
+                  className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent tracking-widest"
+                  placeholder="123456"
+                />
+              </div>
             </div>
           </div>
 

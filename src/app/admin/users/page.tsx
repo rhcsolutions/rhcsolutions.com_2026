@@ -41,23 +41,33 @@ export default function UsersManagement() {
     setTwoFAModalUser(user);
     setOtpInput('');
     try {
-      const response = await fetch(`/api/cms/users/2fa/generate?id=${user.id}`);
+      const response = await fetch('/api/cms/users/2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: user.id }),
+      });
+      if (!response.ok) {
+        const msg = await response.text();
+        alert(`Failed to generate 2FA secret: ${msg || response.status}`);
+        return;
+      }
       const data = await response.json();
       setTwoFASecret(data.secret);
       setTwoFAUri(data.uri);
       setTwoFAModalOpen(true);
     } catch (error) {
       console.error('Error generating 2FA:', error);
+      alert('Error generating 2FA secret');
     }
   };
 
   const verifyTwoFA = async () => {
     setActionLoading(true);
     try {
-      const response = await fetch(`/api/cms/users/2fa/verify?id=${twoFAModalUser.id}`, {
-        method: 'POST',
+      const response = await fetch('/api/cms/users/2fa', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ secret: twoFASecret, otp: otpInput }),
+        body: JSON.stringify({ id: twoFAModalUser.id, token: otpInput }),
       });
       if (response.ok) {
         alert('2FA enabled successfully!');
@@ -71,7 +81,8 @@ export default function UsersManagement() {
         const usersData = await usersResponse.json();
         setUsers(Array.isArray(usersData) ? usersData : []);
       } else {
-        alert('Invalid OTP');
+        const msg = await response.text();
+        alert(`Invalid or expired OTP: ${msg || response.status}`);
       }
     } catch (error) {
       console.error('Error verifying 2FA:', error);
