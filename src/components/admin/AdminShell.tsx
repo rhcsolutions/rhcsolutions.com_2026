@@ -6,7 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { 
   FaHome, FaFileAlt, FaImages, FaUsers, FaCog, FaChartLine, 
-  FaBars, FaTimes, FaSignOutAlt, FaEdit, FaCookie, FaSearch, FaBriefcase
+  FaBars, FaTimes, FaSignOutAlt, FaEdit, FaCookie, FaSearch, FaBriefcase, FaPalette
 } from 'react-icons/fa';
 
 interface AdminShellProps {
@@ -32,6 +32,7 @@ export default function AdminShell({ children, title }: AdminShellProps) {
     { name: 'Users', href: '/admin/users', icon: FaUsers },
     { name: 'SEO', href: '/admin/seo', icon: FaSearch },
     { name: 'Cookie Settings', href: '/admin/cookies', icon: FaCookie },
+    { name: 'Theme Settings', href: '/admin/settings#theme-settings', icon: FaPalette },
     { name: 'Settings', href: '/admin/settings', icon: FaCog },
   ];
 

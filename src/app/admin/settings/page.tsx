@@ -371,7 +371,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Theme Settings */}
-      <div className="card-cyber p-8 mb-8">
+      <div id="theme-settings" className="card-cyber p-8 mb-8">
         <div className="flex items-center space-x-3 mb-6">
           <FaPalette className="text-3xl text-cyber-purple" />
           <h2 className="text-xl font-bold text-text-primary">Theme Settings</h2>
