@@ -16,6 +16,20 @@ const fontOptions = [
   { label: 'Source Code Pro, monospace', value: 'Source Code Pro, monospace' },
 ];
 
+const fontSizeOptions = [
+  '12px',
+  '14px',
+  '16px',
+  '18px',
+  '20px',
+  '22px',
+  '24px',
+  '28px',
+  '32px',
+  '36px',
+  '40px',
+];
+
 interface ThemeColors {
   primary: string;
   primaryDark: string;
@@ -207,8 +221,7 @@ export default function ThemeManagement() {
                           </option>
                         ))}
                       </select>
-                      <input
-                        type="text"
+                      <select
                         value={formData.fontSizes?.[key as keyof ThemeFontSizes] || ''}
                         onChange={(e) =>
                           setFormData({
@@ -219,10 +232,16 @@ export default function ThemeManagement() {
                             },
                           })
                         }
-                        className="w-28 bg-dark border-2 border-dark-border rounded-lg px-3 py-2 text-text-primary text-center font-mono"
-                        placeholder="16px"
+                        className="w-32 bg-dark border-2 border-dark-border rounded-lg px-3 py-2 text-text-primary"
                         aria-label={`${key} font size`}
-                      />
+                      >
+                        <option value="">Size</option>
+                        {fontSizeOptions.map((sz) => (
+                          <option key={`${key}-${sz}`} value={sz}>
+                            {sz}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     {/* Inline preview */}
