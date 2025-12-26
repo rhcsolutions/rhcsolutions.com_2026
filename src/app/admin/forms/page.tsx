@@ -9,6 +9,8 @@ export default function FormsManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selected, setSelected] = useState<any | null>(null);
+  const [edit, setEdit] = useState<any | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => { fetchSubs(); }, []);
 
@@ -81,6 +83,8 @@ export default function FormsManagement() {
                     <th className="text-left p-4 text-text-primary font-semibold">Form</th>
                     <th className="text-left p-4 text-text-primary font-semibold">Name</th>
                     <th className="text-left p-4 text-text-primary font-semibold">Email</th>
+                    <th className="text-left p-4 text-text-primary font-semibold">Company</th>
+                    <th className="text-left p-4 text-text-primary font-semibold">Message</th>
                     <th className="text-left p-4 text-text-primary font-semibold">Date</th>
                     <th className="text-left p-4 text-text-primary font-semibold">Status</th>
                     <th className="text-right p-4 text-text-primary font-semibold">Actions</th>
@@ -96,13 +100,21 @@ export default function FormsManagement() {
                     const formName = sub.form || sub.type || sub.payload?.type || 'Contact';
                     const name = sub.name || sub.fullName || sub.payload?.name || '-';
                     const email = sub.email || sub.payload?.email || '-';
+                    const company = sub.company || sub.payload?.company || '-';
+                    const message = sub.message || sub.payload?.message || '-';
                     const date = sub.date || sub.receivedAt || '-';
                     const status = sub.status || 'Received';
                     return (
-                    <tr key={sub.id} className="border-t border-dark-border hover:bg-dark-lighter transition-colors">
+                    <tr
+                      key={sub.id}
+                      className="border-t border-dark-border hover:bg-dark-lighter transition-colors cursor-pointer"
+                      onClick={() => setSelected(sub)}
+                    >
                       <td className="p-4 text-text-primary">{formName}</td>
                       <td className="p-4 text-text-secondary">{name}</td>
                       <td className="p-4 text-text-secondary font-mono text-sm">{email}</td>
+                      <td className="p-4 text-text-secondary">{company}</td>
+                      <td className="p-4 text-text-secondary truncate max-w-[220px]" title={message}>{message}</td>
                       <td className="p-4 text-text-secondary">{date}</td>
                       <td className="p-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -115,8 +127,9 @@ export default function FormsManagement() {
                       </td>
                       <td className="p-4 text-right">
                         <button
+                          type="button"
                           className="btn-secondary py-2 px-4"
-                          onClick={() => setSelected(sub)}
+                          onClick={(e) => { e.stopPropagation(); setSelected(sub); setEdit(sub); }}
                         >
                           View
                         </button>
@@ -131,46 +144,119 @@ export default function FormsManagement() {
 
           {/* Detail Modal */}
           {selected && (
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-              <div className="bg-dark-card border border-dark-border rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-60">
+              <div className="bg-dark-card border border-dark-border rounded-xl shadow-xl w-full max-w-3xl max-h-[85vh] overflow-hidden">
                 <div className="flex items-center justify-between px-6 py-4 border-b border-dark-border">
                   <div>
-                    <p className="text-text-muted text-sm">Submission</p>
+                    <p className="text-text-muted text-sm">Lead</p>
                     <h3 className="text-lg font-semibold text-text-primary">{selected.form || selected.type || selected.payload?.type || 'Contact'}</h3>
                   </div>
                   <button
                     className="text-text-secondary hover:text-cyber-green transition-colors"
-                    onClick={() => setSelected(null)}
+                    onClick={() => { setSelected(null); setEdit(null); }}
                     aria-label="Close"
                   >
                     ✕
                   </button>
                 </div>
-                <div className="p-6 space-y-3 overflow-y-auto">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="p-6 space-y-4 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-text-muted">Name</p>
-                      <p className="text-text-primary font-medium">{selected.name || selected.fullName || selected.payload?.name || '-'}</p>
+                      <label className="text-text-muted text-sm">Name</label>
+                      <input
+                        className="input-cyber w-full"
+                        value={edit?.name || edit?.fullName || edit?.payload?.name || ''}
+                        onChange={(e) => setEdit((prev: any) => ({ ...prev, name: e.target.value }))}
+                      />
                     </div>
                     <div>
-                      <p className="text-text-muted">Email</p>
-                      <p className="text-text-primary font-mono">{selected.email || selected.payload?.email || '-'}</p>
+                      <label className="text-text-muted text-sm">Email</label>
+                      <input
+                        className="input-cyber w-full"
+                        value={edit?.email || edit?.payload?.email || ''}
+                        onChange={(e) => setEdit((prev: any) => ({ ...prev, email: e.target.value }))}
+                      />
                     </div>
                     <div>
-                      <p className="text-text-muted">Received</p>
-                      <p className="text-text-primary">{selected.receivedAt || selected.date || '-'}</p>
+                      <label className="text-text-muted text-sm">Company</label>
+                      <input
+                        className="input-cyber w-full"
+                        value={edit?.company || edit?.payload?.company || ''}
+                        onChange={(e) => setEdit((prev: any) => ({ ...prev, company: e.target.value }))}
+                      />
                     </div>
                     <div>
-                      <p className="text-text-muted">Status</p>
-                      <p className="text-text-primary">{selected.status || 'Received'}</p>
+                      <label className="text-text-muted text-sm">Status</label>
+                      <select
+                        className="input-cyber w-full"
+                        value={edit?.status || 'Received'}
+                        onChange={(e) => setEdit((prev: any) => ({ ...prev, status: e.target.value }))}
+                      >
+                        <option>Received</option>
+                        <option>New</option>
+                        <option>Reviewed</option>
+                        <option>Contacted</option>
+                        <option>Closed</option>
+                      </select>
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-text-muted mb-2 text-sm">Payload</p>
-                    <pre className="bg-dark-lighter border border-dark-border rounded-lg p-4 text-text-secondary text-xs overflow-x-auto whitespace-pre-wrap break-words">
-                      {JSON.stringify(selected.payload || selected, null, 2)}
-                    </pre>
+                    <label className="text-text-muted text-sm">Message</label>
+                    <textarea
+                      className="input-cyber w-full min-h-[120px]"
+                      value={edit?.message || edit?.payload?.message || ''}
+                      onChange={(e) => setEdit((prev: any) => ({ ...prev, message: e.target.value }))}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-text-muted text-sm">Notes (internal)</label>
+                    <textarea
+                      className="input-cyber w-full min-h-[80px]"
+                      value={edit?.notes || ''}
+                      onChange={(e) => setEdit((prev: any) => ({ ...prev, notes: e.target.value }))}
+                      placeholder="Add follow-up notes"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm text-text-muted">
+                    <span>Received: {selected.receivedAt || selected.date || '-'}</span>
+                    <div className="space-x-3">
+                      <button
+                        className="btn-secondary"
+                        type="button"
+                        onClick={() => setEdit(selected)}
+                        disabled={saving}
+                      >
+                        Reset
+                      </button>
+                      <button
+                        className="btn-primary"
+                        type="button"
+                        disabled={saving}
+                        onClick={async () => {
+                          if (!edit) return;
+                          setSaving(true);
+                          try {
+                            const res = await fetch('/api/forms', {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ id: selected.id, updates: edit }),
+                            });
+                            if (res.ok) {
+                              await fetchSubs();
+                              const updated = await res.json();
+                              setSelected(updated);
+                              setEdit(updated);
+                            }
+                          } catch (e) { console.error(e); }
+                          finally { setSaving(false); }
+                        }}
+                      >
+                        {saving ? 'Saving…' : 'Save changes'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

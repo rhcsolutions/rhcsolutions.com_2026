@@ -15,6 +15,21 @@ export async function GET() {
   }
 }
 
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, updates } = body || {};
+    if (!id || !updates) return NextResponse.json({ error: 'id and updates are required' }, { status: 400 });
+
+    const updated = CMSDatabase.updateForm(id, updates);
+    if (!updated) return NextResponse.json({ error: 'Form not found' }, { status: 404 });
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error('Error updating form:', error);
+    return NextResponse.json({ error: 'Failed to update form' }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

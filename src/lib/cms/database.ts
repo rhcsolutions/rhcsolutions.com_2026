@@ -474,6 +474,15 @@ export class CMSDatabase {
     return newEntry;
   }
 
+  static updateForm(id: string, updates: any): any | null {
+    const forms = this.getForms();
+    const idx = forms.findIndex(f => f.id === id);
+    if (idx === -1) return null;
+    forms[idx] = { ...forms[idx], ...updates };
+    fs.writeFileSync(FORMS_FILE, JSON.stringify(forms, null, 2));
+    return forms[idx];
+  }
+
   // Password reset and 2FA helpers
   static generateResetToken(email: string): string | null {
     const users = this.getUsers();
