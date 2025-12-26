@@ -52,11 +52,25 @@ NEXTAUTH_URL=https://your-domain.com
 
 Hosting options:
 
+- **CloudPanel** (recommended with Cloudflare) — see [CLOUDPANEL.md](CLOUDPANEL.md)
 - Vercel (recommended for Next.js)
 - Railway / Render (simple Node hosting)
 - Docker behind Nginx (expose port 3000)
 
-## Docker
+## Deployment
+
+### CloudPanel (Recommended)
+
+For detailed setup with Cloudflare, Docker, and SSL, see [CLOUDPANEL.md](CLOUDPANEL.md).
+
+Quick overview:
+
+```bash
+# Set environment variables in CloudPanel UI or .env
+docker compose -f docker-compose.yml -f docker-compose.nginx.yml up --build -d
+```
+
+### Docker
 
 Build image:
 
@@ -77,8 +91,16 @@ docker run --name rhc-web \
 
 ### Docker Compose
 
+Single service:
+
 ```bash
 docker compose up --build -d
+```
+
+With Nginx reverse proxy:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.nginx.yml up --build -d
 ```
 
 Notes:
@@ -88,7 +110,7 @@ Notes:
 
 ## Nginx Reverse Proxy (Recommended)
 
-Use Nginx in front for TLS, caching and gzip.
+Use Nginx in front for TLS, caching, gzip and Cloudflare integration.
 
 - Compose file: [docker-compose.nginx.yml](docker-compose.nginx.yml)
 - Config: [nginx/default.conf](nginx/default.conf)
@@ -96,17 +118,20 @@ Use Nginx in front for TLS, caching and gzip.
 Steps:
 
 1. Update `server_name` in the Nginx config to your domain
-2. Place TLS certs in `nginx/certs/` as `fullchain.pem` and `privkey.pem`
+2. Place TLS certs in `nginx/certs/` as `fullchain.pem` and `privkey.pem` (or point to CloudPanel's Let's Encrypt paths)
 3. Start both services:
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.nginx.yml up --build -d
 ```
 
-Notes:
+Features:
 
-- If you don’t have certs yet, point DNS and use a companion (e.g., Caddy/LetsEncrypt container) or temporarily comment SSL lines and serve HTTP first.
-- The web app is only exposed internally; Nginx publishes ports 80/443 to the host.
+- TLS termination
+- Gzip compression
+- Static asset caching
+- **Cloudflare IP trust** for accurate client IP detection
+- WebSocket support
 
 ## Vercel (Option)
 
@@ -117,7 +142,7 @@ Notes:
    - `NEXTAUTH_URL` = your domain
 4. Deploy
 
-If you need to keep `cms-data/` persistent in Vercel, use an external store (S3/R2/DB). The local file CMS is best for single-host deployments like Docker/Railway.
+If you need to keep `cms-data/` persistent in Vercel, use an external store (S3/R2/DB). The local file CMS is best for single-host deployments like Docker/CloudPanel.
 This repo includes a minimal `vercel.json` to use Node 18 for API routes.
 
 ## Features
