@@ -32,7 +32,7 @@ export default function AdminShell({ children, title }: AdminShellProps) {
     { name: 'Users', href: '/admin/users', icon: FaUsers },
     { name: 'SEO', href: '/admin/seo', icon: FaSearch },
     { name: 'Cookie Settings', href: '/admin/cookies', icon: FaCookie },
-    { name: 'Theme Settings', href: '/admin/settings#theme-settings', icon: FaPalette },
+    { name: 'Theme Settings', href: '/admin/theme-settings', icon: FaPalette },
     { name: 'Settings', href: '/admin/settings', icon: FaCog },
   ];
 
