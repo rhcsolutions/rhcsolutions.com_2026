@@ -194,20 +194,6 @@ export default function ThemeManagement() {
                       ))}
                     </select>
 
-                    {/* Freeform input */}
-                    <input
-                      type="text"
-                      value={value}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          fonts: { ...formData.fonts, [key]: e.target.value },
-                        })
-                      }
-                      className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
-                      placeholder="Custom font family (e.g., Inter, system-ui, sans-serif)"
-                    />
-
                     {/* Inline preview */}
                     <div
                       className="p-3 bg-dark border border-dark-border rounded text-text-primary text-sm"
