@@ -1,4 +1,6 @@
 import { getToken } from 'next-auth/jwt';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/config';
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
@@ -115,13 +117,22 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    const token = await getToken({ 
+    // Try reading JWT token first, then fall back to server session
+    const token = await getToken({
       req: request,
-      secret: process.env.NEXTAUTH_SECRET || 'your-secret-key-change-in-production'
+      secret: process.env.NEXTAUTH_SECRET || 'your-secret-key-change-in-production',
     });
-    console.log('[API] PUT /api/cms/theme - Token:', token ? `email=${(token as any)?.email}, role=${(token as any)?.role}` : 'no token');
-    
-    if (!(await checkRole(token))) {
+    const session = await getServerSession(authOptions);
+
+    const email = (token as any)?.email || (session?.user as any)?.email;
+    const role = (token as any)?.role || (session?.user as any)?.role;
+
+    console.log(
+      '[API] PUT /api/cms/theme - Auth:',
+      email && role ? `email=${email}, role=${role}` : token ? 'token only, no email/role' : session ? 'session only, no email/role' : 'no auth'
+    );
+
+    if (!role || !['admin', 'editor'].includes(role as string)) {
       console.warn('[API] PUT /api/cms/theme - Forbidden: user role not admin/editor');
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -130,7 +141,7 @@ export async function PUT(request: NextRequest) {
     const theme: Theme = {
       ...mergeTheme(body),
       updatedAt: new Date().toISOString(),
-      updatedBy: (token as any)?.email || 'admin',
+      updatedBy: email || 'admin',
     };
 
     await fs.writeFile(THEME_FILE, JSON.stringify(theme, null, 2));
