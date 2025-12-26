@@ -30,6 +30,21 @@ const fontSizeOptions = [
   '40px',
 ];
 
+const colorOptions = [
+  { label: 'Neon Green', value: '#00FF41' },
+  { label: 'Neon Cyan', value: '#00F0FF' },
+  { label: 'Neon Blue', value: '#00AAFF' },
+  { label: 'Neon Red', value: '#FF4458' },
+  { label: 'Neon Yellow', value: '#FFB800' },
+  { label: 'Neon Purple', value: '#BB86FC' },
+  { label: 'Success Green', value: '#00FF88' },
+  { label: 'Dark Black', value: '#0A0E27' },
+  { label: 'Dark Lighter', value: '#1A1F3A' },
+  { label: 'Dark Card', value: '#151B2F' },
+  { label: 'Gray Secondary', value: '#8892A6' },
+  { label: 'White', value: '#E8E8E8' },
+];
+
 interface ThemeColors {
   primary: string;
   primaryDark: string;
@@ -168,40 +183,38 @@ export default function ThemeManagement() {
                 <FaPalette /> Colors
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(formData.colors).map(([key, value]) => {
-                  const safeValue = /^#([0-9a-fA-F]{3}){1,2}$/i.test(value) ? value : '#000000';
-                  return (
+                {Object.entries(formData.colors).map(([key, value]) => (
                   <div key={key}>
                     <label className="block text-text-primary font-semibold mb-2 capitalize">
                       {key.replace(/([A-Z])/g, ' $1').trim()}
                     </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="color"
-                        value={safeValue}
-                        onChange={(e) =>
-                          setFormData({
+                    <div className="flex gap-3 items-center">
+                      <div
+                        className="w-12 h-12 rounded-lg border-2 border-dark-border flex-shrink-0"
+                        style={{ backgroundColor: value }}
+                      />
+                      <select
+                        value={colorOptions.find((opt) => opt.value === value)?.value || ''}
+                        onChange={(e) => {
+                          const updated = {
                             ...formData,
                             colors: { ...formData.colors, [key]: e.target.value },
-                          })
-                        }
-                        className="w-24 md:w-28 h-12 rounded-lg border-2 border-dark-border cursor-pointer bg-dark-card"
-                      />
-                      <input
-                        type="text"
-                        value={value}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            colors: { ...formData.colors, [key]: e.target.value },
-                          })
-                        }
-                        className="flex-1 bg-dark border-2 border-dark-border rounded-lg px-3 py-2 text-text-primary font-mono"
-                      />
+                          };
+                          setFormData(updated);
+                          applyThemeCSSVariables(updated);
+                        }}
+                        className="flex-1 bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
+                      >
+                        <option value="">Choose color</option>
+                        {colorOptions.map((opt) => (
+                          <option key={`${key}-${opt.value}`} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
-                  );
-                })}
+                ))}
               </div>
             </div>
 
