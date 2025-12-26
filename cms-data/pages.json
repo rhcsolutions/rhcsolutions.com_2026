@@ -282,9 +282,14 @@
       "metaDescription": "Services - Cioaas - RHC Solutions"
     },
     "createdBy": "system",
-    "updatedBy": "system",
+    "updatedBy": "admin@rhcsolutions.com",
     "createdAt": "2025-12-25T11:34:32.940Z",
-    "updatedAt": "2025-12-25T11:34:32.940Z"
+    "updatedAt": "2025-12-26T10:45:01.679Z",
+    "menu": {
+      "includeInNav": false,
+      "label": "Services - Cioaas",
+      "position": "end"
+    }
   },
   {
     "id": "services-cisoaas",
@@ -299,9 +304,14 @@
       "metaDescription": "Services - Cisoaas - RHC Solutions"
     },
     "createdBy": "system",
-    "updatedBy": "system",
+    "updatedBy": "admin@rhcsolutions.com",
     "createdAt": "2025-12-25T11:34:32.940Z",
-    "updatedAt": "2025-12-25T11:34:32.940Z"
+    "updatedAt": "2025-12-26T10:44:50.428Z",
+    "menu": {
+      "includeInNav": false,
+      "label": "Services - Cisoaas",
+      "position": "end"
+    }
   },
   {
     "id": "services-it-consulting",

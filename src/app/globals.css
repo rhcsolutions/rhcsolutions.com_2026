@@ -85,26 +85,22 @@
     @apply text-5xl md:text-7xl font-bold font-grotesk tracking-tight text-white;
     line-height: 1.1;
     font-family: var(--font-secondary-family);
-    font-size: var(--font-secondary-size);
   }
 
   .heading-lg {
     @apply text-4xl md:text-6xl font-bold font-grotesk tracking-tight text-white;
     line-height: 1.2;
     font-family: var(--font-secondary-family);
-    font-size: var(--font-secondary-size);
   }
 
   .heading-md {
     @apply text-3xl md:text-4xl font-bold font-grotesk text-white;
     font-family: var(--font-secondary-family);
-    font-size: var(--font-secondary-size);
   }
 
   .heading-sm {
     @apply text-2xl md:text-3xl font-semibold font-grotesk text-white;
     font-family: var(--font-secondary-family);
-    font-size: var(--font-secondary-size);
   }
 
   .text-gradient {
@@ -152,6 +148,33 @@
     box-shadow: 0 0 30px color-mix(in srgb, var(--btn-outline-border, var(--color-secondary, #00F0FF)) 40%, transparent);
   }
 
+  /* CTA buttons */
+  .btn-cta {
+    @apply inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-300 shadow-lg;
+    padding: 0.9rem 1.6rem;
+    color: #0A0E27;
+    background: linear-gradient(to right, var(--color-primary, #00FF41), var(--color-secondary, #00F0FF));
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--color-primary, #00FF41) 45%, transparent);
+  }
+
+  .btn-cta:hover {
+    @apply scale-[1.03];
+    background: linear-gradient(to right, var(--color-secondary, #00F0FF), var(--color-primary, #00FF41));
+    box-shadow: 0 15px 40px color-mix(in srgb, var(--color-primary, #00FF41) 65%, transparent);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center font-semibold rounded-lg border border-neon-cyan text-neon-cyan transition-all duration-300;
+    padding: 0.9rem 1.6rem;
+    background: color-mix(in srgb, var(--color-secondary, #00F0FF) 10%, transparent);
+  }
+
+  .btn-secondary:hover {
+    color: #0A0E27;
+    background: var(--color-secondary, #00F0FF);
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--color-secondary, #00F0FF) 45%, transparent);
+  }
+
   /* Cyber/Tech Elements */
   .card-cyber {
     @apply relative bg-dark-card border border-dark-border overflow-hidden rounded-xl p-8 transition-all duration-500;
@@ -188,3 +211,97 @@
     @apply bg-dark-border rounded-full hover:bg-neon-blue/50 transition-colors;
   }
 }
+  /* TipTap Editor Styles */
+  .ProseMirror {
+    @apply focus:outline-none;
+  }
+
+  .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: #6B7280;
+    pointer-events: none;
+    height: 0;
+  }
+
+  .ProseMirror h1 {
+    @apply text-4xl font-bold text-gradient mb-4;
+  }
+
+  .ProseMirror h2 {
+    @apply text-3xl font-bold text-gradient mb-3;
+  }
+
+  .ProseMirror h3 {
+    @apply text-2xl font-bold text-text-primary mb-3;
+  }
+
+  .ProseMirror h4 {
+    @apply text-xl font-bold text-text-primary mb-2;
+  }
+
+  .ProseMirror p {
+    @apply mb-4;
+  }
+
+  .ProseMirror ul,
+  .ProseMirror ol {
+    @apply pl-6 mb-4;
+  }
+
+  .ProseMirror ul {
+    @apply list-disc;
+  }
+
+  .ProseMirror ol {
+    @apply list-decimal;
+  }
+
+  .ProseMirror li {
+    @apply mb-1;
+  }
+
+  .ProseMirror blockquote {
+    border-left: 4px solid var(--color-secondary, #00F0FF);
+    @apply pl-4 italic text-text-secondary my-4;
+  }
+
+  .ProseMirror code {
+    background-color: rgba(10, 14, 39, 0.7);
+    color: var(--color-primary, #00FF41);
+    @apply px-2 py-1 rounded text-sm font-mono;
+  }
+
+  .ProseMirror pre {
+    background-color: rgba(10, 14, 39, 0.7);
+    @apply p-4 rounded-lg overflow-x-auto my-4;
+  }
+
+  .ProseMirror pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .ProseMirror a {
+    color: var(--color-secondary, #00F0FF);
+    @apply underline;
+  }
+  
+  .ProseMirror a:hover {
+    color: var(--color-primary, #00FF41);
+  }
+
+  .ProseMirror img {
+    @apply max-w-full h-auto rounded-lg my-4;
+  }
+
+  .ProseMirror strong {
+    @apply font-bold;
+  }
+
+  .ProseMirror em {
+    @apply italic;
+  }
+
+  .ProseMirror s {
+    @apply line-through;
+  }

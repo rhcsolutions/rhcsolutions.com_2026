@@ -20,7 +20,6 @@ export default function AdminShell({ children, title }: AdminShellProps) {
   const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [themeSaving, setThemeSaving] = useState(false);
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: FaHome },
@@ -32,7 +31,7 @@ export default function AdminShell({ children, title }: AdminShellProps) {
     { name: 'Users', href: '/admin/users', icon: FaUsers },
     { name: 'SEO', href: '/admin/seo', icon: FaSearch },
     { name: 'Cookie Settings', href: '/admin/cookies', icon: FaCookie },
-    { name: 'Theme Settings', href: '/admin/theme-settings', icon: FaPalette },
+    { name: 'Theme Settings', href: '/admin/theme', icon: FaPalette },
     { name: 'Settings', href: '/admin/settings', icon: FaCog },
   ];
 
@@ -87,47 +86,6 @@ export default function AdminShell({ children, title }: AdminShellProps) {
                 className="text-text-secondary hover:text-cyber-cyan transition-colors text-sm hidden sm:block"
               >
                 View Site →
-              </Link>
-              <select
-                onChange={async (e) => {
-                  const preset = e.target.value;
-                  let theme: any = null;
-                  if (preset === 'default') return;
-                  if (preset === 'dark') {
-                    theme = { colors: { primary: '#00FF41', primaryDark: '#050607', secondary: '#00F0FF', accent: '#00AAFF', success: '#00FF88', error: '#FF4458', warning: '#FFB800', info: '#00F0FF' }, fonts: { primary: 'Inter, system-ui, sans-serif', secondary: 'Space Grotesk, system-ui, sans-serif', mono: 'JetBrains Mono, monospace' }, borderRadius: '0.5rem', shadowIntensity: 'medium' };
-                  } else if (preset === 'brand') {
-                    theme = { colors: { primary: '#0ea5a2', primaryDark: '#072d2d', secondary: '#7dd3fc', accent: '#06b6d4', success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#3b82f6' }, fonts: { primary: 'Inter, system-ui, sans-serif', secondary: 'Space Grotesk, system-ui, sans-serif', mono: 'JetBrains Mono, monospace' }, borderRadius: '0.5rem', shadowIntensity: 'medium' };
-                  }
-                  if (theme) {
-                    setThemeSaving(true);
-                    try {
-                      const res = await fetch('/api/cms/theme', { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(theme) });
-                      if (res.ok) {
-                        console.log(`[AdminShell] Theme preset "${preset}" applied`);
-                      } else {
-                        const msg = await res.text();
-                        console.error(`[AdminShell] Theme apply failed: ${msg || res.status}`);
-                      }
-                    } catch (e) {
-                      console.error('[AdminShell] Theme apply error:', e);
-                    } finally {
-                      setThemeSaving(false);
-                    }
-                  }
-                }}
-                disabled={themeSaving}
-                className="hidden sm:block bg-dark-card border border-dark-border text-text-secondary rounded px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <option value="default">{themeSaving ? 'Saving...' : 'Theme'}</option>
-                <option value="brand">Brand</option>
-                <option value="dark">Dark</option>
-              </select>
-              <Link
-                href="/admin/theme"
-                title="Open full theme editor"
-                className="hidden sm:block text-text-secondary hover:text-cyber-cyan transition-colors text-sm"
-              >
-                Edit →
               </Link>
               <button
                 onClick={handleLogout}

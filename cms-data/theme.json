@@ -16,11 +16,25 @@
   },
   "fontSizes": {
     "primary": "18px",
-    "secondary": "22px",
-    "mono": "24px"
+    "secondary": "18px",
+    "mono": "18px"
+  },
+  "buttonStyles": {
+    "fontFamily": "inherit",
+    "fontSize": "16px",
+    "fontWeight": "bold",
+    "paddingX": "2rem",
+    "paddingY": "1rem",
+    "borderRadius": "0.5rem",
+    "primaryBg": "linear-gradient(to right, var(--color-primary), var(--color-secondary))",
+    "primaryHoverBg": "linear-gradient(to right, var(--color-secondary), var(--color-primary))",
+    "primaryText": "#0A0E27",
+    "outlineBorder": "var(--color-secondary)",
+    "outlineText": "var(--color-secondary)",
+    "outlineHoverBg": "var(--color-secondary)"
   },
   "borderRadius": "0.5rem",
   "shadowIntensity": "medium",
-  "updatedAt": "2025-12-26T03:15:05.411Z",
+  "updatedAt": "2025-12-26T10:20:58.449Z",
   "updatedBy": "admin@rhcsolutions.com"
 }

@@ -19,7 +19,7 @@ if (!fs.existsSync(DB_DIR)) {
 
 export interface ContentBlock {
   id: string;
-  type: 'heading' | 'paragraph' | 'image' | 'button' | 'list' | 'cards' | 'hero' | 'cta' | 'columns' | 'testimonial';
+  type: 'heading' | 'paragraph' | 'image' | 'button' | 'list' | 'cards' | 'hero' | 'cta' | 'columns' | 'testimonial' | 'richtext';
   content: any;
   styles?: {
     align?: 'left' | 'center' | 'right';
@@ -37,6 +37,11 @@ export interface CMSPage {
   description?: string;
   category: string;
   status: 'draft' | 'published' | 'archived';
+  menu?: {
+    includeInNav?: boolean;
+    label?: string;
+    position?: string; // nav id to insert before, or 'end'
+  };
   blocks: ContentBlock[];
   seo?: {
     metaTitle?: string;

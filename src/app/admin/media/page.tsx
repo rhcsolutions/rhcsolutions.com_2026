@@ -15,35 +15,42 @@ export default function MediaLibrary() {
 
   const fetchMedia = async () => {
     try {
-      const res = await fetch('/api/media');
-      if (res.ok) setMedia(await res.json());
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+      const res = await fetch('/api/cms/media', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMedia(data);
+      }
+    } catch (e) { 
+      console.error(e); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   const handleUpload = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      
-      return;
-    }
-
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/media/upload', { method: 'POST', body: formData });
+      const res = await fetch('/api/cms/media', { 
+        method: 'POST', 
+        body: formData,
+        credentials: 'include',
+      });
       if (res.ok) {
         const item = await res.json();
-        setMedia(prev => [...prev, item]);
-        
+        setMedia(prev => [item, ...prev]);
       } else {
         const err = await res.json();
         alert('Upload failed: ' + (err?.error || 'Unknown error'));
       }
     } catch (e) {
       console.error(e);
-      
+      alert('Upload failed');
     } finally {
       setUploading(false);
     }
@@ -63,15 +70,18 @@ export default function MediaLibrary() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this media?')) return;
     try {
-      const res = await fetch(`/api/media?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/cms/media?id=${id}`, { 
+        method: 'DELETE',
+        credentials: 'include',
+      });
       if (res.ok) {
         setMedia(prev => prev.filter(m => m.id !== id));
       } else {
-        
+        alert('Failed to delete media');
       }
     } catch (e) {
       console.error(e);
-      
+      alert('Failed to delete media');
     }
   };
 
@@ -122,36 +132,58 @@ export default function MediaLibrary() {
       </div>
 
       {/* Media Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {media.map((item, idx) => {
-          const Icon = getIcon(item.type);
-          return (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: idx * 0.05 }}
-              className="card-cyber p-4 group hover:border-cyber-green transition-all"
-            >
-              <div className="aspect-square bg-dark-lighter rounded-lg flex items-center justify-center mb-4 relative overflow-hidden">
-                <Icon className="text-6xl text-cyber-green group-hover:scale-110 transition-transform" />
-                <div className="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-60" />
-              </div>
-              <h3 className="text-text-primary font-semibold mb-2 truncate">{item.name}</h3>
-              <p className="text-text-secondary text-sm mb-3">{item.size} • {item.uploaded}</p>
-              <div className="flex items-center space-x-2">
-                <button className="flex-1 btn-secondary py-2 text-sm flex items-center justify-center space-x-1">
-                  <FaDownload />
-                  <span>Download</span>
-                </button>
-                <button onClick={() => handleDelete(item.id)} className="p-2 text-cyber-red hover:bg-cyber-red/20 rounded transition-colors">
-                  <FaTrash />
-                </button>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
+      {loading ? (
+        <div className="text-center py-12 text-text-muted">Loading media...</div>
+      ) : media.length === 0 ? (
+        <div className="text-center py-12 text-text-muted">No media uploaded yet</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {media
+            .filter(item => item.filename?.toLowerCase().includes(searchTerm.toLowerCase()))
+            .map((item, idx) => {
+              const Icon = getIcon(item.type);
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="card-cyber p-4 group hover:border-cyber-green transition-all"
+                >
+                  <div className="aspect-square bg-dark-lighter rounded-lg flex items-center justify-center mb-4 relative overflow-hidden">
+                    {item.type === 'image' ? (
+                      <img 
+                        src={item.url} 
+                        alt={item.alt || item.filename}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Icon className="text-6xl text-cyber-green group-hover:scale-110 transition-transform" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-60" />
+                  </div>
+                  <h3 className="text-text-primary font-semibold mb-2 truncate">{item.filename}</h3>
+                  <p className="text-text-secondary text-sm mb-3">
+                    {formatFileSize(item.size)} • {new Date(item.uploadedAt).toLocaleDateString()}
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <a 
+                      href={item.url} 
+                      download 
+                      className="flex-1 btn-secondary py-2 text-sm flex items-center justify-center space-x-1"
+                    >
+                      <FaDownload />
+                      <span>Download</span>
+                    </a>
+                    <button onClick={() => handleDelete(item.id)} className="p-2 text-cyber-red hover:bg-cyber-red/20 rounded transition-colors">
+                      <FaTrash />
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+        </div>
+      )}
 
       {/* Upload Area */}
       <motion.div
@@ -168,7 +200,7 @@ export default function MediaLibrary() {
           id="file-input"
           type="file"
           multiple
-          accept="image/*"
+          accept="image/*,video/*"
           onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
           disabled={uploading}
           className="hidden"
@@ -177,9 +209,15 @@ export default function MediaLibrary() {
           <FaUpload className={`text-6xl ${uploading ? 'text-text-secondary' : 'text-cyber-green'} mx-auto mb-4 ${uploading ? 'animate-bounce' : ''}`} />
           <h3 className="text-xl font-bold text-text-primary mb-2">{uploading ? 'Uploading...' : 'Drop files here to upload'}</h3>
           <p className="text-text-secondary mb-4">{uploading ? 'Please wait' : 'or click to browse from your computer'}</p>
-          <p className="text-text-muted text-sm">Supported: JPG, PNG, GIF, WebP (Max 50MB)</p>
+          <p className="text-text-muted text-sm">Supported: Images (JPG, PNG, GIF, WebP) & Videos (MP4, WebM) - Max 50MB</p>
         </div>
       </motion.div>
     </AdminShell>
   );
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }

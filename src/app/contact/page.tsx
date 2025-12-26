@@ -61,7 +61,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-text-primary mb-1">Phone</h3>
-                    <a href="tel:+19176282365" className="text-text-secondary hover:text-cyber-cyan transition-colors">
+                    <a href="tel://+19176282365" className="text-text-secondary hover:text-cyber-cyan transition-colors">
                       +1 (917) 628-2365
                     </a>
                   </div>
@@ -91,8 +91,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-text-primary mb-1">Telegram</h3>
-                    <a href="https://t.me/19176282365" className="text-text-secondary hover:text-cyber-cyan transition-colors">
-                      Available for instant messaging
+                    <a href="https://t.me/rhcsolutions" className="text-text-secondary hover:text-cyber-cyan transition-colors">
+                      t.me/rhcsolutions
                     </a>
                   </div>
                 </motion.div>

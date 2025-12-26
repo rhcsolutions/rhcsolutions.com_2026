@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import AdminShell from '@/components/admin/AdminShell';
+import RichTextEditor from '@/components/admin/RichTextEditor';
+import MediaPicker from '@/components/admin/MediaPicker';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaEdit, FaEye, FaSearch, FaTimes, FaSave, FaExternalLinkAlt, 
@@ -12,7 +14,7 @@ import { useSession } from 'next-auth/react';
 
 interface ContentBlock {
   id: string;
-  type: 'heading' | 'paragraph' | 'image' | 'button' | 'list' | 'cards' | 'hero' | 'cta' | 'columns' | 'testimonial';
+  type: 'heading' | 'paragraph' | 'image' | 'button' | 'list' | 'cards' | 'hero' | 'cta' | 'columns' | 'testimonial' | 'richtext';
   content: any;
   styles?: {
     align?: 'left' | 'center' | 'right';
@@ -30,6 +32,11 @@ interface CMSPage {
   description?: string;
   category: string;
   status: 'draft' | 'published' | 'archived';
+  menu?: {
+    includeInNav?: boolean;
+    label?: string;
+    position?: string; // nav id to insert before, or 'end'
+  };
   blocks: ContentBlock[];
   seo?: {
     metaTitle?: string;
@@ -46,14 +53,18 @@ export default function CMSPagesEditor() {
   const { data: session } = useSession();
   const [pages, setPages] = useState<CMSPage[]>([]);
   const [loading, setLoading] = useState(true);
+    const [navigation, setNavigation] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showEditor, setShowEditor] = useState(false);
   const [editingPage, setEditingPage] = useState<CMSPage | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [mediaPickerCallback, setMediaPickerCallback] = useState<((url: string) => void) | null>(null);
 
   useEffect(() => {
     fetchPages();
+    fetchSettings();
   }, []);
 
   const fetchPages = async () => {
@@ -75,8 +86,24 @@ export default function CMSPagesEditor() {
     }
   };
 
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/cms/settings', { credentials: 'include', cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setNavigation(data?.navigation || []);
+    } catch (error) {
+      console.error('Failed to fetch settings:', error);
+    }
+  };
+
   const handleEdit = (page: CMSPage) => {
-    setEditingPage(JSON.parse(JSON.stringify(page))); // Deep clone
+    const cloned = JSON.parse(JSON.stringify(page)) as CMSPage;
+    // Ensure blocks array exists
+    if (!cloned.blocks) {
+      cloned.blocks = [];
+    }
+    setEditingPage({ ...cloned, menu: buildMenuConfig(cloned) }); // Deep clone with menu defaults
     setShowEditor(true);
     setSelectedBlockId(null);
   };
@@ -98,15 +125,16 @@ export default function CMSPagesEditor() {
       });
 
       if (res.ok) {
-        
+        const savedPage = await res.json();
+        await updateNavigation(savedPage as CMSPage);
         setShowEditor(false);
         fetchPages();
+        fetchSettings();
       } else {
-        
+        console.error('Failed to save page');
       }
     } catch (error) {
       console.error('Save failed:', error);
-      
     } finally {
       setSaving(false);
     }
@@ -127,7 +155,7 @@ export default function CMSPagesEditor() {
   };
 
   const handleNewPage = () => {
-    setEditingPage({
+    const newPage: CMSPage = {
       id: 'new',
       title: 'New Page',
       slug: '/new-page',
@@ -137,8 +165,66 @@ export default function CMSPagesEditor() {
       createdBy: (session?.user as any)?.email || (session?.user as any)?.name || 'admin',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
-    });
+    } as CMSPage;
+    setEditingPage({ ...newPage, menu: buildMenuConfig(newPage) });
     setShowEditor(true);
+    setSelectedBlockId(null);
+  };
+
+  const buildMenuConfig = (page: CMSPage): CMSPage['menu'] => {
+    const navMatch = navigation.find((nav) => nav.url === page.slug);
+    return {
+      includeInNav: page.menu?.includeInNav ?? !!navMatch,
+      label: page.menu?.label || navMatch?.label || page.title,
+      position: page.menu?.position || navMatch?.id || 'end',
+    };
+  };
+
+  const updateNavigation = async (pageData: CMSPage) => {
+    try {
+      const settingsRes = await fetch('/api/cms/settings', { credentials: 'include', cache: 'no-store' });
+      if (!settingsRes.ok) return;
+      const settings = await settingsRes.json();
+      let nav = Array.isArray(settings?.navigation) ? [...settings.navigation] : [];
+
+      // Remove existing entry for this page slug
+      nav = nav.filter((item: any) => item.url !== pageData.slug);
+
+      if (pageData.menu?.includeInNav) {
+        const navItem = {
+          id: pageData.id || Date.now().toString(),
+          label: pageData.menu.label || pageData.title,
+          url: pageData.slug,
+        };
+
+        const position = pageData.menu.position || 'end';
+        if (position === 'start') {
+          nav.unshift(navItem);
+        } else if (position !== 'end') {
+          const idx = nav.findIndex((item: any) => item.id === position);
+          if (idx >= 0) {
+            nav.splice(idx, 0, navItem);
+          } else {
+            nav.push(navItem);
+          }
+        } else {
+          nav.push(navItem);
+        }
+      }
+
+      const updateRes = await fetch('/api/cms/settings', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ navigation: nav }),
+      });
+
+      if (updateRes.ok) {
+        setNavigation(nav);
+      }
+    } catch (error) {
+      console.error('Failed to update navigation:', error);
+    }
   };
 
   const updateBlock = (blockId: string, updates: Partial<ContentBlock>) => {
@@ -159,6 +245,9 @@ export default function CMSPagesEditor() {
     let styles: any = { align: 'left' };
 
     switch (type) {
+      case 'richtext':
+        content = '<p>Start typing your content here...</p>';
+        break;
       case 'hero':
         content = { title: 'Hero Title', subtitle: 'Subtitle text', cta: { text: 'Get Started', url: '#' } };
         styles.align = 'center';
@@ -237,6 +326,17 @@ export default function CMSPagesEditor() {
 
   const renderBlockEditor = (block: ContentBlock) => {
     switch (block.type) {
+      case 'richtext':
+        return (
+          <div className="space-y-2">
+            <RichTextEditor
+              content={block.content || ''}
+              onChange={(html) => updateBlock(block.id, { content: html })}
+              placeholder="Type your content here..."
+              minHeight="150px"
+            />
+          </div>
+        );
       case 'hero':
         return (
           <div className="space-y-3">
@@ -294,13 +394,26 @@ export default function CMSPagesEditor() {
         );
       case 'image':
         return (
-          <input
-            type="text"
-            value={block.content}
-            onChange={(e) => updateBlock(block.id, { content: e.target.value })}
-            placeholder="/uploads/image.jpg"
-            className="w-full bg-dark border border-dark-border rounded px-3 py-2 text-text-primary text-sm"
-          />
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={block.content}
+              onChange={(e) => updateBlock(block.id, { content: e.target.value })}
+              placeholder="/uploads/image.jpg"
+              className="w-full bg-dark border border-dark-border rounded px-3 py-2 text-text-primary text-sm"
+            />
+            <button
+              onClick={() => {
+                setShowMediaPicker(true);
+                setMediaPickerCallback(() => (url: string) => {
+                  updateBlock(block.id, { content: url });
+                });
+              }}
+              className="w-full btn-secondary py-2 text-sm"
+            >
+              Select from Media Library
+            </button>
+          </div>
         );
       case 'button':
         return (
@@ -359,6 +472,13 @@ export default function CMSPagesEditor() {
       block.styles?.align === 'right' ? 'text-right' : '';
     
     switch (block.type) {
+      case 'richtext':
+        return (
+          <div 
+            className={`prose prose-invert max-w-none ${alignClass}`}
+            dangerouslySetInnerHTML={{ __html: block.content || '' }}
+          />
+        );
       case 'hero':
         return (
           <div className={`bg-gradient-to-r from-cyber-green/10 to-cyber-cyan/10 p-8 rounded ${alignClass}`}>
@@ -544,6 +664,53 @@ export default function CMSPagesEditor() {
                         placeholder="Category"
                       />
                     </div>
+
+                    {/* Navigation Settings */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+                      <label className="flex items-center gap-2 text-sm text-text-secondary bg-dark-card border border-dark-border rounded px-3 py-2">
+                        <input
+                          type="checkbox"
+                          checked={!!editingPage.menu?.includeInNav}
+                          onChange={(e) => setEditingPage({
+                            ...editingPage,
+                            menu: {
+                              ...buildMenuConfig(editingPage),
+                              includeInNav: e.target.checked,
+                            },
+                          })}
+                          className="accent-cyber-green"
+                        />
+                        Add to top menu
+                      </label>
+
+                      <input
+                        type="text"
+                        value={editingPage.menu?.label || editingPage.title}
+                        onChange={(e) => setEditingPage({
+                          ...editingPage,
+                          menu: { ...buildMenuConfig(editingPage), label: e.target.value },
+                        })}
+                        disabled={!editingPage.menu?.includeInNav}
+                        className="bg-dark-card border border-dark-border rounded px-3 py-2 text-text-primary text-sm disabled:opacity-50"
+                        placeholder="Menu label"
+                      />
+
+                      <select
+                        value={editingPage.menu?.position || 'end'}
+                        onChange={(e) => setEditingPage({
+                          ...editingPage,
+                          menu: { ...buildMenuConfig(editingPage), position: e.target.value },
+                        })}
+                        disabled={!editingPage.menu?.includeInNav}
+                        className="bg-dark-card border border-dark-border rounded px-3 py-2 text-text-primary text-sm disabled:opacity-50"
+                      >
+                        <option value="start">At beginning</option>
+                        {navigation.map((navItem) => (
+                          <option key={navItem.id} value={navItem.id}>{`Before ${navItem.label}`}</option>
+                        ))}
+                        <option value="end">At end</option>
+                      </select>
+                    </div>
                   </div>
                   <div className="flex items-center space-x-4 ml-4">
                     <button
@@ -571,6 +738,9 @@ export default function CMSPagesEditor() {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-text-primary">Content Blocks</h3>
                     <div className="flex flex-wrap gap-2">
+                      <button onClick={() => addBlock('richtext')} className="px-2 py-1 bg-dark-card hover:bg-dark-lighter border border-cyber-purple rounded text-cyber-purple text-xs font-semibold">
+                        Rich Text
+                      </button>
                       <button onClick={() => addBlock('hero')} className="px-2 py-1 bg-dark-card hover:bg-dark-lighter border border-cyber-green rounded text-cyber-green text-xs">
                         Hero
                       </button>
@@ -582,6 +752,9 @@ export default function CMSPagesEditor() {
                       </button>
                       <button onClick={() => addBlock('button')} className="px-2 py-1 bg-dark-card hover:bg-dark-lighter border border-dark-border rounded text-text-secondary text-xs">
                         Button
+                      </button>
+                      <button onClick={() => addBlock('image')} className="px-2 py-1 bg-dark-card hover:bg-dark-lighter border border-dark-border rounded text-text-secondary text-xs">
+                        Image
                       </button>
                       <button onClick={() => addBlock('testimonial')} className="px-2 py-1 bg-dark-card hover:bg-dark-lighter border border-dark-border rounded text-text-secondary text-xs">
                         <FaQuoteRight className="inline mr-1" />
@@ -701,6 +874,22 @@ export default function CMSPagesEditor() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Media Picker Modal */}
+      {showMediaPicker && mediaPickerCallback && (
+        <MediaPicker
+          onSelect={(url) => {
+            mediaPickerCallback(url);
+            setShowMediaPicker(false);
+            setMediaPickerCallback(null);
+          }}
+          onClose={() => {
+            setShowMediaPicker(false);
+            setMediaPickerCallback(null);
+          }}
+          allowedTypes={['image', 'video']}
+        />
+      )}
     </AdminShell>
   );
 }
