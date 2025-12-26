@@ -58,6 +58,9 @@ export const metadata: Metadata = {
   description: "Since 1994, RHC Solutions provides expert IT consulting, cloud infrastructure, cyber security, business continuity, and professional services. We Just Do IT.",
   keywords: ["IT consulting", "cloud infrastructure", "cyber security", "business continuity", "IT support", "project management", "AWS", "Azure", "GCP"],
   authors: [{ name: settings.siteName }],
+  alternates: {
+    canonical: settings.siteUrl || 'https://rhcsolutions.com',
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -88,6 +91,14 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      ['max-snippet']: -1,
+      ['max-image-preview']: 'large',
+      ['max-video-preview']: -1,
+    },
   },
 };
 
@@ -118,6 +129,39 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body style={styleVars} className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans bg-dark text-text-primary antialiased`}>
+        {/* Organization & WebSite JSON-LD for SEO/AI crawlers */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: currentSettings.siteName,
+              url: currentSettings.siteUrl || 'https://rhcsolutions.com',
+              logo: (currentSettings.logo as any) || '/logo.png',
+              sameAs: (currentSettings.footer?.socialLinks || []).map((s: any) => s.url),
+              contactPoint: currentSettings.contact?.email
+                ? [{ '@type': 'ContactPoint', email: currentSettings.contact.email }]
+                : undefined,
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: currentSettings.siteName,
+              url: currentSettings.siteUrl || 'https://rhcsolutions.com',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: `${currentSettings.siteUrl || 'https://rhcsolutions.com'}/search?q={search_term_string}`,
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
         <GoogleAnalytics />
         <GoogleTagManager />
         <SessionProvider>

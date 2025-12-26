@@ -3,9 +3,9 @@
   "tagline": "We Just Do IT ",
   "navigation": [
     {
-      "id": "2",
-      "label": "About",
-      "url": "/about-us"
+      "id": "home",
+      "label": "Home",
+      "url": "/"
     },
     {
       "id": "3",
@@ -27,6 +27,18 @@
         {
           "label": "Business Continuity",
           "url": "/services/business-continuity"
+        },
+        {
+          "label": "CIOaaS",
+          "url": "/services/cioaas"
+        },
+        {
+          "label": "CISOaaS",
+          "url": "/services/cisoaas"
+        },
+        {
+          "label": "Virtual Office",
+          "url": "/services/virtual-office"
         }
       ]
     },
@@ -41,9 +53,9 @@
       "url": "/contact"
     },
     {
-      "id": "home",
-      "label": "Home",
-      "url": "/"
+      "id": "2",
+      "label": "About",
+      "url": "/about-us"
     }
   ],
   "footer": {

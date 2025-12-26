@@ -82,6 +82,34 @@ const services = [
 export default function ProfessionalServicesPage() {
   return (
     <>
+      {/* Structured data for Service */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Service',
+            name: 'Professional Services',
+            description:
+              'Comprehensive architecture, design, testing, tender preparation, multi-platform integration, and automation for complex IT systems.',
+            provider: {
+              '@type': 'Organization',
+              name: 'RHC Solutions',
+              url: 'https://rhcsolutions.com',
+            },
+            areaServed: {
+              '@type': 'Country',
+              name: 'United States',
+            },
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'USD',
+              availability: 'https://schema.org/InStock',
+            },
+            url: 'https://rhcsolutions.com/services/professional-services',
+          }),
+        }}
+      />
       {/* Hero Section */}
       <section className="relative bg-gradient-cyber text-white py-32 pt-40 overflow-hidden">
         <div className="absolute inset-0 bg-cyber-grid opacity-10" />

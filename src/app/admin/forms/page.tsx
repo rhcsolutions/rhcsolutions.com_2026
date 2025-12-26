@@ -57,29 +57,7 @@ export default function FormsManagement() {
 
       {activeTab === 'submissions' && (
         <>
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="card-cyber p-6">
-              <FaEnvelope className="text-3xl text-cyber-green mb-3" />
-              <h3 className="text-2xl font-bold text-text-primary">127</h3>
-              <p className="text-text-secondary text-sm">Total Submissions</p>
-            </div>
-            <div className="card-cyber p-6">
-              <FaComment className="text-3xl text-cyber-cyan mb-3" />
-              <h3 className="text-2xl font-bold text-text-primary">23</h3>
-              <p className="text-text-secondary text-sm">New (Unread)</p>
-            </div>
-            <div className="card-cyber p-6">
-              <FaPhone className="text-3xl text-cyber-blue mb-3" />
-              <h3 className="text-2xl font-bold text-text-primary">45</h3>
-              <p className="text-text-secondary text-sm">Quote Requests</p>
-            </div>
-            <div className="card-cyber p-6">
-              <FaDownload className="text-3xl text-cyber-purple mb-3" />
-              <h3 className="text-2xl font-bold text-text-primary">89%</h3>
-              <p className="text-text-secondary text-sm">Response Rate</p>
-            </div>
-          </div>
+              {/* Real data only: show table below; remove hardcoded stats */}
 
           {/* Submissions Table */}
           <div className="card-cyber overflow-hidden">
@@ -96,19 +74,24 @@ export default function FormsManagement() {
                   </tr>
                 </thead>
                 <tbody>
+                  {submissions.length === 0 && (
+                    <tr>
+                      <td className="p-4 text-text-secondary" colSpan={6}>No submissions yet.</td>
+                    </tr>
+                  )}
                   {submissions.map((sub) => (
                     <tr key={sub.id} className="border-t border-dark-border hover:bg-dark-lighter transition-colors">
-                      <td className="p-4 text-text-primary">{sub.form}</td>
-                      <td className="p-4 text-text-secondary">{sub.name}</td>
-                      <td className="p-4 text-text-secondary font-mono text-sm">{sub.email}</td>
-                      <td className="p-4 text-text-secondary">{sub.date}</td>
+                      <td className="p-4 text-text-primary">{sub.form || sub.type || 'Contact'}</td>
+                      <td className="p-4 text-text-secondary">{sub.name || sub.fullName || '-'}</td>
+                      <td className="p-4 text-text-secondary font-mono text-sm">{sub.email || '-'}</td>
+                      <td className="p-4 text-text-secondary">{sub.date || sub.receivedAt || '-'}</td>
                       <td className="p-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          sub.status === 'New' ? 'bg-cyber-green/20 text-cyber-green' :
-                          sub.status === 'Reviewed' ? 'bg-cyber-cyan/20 text-cyber-cyan' :
+                          (sub.status || 'Received') === 'New' ? 'bg-cyber-green/20 text-cyber-green' :
+                          (sub.status || 'Received') === 'Reviewed' ? 'bg-cyber-cyan/20 text-cyber-cyan' :
                           'bg-cyber-blue/20 text-cyber-blue'
                         }`}>
-                          {sub.status}
+                          {sub.status || 'Received'}
                         </span>
                       </td>
                       <td className="p-4 text-right">

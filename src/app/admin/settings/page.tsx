@@ -17,6 +17,12 @@ type Settings = {
   footer?: {
     socialLinks?: SocialLink[];
   };
+  navigation?: Array<{
+    id: string;
+    label: string;
+    url: string;
+    children?: Array<{ label: string; url: string }>;
+  }>;
 };
 
 type ThemeColors = {
@@ -79,6 +85,7 @@ export default function SettingsPage() {
         footer: {
           socialLinks: social,
         },
+        navigation: (data.navigation || []) as any,
       });
     } catch (e) {
       console.error("Failed to load settings", e);
@@ -120,6 +127,7 @@ export default function SettingsPage() {
         footer: {
           socialLinks: form.footer?.socialLinks || [],
         },
+        navigation: form.navigation || [],
       };
       const res = await fetch("/api/cms/settings", {
         method: "PUT",
@@ -735,6 +743,267 @@ export default function SettingsPage() {
             Loading theme settings...
           </div>
         )}
+      </div>
+
+      {/* Top Navigation Management */}
+      <div className="card-cyber p-8 mb-8">
+        <div className="flex items-center space-x-3 mb-6">
+          <FaShieldAlt className="text-3xl text-cyber-green" />
+          <h2 className="text-xl font-bold text-text-primary">Top Navigation</h2>
+        </div>
+        <p className="text-text-secondary mb-4">Add, remove, or edit menu items shown in the header. Manage Services submenu entries like CIOaaS/CISOaaS.</p>
+
+        <div className="space-y-6">
+          {(form.navigation || []).map((item, idx) => (
+            <div key={item.id || idx} className="bg-dark-card border border-dark-border rounded-lg p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm text-text-primary mb-1">Label</label>
+                  <input
+                    type="text"
+                    value={item.label}
+                    onChange={(e) => {
+                      const nav = [...(form.navigation || [])];
+                      nav[idx] = { ...item, label: e.target.value };
+                      setForm({ ...(form as any), navigation: nav });
+                    }}
+                    className="w-full bg-dark-card border border-dark-border rounded px-3 py-2 text-text-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-text-primary mb-1">URL</label>
+                  <input
+                    type="text"
+                    value={item.url}
+                    onChange={(e) => {
+                      const nav = [...(form.navigation || [])];
+                      nav[idx] = { ...item, url: e.target.value };
+                      setForm({ ...(form as any), navigation: nav });
+                    }}
+                    placeholder="/services"
+                    className="w-full bg-dark-card border border-dark-border rounded px-3 py-2 text-text-primary"
+                  />
+                </div>
+                <div className="flex items-end justify-between">
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      const nav = (form.navigation || []).filter((_, i) => i !== idx);
+                      setForm({ ...(form as any), navigation: nav });
+                    }}
+                  >
+                    Remove Item
+                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      className="px-3 py-2 rounded bg-dark-lighter hover:bg-dark border border-dark-border text-sm"
+                      onClick={() => {
+                        const nav = [...(form.navigation || [])];
+                        if (idx > 0) {
+                          const it = nav.splice(idx, 1)[0];
+                          nav.splice(idx - 1, 0, it);
+                          setForm({ ...(form as any), navigation: nav });
+                        }
+                      }}
+                    >
+                      Move Up
+                    </button>
+                    <button
+                      className="px-3 py-2 rounded bg-dark-lighter hover:bg-dark border border-dark-border text-sm"
+                      onClick={() => {
+                        const nav = [...(form.navigation || [])];
+                        if (idx < nav.length - 1) {
+                          const it = nav.splice(idx, 1)[0];
+                          nav.splice(idx + 1, 0, it);
+                          setForm({ ...(form as any), navigation: nav });
+                        }
+                      }}
+                    >
+                      Move Down
+                    </button>
+                    <button
+                      className="px-3 py-2 rounded bg-dark-lighter hover:bg-dark border border-dark-border text-sm"
+                      onClick={() => {
+                        const nav = [...(form.navigation || [])];
+                        const it = nav.splice(idx, 1)[0];
+                        nav.unshift(it);
+                        setForm({ ...(form as any), navigation: nav });
+                      }}
+                    >
+                      Move First
+                    </button>
+                    <button
+                      className="px-3 py-2 rounded bg-dark-lighter hover:bg-dark border border-dark-border text-sm"
+                      onClick={() => {
+                        const nav = [...(form.navigation || [])];
+                        const it = nav.splice(idx, 1)[0];
+                        nav.push(it);
+                        setForm({ ...(form as any), navigation: nav });
+                      }}
+                    >
+                      Move Last
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Children (submenu) */}
+              <div className="mt-4">
+                <div className="text-sm text-text-secondary mb-2">Submenu Items</div>
+                {(item.children || []).map((child, cidx) => (
+                  <div key={child.url + cidx} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                    <input
+                      type="text"
+                      value={child.label}
+                      onChange={(e) => {
+                        const nav = [...(form.navigation || [])];
+                        const children = [...(item.children || [])];
+                        children[cidx] = { ...child, label: e.target.value };
+                        nav[idx] = { ...item, children };
+                        setForm({ ...(form as any), navigation: nav });
+                      }}
+                      placeholder="Label"
+                      className="w-full bg-dark-card border border-dark-border rounded px-3 py-2 text-text-primary"
+                    />
+                    <input
+                      type="text"
+                      value={child.url}
+                      onChange={(e) => {
+                        const nav = [...(form.navigation || [])];
+                        const children = [...(item.children || [])];
+                        children[cidx] = { ...child, url: e.target.value };
+                        nav[idx] = { ...item, children };
+                        setForm({ ...(form as any), navigation: nav });
+                      }}
+                      placeholder="/services/cioaas"
+                      className="w-full bg-dark-card border border-dark-border rounded px-3 py-2 text-text-primary"
+                    />
+                    <div className="flex items-center">
+                      <button
+                        className="text-cyber-red hover:bg-cyber-red/20 px-3 py-2 rounded"
+                        onClick={() => {
+                          const nav = [...(form.navigation || [])];
+                          const children = (item.children || []).filter((_, i) => i !== cidx);
+                          nav[idx] = { ...item, children };
+                          setForm({ ...(form as any), navigation: nav });
+                        }}
+                      >
+                        Remove
+                      </button>
+                      <button
+                        className="ml-2 px-3 py-2 rounded bg-dark-lighter hover:bg-dark border border-dark-border text-sm"
+                        onClick={() => {
+                          const nav = [...(form.navigation || [])];
+                          const children = [...(item.children || [])];
+                          if (cidx > 0) {
+                            const it = children.splice(cidx, 1)[0];
+                            children.splice(cidx - 1, 0, it);
+                            nav[idx] = { ...item, children };
+                            setForm({ ...(form as any), navigation: nav });
+                          }
+                        }}
+                      >
+                        Up
+                      </button>
+                      <button
+                        className="ml-2 px-3 py-2 rounded bg-dark-lighter hover:bg-dark border border-dark-border text-sm"
+                        onClick={() => {
+                          const nav = [...(form.navigation || [])];
+                          const children = [...(item.children || [])];
+                          if (cidx < children.length - 1) {
+                            const it = children.splice(cidx, 1)[0];
+                            children.splice(cidx + 1, 0, it);
+                            nav[idx] = { ...item, children };
+                            setForm({ ...(form as any), navigation: nav });
+                          }
+                        }}
+                      >
+                        Down
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      const nav = [...(form.navigation || [])];
+                      const children = [...(item.children || [])];
+                      children.push({ label: 'CIOaaS', url: '/services/cioaas' });
+                      nav[idx] = { ...item, children };
+                      setForm({ ...(form as any), navigation: nav });
+                    }}
+                  >
+                    Add CIOaaS
+                  </button>
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      const nav = [...(form.navigation || [])];
+                      const children = [...(item.children || [])];
+                      children.push({ label: 'CISOaaS', url: '/services/cisoaas' });
+                      nav[idx] = { ...item, children };
+                      setForm({ ...(form as any), navigation: nav });
+                    }}
+                  >
+                    Add CISOaaS
+                  </button>
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      const nav = [...(form.navigation || [])];
+                      const children = [...(item.children || [])];
+                      children.push({ label: 'IT Consulting', url: '/services/it-consulting' });
+                      nav[idx] = { ...item, children };
+                      setForm({ ...(form as any), navigation: nav });
+                    }}
+                  >
+                    Add IT Consulting
+                  </button>
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      const nav = [...(form.navigation || [])];
+                      const children = [...(item.children || [])];
+                      children.push({ label: 'Virtual Office', url: '/services/virtual-office' });
+                      nav[idx] = { ...item, children };
+                      setForm({ ...(form as any), navigation: nav });
+                    }}
+                  >
+                    Add Virtual Office
+                  </button>
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      const nav = [...(form.navigation || [])];
+                      const children = [...(item.children || [])];
+                      children.push({ label: 'New Item', url: '/' });
+                      nav[idx] = { ...item, children };
+                      setForm({ ...(form as any), navigation: nav });
+                    }}
+                  >
+                    Add Custom
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div className="flex items-center gap-2">
+            <button
+              className="btn-secondary"
+              onClick={() => {
+                const nav = [...(form.navigation || [])];
+                nav.push({ id: Date.now().toString(), label: 'New', url: '/', children: [] });
+                setForm({ ...(form as any), navigation: nav });
+              }}
+            >
+              Add Top Item
+            </button>
+            <button onClick={handleSave} className="btn-primary">Save Navigation</button>
+          </div>
+        </div>
       </div>
 
       {/* Security Settings */}

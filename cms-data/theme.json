@@ -15,9 +15,9 @@
     "mono": "JetBrains Mono, monospace"
   },
   "fontSizes": {
-    "primary": "18px",
-    "secondary": "18px",
-    "mono": "18px"
+    "primary": "14px",
+    "secondary": "14px",
+    "mono": "14px"
   },
   "buttonStyles": {
     "fontFamily": "inherit",
@@ -35,6 +35,6 @@
   },
   "borderRadius": "0.5rem",
   "shadowIntensity": "medium",
-  "updatedAt": "2025-12-26T10:20:58.449Z",
+  "updatedAt": "2025-12-26T17:58:49.607Z",
   "updatedBy": "admin@rhcsolutions.com"
 }
