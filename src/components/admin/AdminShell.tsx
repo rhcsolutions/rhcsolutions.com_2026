@@ -21,8 +21,6 @@ export default function AdminShell({ children, title }: AdminShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [themeSaving, setThemeSaving] = useState(false);
-  const userRole = (session?.user as any)?.role as string | undefined;
-  const canEditTheme = userRole === 'admin' || userRole === 'editor';
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: FaHome },
@@ -37,10 +35,6 @@ export default function AdminShell({ children, title }: AdminShellProps) {
     { name: 'Theme Settings', href: '/admin/theme-settings', icon: FaPalette },
     { name: 'Settings', href: '/admin/settings', icon: FaCog },
   ];
-  const filteredNavigation = navigation.filter((item) => {
-    if (item.name === 'Theme Settings' && !canEditTheme) return false;
-    return true;
-  });
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/admin/login' });
@@ -94,7 +88,6 @@ export default function AdminShell({ children, title }: AdminShellProps) {
               >
                 View Site →
               </Link>
-              {canEditTheme && (
               <select
                 onChange={async (e) => {
                   const preset = e.target.value;
@@ -132,8 +125,6 @@ export default function AdminShell({ children, title }: AdminShellProps) {
                 <option value="brand">Brand</option>
                 <option value="dark">Dark</option>
               </select>
-              )}
-              {canEditTheme && (
               <Link
                 href="/admin/theme"
                 title="Open full theme editor"
@@ -141,7 +132,6 @@ export default function AdminShell({ children, title }: AdminShellProps) {
               >
                 Edit →
               </Link>
-              )}
               <button
                 onClick={handleLogout}
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-dark-lighter hover:bg-cyber-red/20 
@@ -161,7 +151,7 @@ export default function AdminShell({ children, title }: AdminShellProps) {
                    transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} overflow-y-auto`}
       >
         <nav className="p-4 space-y-2">
-          {filteredNavigation.map((item) => {
+          {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
@@ -191,7 +181,7 @@ export default function AdminShell({ children, title }: AdminShellProps) {
           className="lg:hidden fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-dark-card border-r border-dark-border z-40 overflow-y-auto"
         >
           <nav className="p-4 space-y-2">
-            {filteredNavigation.map((item) => {
+            {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
               return (

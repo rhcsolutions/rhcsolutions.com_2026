@@ -69,8 +69,6 @@ export default function ThemeManagement() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Theme | null>(null);
-  const role = (session?.user as any)?.role as string | undefined;
-  const canEditTheme = role === 'admin' || role === 'editor';
 
   useEffect(() => {
     fetchTheme();
@@ -150,13 +148,6 @@ export default function ThemeManagement() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Form */}
         <div className="lg:col-span-2 space-y-8">
-          {!canEditTheme && (
-            <div className="card-cyber p-4 border border-yellow-500/30 bg-yellow-900/10 text-yellow-200 mb-4">
-              <p className="text-sm">
-                You don’t have permission to edit the theme. Please contact an admin or use an editor account.
-              </p>
-            </div>
-          )}
           <form onSubmit={handleSave} className="space-y-8">
             {/* Colors Section */}
             <div className="card-cyber p-6">
@@ -182,7 +173,6 @@ export default function ThemeManagement() {
                           })
                         }
                         className="w-24 md:w-28 h-12 rounded-lg border-2 border-dark-border cursor-pointer bg-dark-card"
-                        disabled={!canEditTheme}
                       />
                       <input
                         type="text"
@@ -194,7 +184,6 @@ export default function ThemeManagement() {
                           })
                         }
                         className="flex-1 bg-dark border-2 border-dark-border rounded-lg px-3 py-2 text-text-primary font-mono"
-                        disabled={!canEditTheme}
                       />
                     </div>
                   </div>
@@ -224,7 +213,6 @@ export default function ThemeManagement() {
                           })
                         }
                         className="flex-1 bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
-                        disabled={!canEditTheme}
                       >
                         <option value="">Choose a font</option>
                         {fontOptions.map((opt) => (
@@ -245,7 +233,6 @@ export default function ThemeManagement() {
                           })
                         }
                         className="w-32 bg-dark border-2 border-dark-border rounded-lg px-3 py-2 text-text-primary"
-                        disabled={!canEditTheme}
                         aria-label={`${key} font size`}
                       >
                         <option value="">Size</option>
@@ -281,7 +268,6 @@ export default function ThemeManagement() {
                     onChange={(e) => setFormData({ ...formData, borderRadius: e.target.value })}
                     className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
                     placeholder="e.g., 0.5rem"
-                    disabled={!canEditTheme}
                   />
                 </div>
 
@@ -296,7 +282,6 @@ export default function ThemeManagement() {
                       })
                     }
                     className="w-full bg-dark border-2 border-dark-border rounded-lg px-4 py-3 text-text-primary"
-                    disabled={!canEditTheme}
                   >
                     <option value="light">Light</option>
                     <option value="medium">Medium</option>
@@ -308,7 +293,7 @@ export default function ThemeManagement() {
 
             <button
               type="submit"
-              disabled={saving || !canEditTheme}
+              disabled={saving}
               className="btn-primary w-full flex items-center justify-center gap-2"
             >
               <FaSave />
