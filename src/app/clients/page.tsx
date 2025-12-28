@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { FaDice, FaGlobe, FaPlane } from 'react-icons/fa';
 
 const caseStudies = [
@@ -223,12 +224,11 @@ export default function ClientsPage() {
               >
                 Book a Meeting
               </a>
-              <a
-                href="/contact"
-                className="btn-secondary"
-              >
-                Contact Us
-              </a>
+              <Link href="/contact">
+                <button className="btn-secondary">
+                  Contact Us
+                </button>
+              </Link>
             </div>
           </div>
         </motion.div>

@@ -33,7 +33,9 @@ export default function Home() {
             transition={{ delay: 0.4, duration: 0.7 }}
           >
             <Link href="/services" className="btn-primary px-8 py-3 text-lg">Our Services</Link>
-            <Link href="/contact" className="btn-secondary px-8 py-3 text-lg">Contact Us</Link>
+            <Link href="/contact">
+              <button className="btn-secondary px-8 py-3 text-lg">Contact Us</button>
+            </Link>
           </motion.div>
         </div>
       </section>
@@ -132,7 +134,9 @@ export default function Home() {
         <div className="container-custom max-w-2xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Transform Your IT?</h2>
           <p className="text-lg mb-8">Contact us for a consultation or to discuss your project needs.</p>
-          <Link href="/contact" className="btn-cta px-8 py-3 text-lg">Contact Us</Link>
+          <Link href="/contact">
+            <button className="btn-cta px-8 py-3 text-lg">Contact Us</button>
+          </Link>
         </div>
       </section>
     </>

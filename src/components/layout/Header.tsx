@@ -44,12 +44,12 @@ export default function Header({ settings }: HeaderProps) {
         document.documentElement.style.setProperty('--type-scale', String(scale));
       }
       localStorage.setItem('typeScale', String(scale));
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const siteName = settings?.siteName || "RHC Solutions";
   const tagline = settings?.tagline || "We Just Do IT";
-  const navLinks = settings?.navigation || [
+  const navLinks: SiteSettings['navigation'] = settings?.navigation || [
     { id: '1', label: 'Home', url: '/' },
     { id: '2', label: 'About', url: '/about-us' },
     {
@@ -59,8 +59,8 @@ export default function Header({ settings }: HeaderProps) {
         { label: 'Cyber Security', url: '/services/cyber-security' },
         { label: 'Business Continuity', url: '/services/business-continuity' },
         { label: 'Virtual Office Support', url: '/services/virtual-office' },
-      ] as any
-    }, // Cast to any to avoid type mismatch with differing structure if needed, or refine SiteSettings type
+      ]
+    },
     { id: '4', label: 'Clients', url: '/clients' },
     { id: '5', label: 'Partners', url: '/partners' },
     { id: '6', label: 'Careers', url: '/careers' },

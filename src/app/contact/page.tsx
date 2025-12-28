@@ -16,8 +16,8 @@ export default function ContactPage() {
           <div className="absolute top-20 right-10 w-96 h-96 bg-cyber-blue rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute inset-0 bg-cyber-grid opacity-20"></div>
         </div>
-        
-        <motion.div 
+
+        <motion.div
           className="container-custom relative z-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -44,9 +44,9 @@ export default function ContactPage() {
               transition={{ duration: 0.6 }}
             >
               <h2 className="heading-md text-gradient mb-8">Get in Touch</h2>
-              
+
               <div className="space-y-6 mb-12">
-                <motion.div 
+                <motion.div
                   className="flex items-start space-x-4 p-4 rounded-lg hover:bg-dark-lighter transition-colors duration-300"
                   whileHover={{ x: 5 }}
                 >
@@ -61,7 +61,7 @@ export default function ContactPage() {
                   </div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                   className="flex items-start space-x-4 p-4 rounded-lg hover:bg-dark-lighter transition-colors duration-300"
                   whileHover={{ x: 5 }}
                 >
@@ -76,7 +76,7 @@ export default function ContactPage() {
                   </div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                   className="flex items-start space-x-4 p-4 rounded-lg hover:bg-dark-lighter transition-colors duration-300"
                   whileHover={{ x: 5 }}
                 >
@@ -91,7 +91,7 @@ export default function ContactPage() {
                   </div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                   className="flex items-start space-x-4 p-4 rounded-lg hover:bg-dark-lighter transition-colors duration-300"
                   whileHover={{ x: 5 }}
                 >
@@ -145,14 +145,14 @@ export default function ContactPage() {
               </div>
 
               {/* Book a Meeting */}
-              <motion.div 
+              <motion.div
                 className="card-cyber p-8 border-l-4 border-cyber-cyan"
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.3 }}
               >
                 <h3 className="heading-sm text-gradient mb-4">Schedule a Meeting</h3>
                 <p className="text-text-secondary mb-6">
-                  Prefer to book directly? Use our online calendar to schedule a consultation 
+                  Prefer to book directly? Use our online calendar to schedule a consultation
                   at a time that works for you.
                 </p>
                 <a
@@ -183,7 +183,7 @@ export default function ContactPage() {
       {/* Global Presence Section with Interactive Map */}
       <section className="section-padding bg-dark-lighter">
         <div className="container-custom">
-          <motion.div 
+          <motion.div
             className="max-w-6xl mx-auto text-center mb-12"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -195,7 +195,7 @@ export default function ContactPage() {
               Serving clients worldwide with expertise and dedication
             </p>
           </motion.div>
-          
+
           <InteractiveWorldMap />
         </div>
       </section>

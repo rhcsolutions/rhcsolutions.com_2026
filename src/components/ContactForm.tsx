@@ -1,19 +1,101 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaCheckCircle, FaExclamationTriangle, FaPaperPlane } from 'react-icons/fa';
+import { SiteSettings } from '@/lib/cms/database';
 
-export default function ContactForm() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    company: '',
-    message: '',
-  });
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+interface ContactFormProps {
+  config?: {
+    id: string;
+    name: string;
+    placement?: {
+      pageSlug: string;
+      position: 'top' | 'bottom';
+    };
+    settings: {
+      notificationEmail?: string;
+      autoResponse?: string;
+      enableWhatsApp?: boolean;
+      enableTelegram?: boolean;
+    };
+    fields: Array<{
+      id: string;
+      label: string;
+      type: string;
+      required: boolean;
+      placeholder?: string;
+    }>;
+  };
+}
+
+export default function ContactForm({ config }: ContactFormProps) {
+  const [fields, setFields] = useState<any[]>(config?.fields || []);
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [status, setStatus] = useState<'idle' | 'loading' | 'submitting' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [formSettings, setFormSettings] = useState<any>(config?.settings || null);
+
+  useEffect(() => {
+    if (config) {
+      setFields(config.fields);
+      setFormSettings(config.settings);
+      setStatus('idle');
+      // Initialize form data
+      const initialData: Record<string, string> = {};
+      config.fields.forEach(f => initialData[f.id] = '');
+      setFormData(initialData);
+      return;
+    }
+    fetchSettings();
+  }, [config]);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/cms/settings');
+      if (res.ok) {
+        const settings: any = await res.json();
+        let targetForm = null;
+
+        // Try to find default contact form in new forms array
+        if (settings.forms && settings.forms.length > 0) {
+          targetForm = settings.forms.find((f: any) => f.id === 'contact_form_default') || settings.forms[0];
+        }
+        // Fallback to legacy formBuilder
+        else if (settings.formBuilder) {
+          targetForm = { fields: settings.formBuilder.contactForm, settings: settings.formBuilder.settings };
+        }
+
+        if (targetForm) {
+          setFields(targetForm.fields);
+          setFormSettings(targetForm.settings);
+
+          // Initialize form data
+          const initialData: Record<string, string> = {};
+          targetForm.fields.forEach((f: any) => initialData[f.id] = '');
+          setFormData(initialData);
+          setStatus('idle');
+        } else {
+          // Fallback hardcoded if absolutely nothing found
+          const contactFields = [
+            { id: 'name', label: 'NAME *', type: 'text', required: true, placeholder: 'John Doe' },
+            { id: 'email', label: 'EMAIL *', type: 'email', required: true, placeholder: 'john@company.com' },
+            { id: 'message', label: 'MESSAGE *', type: 'textarea', required: true, placeholder: 'Tell us about your project or inquiry...' }
+          ];
+          setFields(contactFields);
+          const initialData: Record<string, string> = {};
+          contactFields.forEach(f => initialData[f.id] = '');
+          setFormData(initialData);
+          setStatus('idle');
+        }
+      }
+
+    } catch (e) {
+      console.error('Failed to load form config', e);
+      setStatus('error');
+    }
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,7 +106,11 @@ export default function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          formId: config?.id || 'contact_form_default',
+          formName: config?.name || 'Contact Form'
+        }),
       });
 
       const data = await res.json().catch(() => null);
@@ -38,7 +124,11 @@ export default function ContactForm() {
       }
 
       setStatus('success');
-      setFormData({ name: '', email: '', company: '', message: '' });
+      // Reset form
+      const resetData: Record<string, string> = {};
+      fields.forEach(f => resetData[f.id] = '');
+      setFormData(resetData);
+
       setTimeout(() => setStatus('idle'), 5000);
     } catch (error) {
       console.error('Contact form submit failed', error);
@@ -48,157 +138,75 @@ export default function ContactForm() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
+  if (status === 'loading') {
+    return <div className="text-center py-8 text-text-secondary">Loading form...</div>;
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 relative">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <label htmlFor="name" className="block text-sm font-bold text-text-primary mb-2 text-mono">
-          NAME *
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            value={formData.name}
-            onChange={handleChange}
-            onFocus={() => setFocusedField('name')}
-            onBlur={() => setFocusedField(null)}
-            className={`w-full px-4 py-3 bg-dark-lighter border ${
-              focusedField === 'name' ? 'border-cyber-blue shadow-glow' : 'border-dark-card/50'
-            } rounded-lg text-text-primary placeholder-text-muted transition-all duration-300
-            focus:outline-none focus:border-cyber-blue focus:shadow-glow`}
-            placeholder="John Doe"
-          />
-          {focusedField === 'name' && (
-            <motion.div
-              layoutId="focusIndicator"
-              className="absolute inset-0 rounded-lg border-2 border-cyber-blue pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-          )}
-        </div>
-      </motion.div>
+      {fields.map((field, idx) => (
+        <motion.div
+          key={field.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 * (idx + 1) }}
+        >
+          <label htmlFor={field.id} className="block text-sm font-bold text-text-primary mb-2 text-mono uppercase">
+            {field.label} {field.required && '*'}
+          </label>
+          <div className="relative">
+            {field.type === 'textarea' ? (
+              <textarea
+                id={field.id}
+                name={field.id}
+                required={field.required}
+                rows={6}
+                value={formData[field.id] || ''}
+                onChange={handleChange}
+                onFocus={() => setFocusedField(field.id)}
+                onBlur={() => setFocusedField(null)}
+                className={`w-full px-4 py-3 bg-dark-lighter border ${focusedField === field.id ? 'border-cyber-green shadow-glow' : 'border-dark-card/50'
+                  } rounded-lg text-text-primary placeholder-text-muted transition-all duration-300 resize-none
+                focus:outline-none focus:border-cyber-green focus:shadow-glow`}
+                placeholder={field.placeholder}
+              />
+            ) : (
+              <input
+                type={field.type}
+                id={field.id}
+                name={field.id}
+                required={field.required}
+                value={formData[field.id] || ''}
+                onChange={handleChange}
+                onFocus={() => setFocusedField(field.id)}
+                onBlur={() => setFocusedField(null)}
+                className={`w-full px-4 py-3 bg-dark-lighter border ${focusedField === field.id ? 'border-cyber-blue shadow-glow' : 'border-dark-card/50'
+                  } rounded-lg text-text-primary placeholder-text-muted transition-all duration-300
+                focus:outline-none focus:border-cyber-blue focus:shadow-glow`}
+                placeholder={field.placeholder}
+              />
+            )}
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <label htmlFor="email" className="block text-sm font-bold text-text-primary mb-2 text-mono">
-          EMAIL *
-        </label>
-        <div className="relative">
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-            onFocus={() => setFocusedField('email')}
-            onBlur={() => setFocusedField(null)}
-            className={`w-full px-4 py-3 bg-dark-lighter border ${
-              focusedField === 'email' ? 'border-cyber-cyan shadow-glow' : 'border-dark-card/50'
-            } rounded-lg text-text-primary placeholder-text-muted transition-all duration-300
-            focus:outline-none focus:border-cyber-cyan focus:shadow-glow`}
-            placeholder="john@company.com"
-          />
-          {focusedField === 'email' && (
-            <motion.div
-              layoutId="focusIndicator"
-              className="absolute inset-0 rounded-lg border-2 border-cyber-cyan pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-          )}
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <label htmlFor="company" className="block text-sm font-bold text-text-primary mb-2 text-mono">
-          COMPANY
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            id="company"
-            name="company"
-            value={formData.company}
-            onChange={handleChange}
-            onFocus={() => setFocusedField('company')}
-            onBlur={() => setFocusedField(null)}
-            className={`w-full px-4 py-3 bg-dark-lighter border ${
-              focusedField === 'company' ? 'border-cyber-purple shadow-glow' : 'border-dark-card/50'
-            } rounded-lg text-text-primary placeholder-text-muted transition-all duration-300
-            focus:outline-none focus:border-cyber-purple focus:shadow-glow`}
-            placeholder="Your Company Inc. (optional)"
-          />
-          {focusedField === 'company' && (
-            <motion.div
-              layoutId="focusIndicator"
-              className="absolute inset-0 rounded-lg border-2 border-cyber-purple pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-          )}
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <label htmlFor="message" className="block text-sm font-bold text-text-primary mb-2 text-mono">
-          MESSAGE *
-        </label>
-        <div className="relative">
-          <textarea
-            id="message"
-            name="message"
-            required
-            rows={6}
-            value={formData.message}
-            onChange={handleChange}
-            onFocus={() => setFocusedField('message')}
-            onBlur={() => setFocusedField(null)}
-            className={`w-full px-4 py-3 bg-dark-lighter border ${
-              focusedField === 'message' ? 'border-cyber-green shadow-glow' : 'border-dark-card/50'
-            } rounded-lg text-text-primary placeholder-text-muted transition-all duration-300 resize-none
-            focus:outline-none focus:border-cyber-green focus:shadow-glow`}
-            placeholder="Tell us about your project or inquiry..."
-          />
-          {focusedField === 'message' && (
-            <motion.div
-              layoutId="focusIndicator"
-              className="absolute inset-0 rounded-lg border-2 border-cyber-green pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-          )}
-        </div>
-      </motion.div>
+            {focusedField === field.id && (
+              <motion.div
+                layoutId="focusIndicator"
+                className={`absolute inset-0 rounded-lg border-2 pointer-events-none ${field.type === 'textarea' ? 'border-cyber-green' : 'border-cyber-blue'
+                  }`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              />
+            )}
+          </div>
+        </motion.div>
+      ))}
 
       <AnimatePresence mode="wait">
         {status === 'success' && (

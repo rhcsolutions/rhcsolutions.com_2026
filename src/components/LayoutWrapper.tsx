@@ -5,6 +5,8 @@ import Footer from '@/components/layout/Footer';
 import CookieConsent from '@/components/CookieConsent';
 import { SiteSettings } from '@/lib/cms/database';
 
+import FormPlacement from '@/components/FormPlacement';
+
 interface LayoutWrapperProps {
   children: React.ReactNode;
   settings?: SiteSettings;
@@ -23,9 +25,11 @@ export default function LayoutWrapper({ children, settings }: LayoutWrapperProps
   return (
     <>
       <Header settings={settings} />
+      <FormPlacement position="top" />
       <main className="min-h-screen bg-dark">
         {children}
       </main>
+      <FormPlacement position="bottom" />
       <Footer settings={settings} />
       <CookieConsent />
     </>

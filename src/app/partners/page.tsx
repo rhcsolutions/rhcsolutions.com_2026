@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { FaAws, FaMicrosoft, FaGoogle } from 'react-icons/fa';
 
 export default function PartnersPage() {
@@ -188,12 +189,11 @@ export default function PartnersPage() {
               >
                 Book a Meeting
               </a>
-              <a
-                href="/contact"
-                className="btn-secondary"
-              >
-                Contact Us
-              </a>
+              <Link href="/contact">
+                <button className="btn-secondary">
+                  Contact Us
+                </button>
+              </Link>
             </div>
           </div>
         </motion.div>

@@ -92,11 +92,10 @@ export default function CTASection() {
               >
                 Schedule a Consultation
               </a>
-              <Link
-                href="/contact"
-                className="btn-secondary text-lg px-10 py-4"
-              >
-                Contact Us
+              <Link href="/contact">
+                <button className="btn-secondary text-lg px-10 py-4">
+                  Contact Us
+                </button>
               </Link>
             </motion.div>
 

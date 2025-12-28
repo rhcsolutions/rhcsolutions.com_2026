@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { FaCheckCircle, FaAward, FaUsers, FaLightbulb, FaHandshake } from 'react-icons/fa';
 import { AnimatedStatsGrid } from '@/components/AnimatedStats';
 
@@ -285,12 +286,11 @@ export default function AboutPage() {
               >
                 Schedule a Meeting
               </a>
-              <a
-                href="/contact"
-                className="btn-secondary"
-              >
-                Contact Us
-              </a>
+              <Link href="/contact">
+                <button className="btn-secondary">
+                  Contact Us
+                </button>
+              </Link>
             </div>
           </div>
         </motion.div>

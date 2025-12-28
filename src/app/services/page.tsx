@@ -227,11 +227,10 @@ export default function ServicesPage() {
               >
                 Book a Meeting
               </a>
-              <Link
-                href="/contact"
-                className="btn-secondary"
-              >
-                Contact Us
+              <Link href="/contact">
+                <button className="btn-secondary">
+                  Contact Us
+                </button>
               </Link>
             </div>
           </motion.div>

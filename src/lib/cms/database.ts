@@ -61,6 +61,29 @@ export interface MediaItem {
   caption?: string;
 }
 
+export interface FormConfig {
+  id: string;
+  name: string;
+  placement?: {
+    pageSlug: string;
+    position: 'top' | 'bottom';
+  };
+  settings: {
+    notificationEmail?: string;
+    autoResponse?: string;
+    enableWhatsApp?: boolean;
+    enableTelegram?: boolean;
+  };
+  fields: Array<{
+    id: string;
+    label: string;
+    type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox' | 'tel';
+    required: boolean;
+    placeholder?: string;
+    options?: string[];
+  }>;
+}
+
 export interface SiteSettings {
   siteName: string;
   tagline: string;
@@ -93,6 +116,24 @@ export interface SiteSettings {
   cloudflare?: {
     apiToken?: string;
     zoneId?: string;
+  };
+  forms: FormConfig[]; // New multi-form support
+  // Deprecated: formBuilder is replaced by forms array
+  formBuilder?: {
+    settings?: {
+      notificationEmail?: string;
+      autoResponse?: string;
+      enableWhatsApp?: boolean;
+      enableTelegram?: boolean;
+    };
+    contactForm: Array<{
+      id: string;
+      label: string;
+      type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox';
+      required: boolean;
+      placeholder?: string;
+      options?: string[];
+    }>;
   };
 }
 
@@ -194,7 +235,26 @@ const initSettings = (): SiteSettings => {
       email: 'info@rhcsolutions.com',
       phone: '+1-234-567-8900',
       telegram: '@rhcsolutions'
-    }
+    },
+    forms: [
+      {
+        id: 'contact_form_default',
+        name: 'Contact Form',
+        placement: { pageSlug: '/contact', position: 'bottom' },
+        settings: {
+          notificationEmail: 'info@rhcsolutions.com',
+          autoResponse: 'Thank you for your message. We will get back to you shortly.',
+          enableWhatsApp: false,
+          enableTelegram: false
+        },
+        fields: [
+          { id: 'name', label: 'Name', type: 'text', required: true, placeholder: 'John Doe' },
+          { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'john@company.com' },
+          { id: 'company', label: 'Company', type: 'text', required: false, placeholder: 'Your Company Inc. (optional)' },
+          { id: 'message', label: 'Message', type: 'textarea', required: true, placeholder: 'Tell us about your project or inquiry...' }
+        ]
+      }
+    ]
   };
 
   if (!fs.existsSync(SETTINGS_FILE)) {

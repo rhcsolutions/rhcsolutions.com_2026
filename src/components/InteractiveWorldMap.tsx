@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FaMapMarkerAlt } from 'react-icons/fa';
+import 'leaflet/dist/leaflet.css';
 
 interface Office {
   city: string;
@@ -23,20 +24,28 @@ const offices: Office[] = [
 export default function InteractiveWorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
+  const initialized = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!mapContainer.current) return;
+    if (initialized.current) return; // Prevent double initialization
 
-    // Prevent reinitializing if already mounted
-    if (map.current) {
-      map.current.invalidateSize();
-      return;
-    }
+    initialized.current = true;
 
     (async () => {
       const L = (await import('leaflet')).default;
-      await import('leaflet/dist/leaflet.css');
+
+      // Double-check the container is not already initialized
+      if (map.current) {
+        map.current.invalidateSize();
+        return;
+      }
+
+      // Clear any existing map instance in the container
+      if (mapContainer.current) {
+        mapContainer.current.innerHTML = '';
+      }
 
       // Initialize map centered on Europe
       map.current = L.map(mapContainer.current!, {
@@ -121,6 +130,7 @@ export default function InteractiveWorldMap() {
         map.current.remove();
         map.current = null;
       }
+      initialized.current = false;
     };
   }, []);
 
@@ -129,7 +139,7 @@ export default function InteractiveWorldMap() {
       {/* Background Effects */}
       <div className="absolute inset-0 bg-cyber-grid opacity-20" />
       <div className="absolute inset-0 bg-gradient-to-b from-dark via-dark-lighter to-dark" />
-      
+
       <div className="container-custom relative z-10">
         {/* Section Header */}
         <motion.div
@@ -159,7 +169,7 @@ export default function InteractiveWorldMap() {
           <div
             ref={mapContainer}
             className="w-full h-full rounded-2xl overflow-hidden"
-            style={{ 
+            style={{
               background: '#0f0f23',
             }}
           />

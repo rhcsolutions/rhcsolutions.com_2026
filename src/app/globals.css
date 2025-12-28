@@ -104,6 +104,25 @@
     box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
   }
 
+  .btn-secondary {
+    @apply relative bg-dark-card text-neon-cyan border border-neon-cyan/50 font-bold py-4 px-8 rounded-lg overflow-hidden transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm;
+  }
+
+  .btn-secondary:hover {
+    @apply bg-neon-cyan/10 border-neon-cyan scale-105;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+  }
+
+  .btn-cta {
+    @apply relative bg-gradient-to-r from-neon-green to-green-400 text-dark-card font-bold py-4 px-8 rounded-lg overflow-hidden transition-all duration-300 inline-flex items-center justify-center;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+  }
+
+  .btn-cta:hover {
+    @apply scale-105 brightness-110;
+    box-shadow: 0 0 40px rgba(0, 255, 65, 0.6);
+  }
+
   /* Cyber/Tech Elements */
   .card-cyber {
     @apply relative bg-dark-card border border-dark-border overflow-hidden rounded-xl p-8 transition-all duration-500;

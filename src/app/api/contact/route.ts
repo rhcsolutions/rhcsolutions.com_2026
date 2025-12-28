@@ -92,21 +92,49 @@ export async function POST(request: NextRequest) {
       .filter(Boolean)
       .join("\n");
 
-    // Try WhatsApp first
-    const waResult = await sendToWhatsApp(text);
-    if (waResult.ok) {
-      return NextResponse.json({ success: true, channel: "whatsapp" });
+    // Fetch settings to check notification preferences
+    const settings = CMSDatabase.getSettings();
+    const formId = (body.formId || "").toString().trim();
+
+    // Find specific form configuration
+    let targetForm = null;
+    if (formId && settings.forms) {
+      targetForm = settings.forms.find((f: any) => f.id === formId);
     }
 
-    // Fallback to Telegram
-    const tgResult = await sendToTelegram(text);
-    if (tgResult.ok) {
-      return NextResponse.json({ success: true, channel: "telegram", note: "WhatsApp failed, using Telegram" });
+    // Fallback to default/legacy
+    const formSettings = targetForm?.settings || settings.formBuilder?.settings || {};
+
+    const enableWhatsApp = formSettings.enableWhatsApp;
+    const enableTelegram = formSettings.enableTelegram;
+
+    let notificationResult = { whatsapp: 'disabled', telegram: 'disabled' };
+
+    // Try WhatsApp if enabled
+    if (enableWhatsApp) {
+      const waResult = await sendToWhatsApp(text);
+      if (waResult.ok) {
+        return NextResponse.json({ success: true, channel: "whatsapp" });
+      }
+      notificationResult.whatsapp = waResult.error || 'unknown error';
     }
 
-    // If both fail, still return success since form was saved
-    console.error("Contact notification failed", { whatsapp: waResult.error, telegram: tgResult.error });
-    return NextResponse.json({ success: true, warning: "Form saved but notification delivery failed" });
+    // Try Telegram if enabled (or as fallback if WhatsApp failed/disabled logic desired, but here treating as independent or sequential)
+    // Actually adhering to original logic: if WhatsApp succeeds we return, so Telegram is fallback. 
+    // If WhatsApp disabled, we go straight to Telegram if enabled.
+    if (enableTelegram) {
+      const tgResult = await sendToTelegram(text);
+      if (tgResult.ok) {
+        return NextResponse.json({ success: true, channel: "telegram", note: enableWhatsApp ? "WhatsApp failed/disabled, using Telegram" : "Telegram sent" });
+      }
+      notificationResult.telegram = tgResult.error || 'unknown error';
+    }
+
+    // If both fail or are disabled, still return success since form was saved
+    console.warn("Contact notification skipped or failed", notificationResult);
+    return NextResponse.json({ success: true, warning: "Form saved. Notifications: " + JSON.stringify(notificationResult) });
+
+
   } catch (error) {
     console.error("Contact form error:", error);
     return NextResponse.json(

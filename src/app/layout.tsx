@@ -6,6 +6,7 @@ import LayoutWrapper from "@/components/LayoutWrapper";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import GoogleTagManager from "@/components/GoogleTagManager";
 import SessionProvider from "@/components/auth/SessionProvider";
+import JsonLd from "@/components/JsonLd";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -80,6 +81,7 @@ export default function RootLayout({
         <GoogleAnalytics />
         <GoogleTagManager />
         <SessionProvider>
+          <JsonLd settings={currentSettings} />
           <LayoutWrapper settings={currentSettings}>
             {children}
           </LayoutWrapper>

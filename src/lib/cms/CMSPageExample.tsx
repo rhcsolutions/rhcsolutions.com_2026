@@ -31,14 +31,13 @@ export default async function CMSPage({ params }: { params: { slug: string } }) 
             );
 
           case 'heading':
-            const HeadingTag = `h${block.styles?.level || 2}` as keyof JSX.IntrinsicElements;
+            const HeadingTag = `h${block.styles?.level || 2}` as keyof React.JSX.IntrinsicElements;
             return (
               <HeadingTag
                 key={block.id}
-                className={`font-bold text-gradient ${
-                  block.styles?.align === 'center' ? 'text-center' :
-                  block.styles?.align === 'right' ? 'text-right' : ''
-                }`}
+                className={`font-bold text-gradient ${block.styles?.align === 'center' ? 'text-center' :
+                    block.styles?.align === 'right' ? 'text-right' : ''
+                  }`}
               >
                 {block.content}
               </HeadingTag>
@@ -48,10 +47,9 @@ export default async function CMSPage({ params }: { params: { slug: string } }) 
             return (
               <p
                 key={block.id}
-                className={`text-text-secondary my-4 ${
-                  block.styles?.align === 'center' ? 'text-center' :
-                  block.styles?.align === 'right' ? 'text-right' : ''
-                }`}
+                className={`text-text-secondary my-4 ${block.styles?.align === 'center' ? 'text-center' :
+                    block.styles?.align === 'right' ? 'text-right' : ''
+                  }`}
               >
                 {block.content}
               </p>
@@ -59,20 +57,18 @@ export default async function CMSPage({ params }: { params: { slug: string } }) 
 
           case 'image':
             return (
-              <div key={block.id} className={`my-6 ${
-                block.styles?.align === 'center' ? 'text-center' :
-                block.styles?.align === 'right' ? 'text-right' : ''
-              }`}>
+              <div key={block.id} className={`my-6 ${block.styles?.align === 'center' ? 'text-center' :
+                  block.styles?.align === 'right' ? 'text-right' : ''
+                }`}>
                 <img src={block.content} alt="" className="rounded" />
               </div>
             );
 
           case 'button':
             return (
-              <div key={block.id} className={`my-6 ${
-                block.styles?.align === 'center' ? 'text-center' :
-                block.styles?.align === 'right' ? 'text-right' : ''
-              }`}>
+              <div key={block.id} className={`my-6 ${block.styles?.align === 'center' ? 'text-center' :
+                  block.styles?.align === 'right' ? 'text-right' : ''
+                }`}>
                 <a href={block.content.url} className="btn-primary">
                   {block.content.text}
                 </a>
@@ -114,7 +110,7 @@ export default async function CMSPage({ params }: { params: { slug: string } }) 
 }
 
 // Example usage in existing pages:
-// 
+//
 // 1. For static pages (Home, About, etc.):
 //    - Keep existing components
 //    - Add CMS content loading
