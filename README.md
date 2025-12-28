@@ -9,7 +9,7 @@ High-performance Next.js site with an integrated file-based CMS, admin dashboard
 
 ## Overview
 
-- Framework: Next.js 16 (App Router, latest)
+- Framework: Next.js 14.2.5 (App Router, latest stable)
 - Styling: Tailwind CSS + custom cyber theme
 - Auth: NextAuth (Credentials provider)
 - CMS: JSON files in `cms-data/`
@@ -220,10 +220,10 @@ npm run lint    # Lint
 
 ## Tech Stack
 
-- Next.js ^16 (App Router, latest)
-- React 19
-- Tailwind CSS 3
-- NextAuth 4
+- Next.js 14.2.5 (App Router, latest stable)
+- React 18.3.1
+- Tailwind CSS 3.4.17
+- NextAuth 4.24.13
 - Framer Motion, React Icons
 
 ## 📚 Documentation
