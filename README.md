@@ -148,7 +148,7 @@ Features:
 4. Deploy
 
 If you need to keep `cms-data/` persistent in Vercel, use an external store (S3/R2/DB). The local file CMS is best for single-host deployments like Docker/CloudPanel.
-This repo includes a minimal `vercel.json` to use Node 18 for API routes.
+This repo includes a minimal `vercel.json` to use Node 20.x for API routes.
 
 ## Features
 
