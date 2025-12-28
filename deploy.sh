@@ -37,6 +37,36 @@ if [ -d ".git" ]; then
     echo -e "${GREEN}✓${NC} Code updated"
 fi
 
+# Check if Node.js/npm is installed
+if ! command -v npm &> /dev/null; then
+    echo -e "${RED}❌ npm not found!${NC}"
+    echo ""
+    echo "Node.js and npm are required for deployment."
+    echo ""
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "INSTALLATION INSTRUCTIONS (CloudPanel - Ubuntu/Debian):"
+    echo "═══════════════════════════════════════════════════════════════"
+    echo ""
+    echo "Step 1: Run this command:"
+    echo "  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -"
+    echo ""
+    echo "Step 2: Install Node.js (includes npm):"
+    echo "  sudo apt-get install -y nodejs"
+    echo ""
+    echo "Step 3: Verify installation:"
+    echo "  node -v"
+    echo "  npm -v"
+    echo ""
+    echo "Step 4: After successful installation, re-run this script:"
+    echo "  ./deploy.sh"
+    echo ""
+    echo "═══════════════════════════════════════════════════════════════"
+    echo ""
+    exit 1
+fi
+
+echo -e "${GREEN}✓${NC} Node.js $(node -v) and npm $(npm -v) found"
+
 # Install dependencies
 echo "📦 Installing dependencies..."
 npm install --production

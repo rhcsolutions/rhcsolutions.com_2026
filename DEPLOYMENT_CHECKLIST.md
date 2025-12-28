@@ -1,6 +1,17 @@
 # Deployment Checklist for 2026.rhcsolutions.com
 
-## ✅ Pre-Deployment
+## ✅ Pre-Deployment - Server Setup
+
+- [ ] **Node.js 18+** installed on CloudPanel server:
+  ```bash
+  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+  node -v && npm -v  # Verify
+  ```
+- [ ] **Git** installed (if pulling from GitHub)
+- [ ] **PM2** will be installed by deploy script
+
+## ✅ Pre-Deployment - Configuration
 
 - [ ] Generate `NEXTAUTH_SECRET`: `openssl rand -base64 32`
 - [ ] Update `.env.production` with correct values:
@@ -14,21 +25,24 @@
 
 ### Quick Deployment (Recommended)
 ```bash
-# 1. Upload files to CloudPanel server
-scp -r ./* user@server:/home/cloudpanel/htdocs/2026.rhcsolutions.com/
+# 1. Upload files to CloudPanel server (your actual path)
+scp -r ./* user@server:/home/admin_2026_rhcsolutions_com/htdocs/2026.rhcsolutions.com/
 
 # 2. SSH into server
 ssh user@server
 
-# 3. Run deployment script
-cd /home/cloudpanel/htdocs/2026.rhcsolutions.com
+# 3. Navigate to your app directory
+cd /home/admin_2026_rhcsolutions_com/htdocs/2026.rhcsolutions.com
+
+# 4. Run deployment script
 chmod +x deploy.sh
 ./deploy.sh
 ```
 
 ### Manual Deployment
 ```bash
-cd /home/cloudpanel/htdocs/2026.rhcsolutions.com
+# Navigate to your app directory
+cd /path/to/2026.rhcsolutions.com
 npm install --production
 cp .env.production .env
 npm run build
@@ -57,6 +71,7 @@ pm2 save
 - [ ] SSL certificate is valid
 
 ## 🔒 Security
+
 
 - [ ] Change default admin password
 - [ ] Verify firewall only allows 80/443
