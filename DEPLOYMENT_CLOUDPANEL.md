@@ -7,9 +7,9 @@ If you see: `-bash: npm: command not found`
 **Run this immediately on your CloudPanel server:**
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
-node -v && npm -v  # Verify it worked
+node -v && npm -v  # Verify it worked (should show v20.x+)
 ```
 
 Then continue with deployment below.
@@ -41,17 +41,17 @@ The `.env.production` file includes your Telegram bot tokens:
 
 ### Prerequisites: Install Node.js
 
-**IMPORTANT:** Node.js 18+ must be installed on the CloudPanel server before deployment.
+**IMPORTANT:** Node.js 20.x+ (LTS) must be installed on the CloudPanel server before deployment. (Node.js 18.x is EOL)
 
 ```bash
-# 1. Run this command to add Node.js repository
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+# 1. Run this command to add Node.js 20.x repository
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 
 # 2. Install Node.js (includes npm)
 sudo apt-get install -y nodejs
 
 # 3. Verify installation
-node -v  # Should show v18.x.x
+node -v  # Should show v20.x or higher
 npm -v   # Should show npm version
 
 # 4. If npm is still not found, try:

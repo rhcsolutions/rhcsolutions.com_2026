@@ -7,12 +7,12 @@
 **Solution:** Node.js is not installed on your CloudPanel server.
 
 ```bash
-# Step 1: Install Node.js 18
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+# Step 1: Install Node.js 20 (LTS - 18.x is EOL)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 # Step 2: Verify installation
-node -v  # Should show v18.x.x
+node -v  # Should show v20.x.x or higher
 npm -v   # Should show version number
 
 # Step 3: Re-run deployment

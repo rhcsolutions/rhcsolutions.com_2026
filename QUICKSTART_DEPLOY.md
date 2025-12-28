@@ -3,15 +3,15 @@
 ## Before You Start
 
 **Prerequisites on CloudPanel server:**
-1. Node.js 18+ (install if missing)
+1. Node.js 20.x+ (LTS, install if missing - 18.x is EOL)
 2. npm (comes with Node.js)
 3. PM2 (will be installed by script)
 
 **Install Node.js on CloudPanel (Ubuntu/Debian):**
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
-node -v   # Verify installation
+node -v   # Verify installation (should show v20.x or higher)
 npm -v
 ```
 

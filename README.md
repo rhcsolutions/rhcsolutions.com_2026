@@ -19,7 +19,7 @@ High-performance Next.js site with an integrated file-based CMS, admin dashboard
 
 Prerequisites:
 
-- Node.js 18.18+ (LTS recommended)
+- Node.js 20.x+ (LTS recommended, 18.x is EOL)
 - npm (or pnpm/yarn if you prefer)
 
 Install and run:

@@ -48,7 +48,7 @@ if ! command -v npm &> /dev/null; then
     echo "═══════════════════════════════════════════════════════════════"
     echo ""
     echo "Step 1: Run this command:"
-    echo "  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -"
+    echo "  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -"
     echo ""
     echo "Step 2: Install Node.js (includes npm):"
     echo "  sudo apt-get install -y nodejs"
