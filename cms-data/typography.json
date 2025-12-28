@@ -1,0 +1,41 @@
+{
+  "headings": {
+    "h1": {
+      "fontSize": "48px",
+      "lineHeight": "3rem",
+      "fontWeight": "700",
+      "letterSpacing": "-0.01em"
+    },
+    "h2": {
+      "fontSize": "36px",
+      "lineHeight": "2.25rem",
+      "fontWeight": "700",
+      "letterSpacing": "-0.01em"
+    },
+    "h3": {
+      "fontSize": "24px",
+      "lineHeight": "1.5rem",
+      "fontWeight": "600",
+      "letterSpacing": "0em"
+    },
+    "h4": {
+      "fontSize": "20px",
+      "lineHeight": "1.5rem",
+      "fontWeight": "600",
+      "letterSpacing": "0em"
+    }
+  },
+  "body": {
+    "fontSize": "16px",
+    "lineHeight": "1.6rem",
+    "fontWeight": "400",
+    "letterSpacing": "0em"
+  },
+  "small": {
+    "fontSize": "14px",
+    "lineHeight": "1.25rem",
+    "fontWeight": "400",
+    "letterSpacing": "0em"
+  },
+  "updatedAt": "2025-12-28T14:40:55.513Z"
+}
