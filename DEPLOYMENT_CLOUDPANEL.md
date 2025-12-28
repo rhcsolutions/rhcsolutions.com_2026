@@ -1,5 +1,21 @@
 # CloudPanel Deployment Guide - 2026.rhcsolutions.com
 
+## 🚨 Critical: Node.js Must Be Installed First
+
+If you see: `-bash: npm: command not found`
+
+**Run this immediately on your CloudPanel server:**
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+node -v && npm -v  # Verify it worked
+```
+
+Then continue with deployment below.
+
+---
+
 ## Pre-Deployment Checklist
 
 ### 1. Generate NextAuth Secret
@@ -23,6 +39,28 @@ The `.env.production` file includes your Telegram bot tokens:
 
 ## CloudPanel Deployment Steps
 
+### Prerequisites: Install Node.js
+
+**IMPORTANT:** Node.js 18+ must be installed on the CloudPanel server before deployment.
+
+```bash
+# 1. Run this command to add Node.js repository
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+
+# 2. Install Node.js (includes npm)
+sudo apt-get install -y nodejs
+
+# 3. Verify installation
+node -v  # Should show v18.x.x
+npm -v   # Should show npm version
+
+# 4. If npm is still not found, try:
+sudo apt-get update
+sudo apt-get install -y npm
+```
+
+If Node.js installation fails, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md#npm-command-not-found).
+
 ### Option 1: Direct Node.js Deployment
 
 1. **SSH into CloudPanel server:**
@@ -30,7 +68,13 @@ The `.env.production` file includes your Telegram bot tokens:
    ssh user@your-cloudpanel-server
    ```
 
-2. **Navigate to site directory:**
+2. **Verify Node.js is installed:**
+   ```bash
+   node -v && npm -v
+   ```
+   If not installed, follow the Prerequisites section above.
+
+3. **Navigate to site directory:**
    ```bash
    cd /home/cloudpanel/htdocs/2026.rhcsolutions.com
    ```
