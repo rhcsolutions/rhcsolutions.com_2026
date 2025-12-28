@@ -2,6 +2,11 @@
 
 High-performance Next.js site with an integrated file-based CMS, admin dashboard, and production-ready configuration.
 
+## 🚀 Quick Deploy to Production
+
+**Target:** 2026.rhcsolutions.com  
+**See:** [QUICKSTART_DEPLOY.md](QUICKSTART_DEPLOY.md) for fastest deployment path
+
 ## Overview
 
 - Framework: Next.js 15 (App Router)
@@ -220,3 +225,25 @@ npm run lint    # Lint
 - Tailwind CSS 3
 - NextAuth 4
 - Framer Motion, React Icons
+
+## 📚 Documentation
+
+### Deployment
+- **[QUICKSTART_DEPLOY.md](QUICKSTART_DEPLOY.md)** - Fast deployment guide for 2026.rhcsolutions.com
+- **[DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)** - Step-by-step deployment checklist
+- **[DEPLOYMENT_CLOUDPANEL.md](DEPLOYMENT_CLOUDPANEL.md)** - Complete CloudPanel deployment guide
+- **[CLOUDPANEL.md](CLOUDPANEL.md)** - CloudPanel configuration reference
+
+### Setup & Configuration
+- **[CMS_README.md](CMS_README.md)** - CMS documentation
+- **[TELEGRAM_SETUP.md](TELEGRAM_SETUP.md)** - Telegram bot configuration
+- **[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)** - Design system and components
+
+### Infrastructure
+- **[CLOUDFLARE.md](CLOUDFLARE.md)** - Cloudflare configuration
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - General deployment options
+
+## 🛠️ Utilities
+
+- **`cleanup.ps1`** / **`cleanup.sh`** - Pre-deployment cleanup scripts
+- **`deploy.sh`** - Automated deployment script for CloudPanel
