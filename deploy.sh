@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CloudPanel Deployment Script for 2026.rhcsolutions.com
-# Run this script on your CloudPanel server
+# Run this script from your application directory
 
 set -e
 
@@ -9,8 +9,6 @@ echo "🚀 Starting deployment for 2026.rhcsolutions.com..."
 
 # Configuration
 APP_NAME="rhc-2026"
-SITE_DIR="/home/cloudpanel/htdocs/2026.rhcsolutions.com"
-NODE_VERSION="18"
 
 # Colors
 GREEN='\033[0;32m'
@@ -24,10 +22,13 @@ if [ "$EUID" -eq 0 ]; then
    exit 1
 fi
 
-# Navigate to site directory
-cd "$SITE_DIR" || exit 1
+# Verify we're in the right directory (check for package.json)
+if [ ! -f "package.json" ]; then
+    echo -e "${RED}Error: package.json not found. Please run this script from the project root directory.${NC}"
+    exit 1
+fi
 
-echo -e "${GREEN}✓${NC} Changed to $SITE_DIR"
+echo -e "${GREEN}✓${NC} Running in: $(pwd)"
 
 # Pull latest changes (if using git)
 if [ -d ".git" ]; then
