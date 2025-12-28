@@ -87,7 +87,7 @@ If Node.js installation fails, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md#npm-c
 
 4. **Install dependencies:**
    ```bash
-   npm install --production
+   npm install
    ```
 
 5. **Copy environment file:**

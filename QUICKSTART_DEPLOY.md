@@ -42,7 +42,7 @@ chmod +x deploy.sh
 ```
 
 That's it! The script will:
-- Install dependencies
+- Install all dependencies (including devDependencies for Next.js build)
 - Build the application
 - Start with PM2
 

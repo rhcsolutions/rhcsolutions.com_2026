@@ -67,9 +67,9 @@ fi
 
 echo -e "${GREEN}✓${NC} Node.js $(node -v) and npm $(npm -v) found"
 
-# Install dependencies
+# Install dependencies (including devDependencies needed for Next.js build)
 echo "📦 Installing dependencies..."
-npm install --production
+npm install
 echo -e "${GREEN}✓${NC} Dependencies installed"
 
 # Copy environment file
